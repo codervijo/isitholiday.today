@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+.vite/
+.astro/
+.output/
+
+# Stray lockfiles from other package managers (use pnpm only)
+bun.lock
+bun.lockb
+package-lock.json
+yarn.lock
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Lovable / reference scaffolds (kept on disk, not in repo)
+genai/
