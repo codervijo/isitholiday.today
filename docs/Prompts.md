@@ -90,3 +90,65 @@
 - "Calculator" naming kept, but the widget gives a yes/no holiday answer, not a numeric calculation. Pure function is `getTodayHoliday()` in `src/lib/holiday.ts`.
 - Topic-route is `/holiday-checker` (not `/holiday-calculator`, which reads awkwardly for a yes/no app).
 - Two dynamic routes (`/:country` and `/:country/:state`) instead of one flat `/:slug`, to support nested location paths like `/india/kerala`.
+
+## 2026-04-25 — New pSEO Holiday Page Definition Prompt
+
+Use this prompt when adding a new entry to `src/lib/data.ts` (a new country, state, or holiday-type page). Modeled on calcengine.site's "New Calculator Definition Prompt", adapted for yes/no holiday answers.
+
+---
+
+Add a new pSEO page entry to `src/lib/data.ts` for **{LOCATION_OR_TYPE}**.
+
+**Slug:** `{country}` or `{country}/{state}` or `{country}/{type}-holiday` — kebab-case
+**Primary keyword:** `is today a holiday in {location}` (e.g. `is today a holiday in canada`)
+**Secondary keywords:** `{location} holidays 2026`, `{location} bank holidays`, `next holiday in {location}`
+
+### Layout rule — answer first
+
+This is a yes/no answer site, not a blog post. The yes/no result + date must appear **above the fold**, immediately under H1. SEO content lives **below** the calculator.
+
+Page layout:
+1. Breadcrumbs (Home › Country › State)
+2. H1 + tagline (1–2 sentences) — above fold
+3. Calculator widget with prefilled `country/state/type`
+4. `lastUpdated` + `dataUpdated` freshness markers
+5. `intro` — 2–4 paragraphs of below-fold prose
+6. `howItWorks` → Holiday Calendar table → `tips` → `faq` → Related cards
+
+### `SeoPage` fields to populate
+
+- `slug` — kebab-case path. No leading `/`. May contain one `/` for nested routes.
+- `title` — 50–60 chars, format: `Is Today a Holiday in {Location}? — isitholiday.today`. Primary keyword in first 6 words.
+- `h1` — `Is Today a Holiday in {Location}?` Same as title (or close).
+- `description` — **150–160 chars**. Action-oriented, primary keyword in first 11 words, no trailing punctuation. Used for `<meta description>` and OG card.
+- `keywords` — 6–8 long-tail variants, lowercase, primary keyword first.
+- `tagline` — **1–2 sentences only**, shown above the calculator. State exactly what the page answers. No marketing fluff.
+- `directAnswer` — 1–2 sentences combining "what the page answers" + "scope". Renders directly under H1.
+- `intro` — 2–4 paragraphs, below the calculator. First sentence must contain the primary keyword. Cover: who observes these holidays, why it matters, what counts as "public"/"bank"/"school" in this country.
+- `howItWorks` — array of 4–6 numbered-step strings explaining how holiday observance works in this country (e.g. "1. Federal holidays are gazetted by [body]. 2. State governments add their own. 3. Banks follow [agency]'s schedule…").
+- `tips` — 4–6 actionable bullet strings ("Plan PTO around long weekends", "Note that Diwali date varies year-to-year", etc.). Each tip should save the user time or money.
+- `faq` — exactly 5 `{ question, answer }` items. Each answer 40–80 words. Questions should match search intent: "Is [X] a public holiday in [country]?", "How many holidays does [country] observe?", "Are banks open on [holiday]?", "What's the next public holiday in [country]?", "Do schools close on [holiday]?"
+- `lastUpdated` — `"April 2026"` (month + year string, used in title-suffix and freshness UI).
+- `dataUpdated` — ISO date `YYYY-MM-DD` of when the underlying holiday entries in `holidays.ts` were last verified against the official source.
+- `prefill` — `{ country, state?, type? }` — drives the Calculator widget defaults.
+- `relatedSlugs` — 2–3 slugs of existing pSEO pages in `data.ts`. Prioritize same-country (state pages, type pages), then sibling country.
+
+### Holiday-data check
+
+Before adding the SEO page, verify `src/lib/holidays.ts` (or `src/data/holidays/{country}.json` once Phase 6-A is done) has at least 8 entries for this country/state/type, covering all four quarters of the current year. If not, add them first — citing the official source (gov.in, opm.gov, gov.uk/bank-holidays.json, canada.ca, data.gov.au).
+
+### SEO rules checklist
+
+- [ ] `tagline` is ≤2 sentences and renders above the calculator
+- [ ] `intro` is below the calculator, ≥150 words, primary keyword in first sentence
+- [ ] `title` 50–60 chars, primary keyword in first 6 words
+- [ ] `description` is 150–160 chars
+- [ ] `faq` has exactly 5 items with 40–80 word answers
+- [ ] `lastUpdated` and `dataUpdated` are both set
+- [ ] `relatedSlugs` has 2–3 entries pointing at real `PAGES[].slug` values
+- [ ] `holidays.ts` has ≥8 entries covering this scope, sourced from an official URL noted in commit message
+- [ ] After build: page appears in `sitemap.xml`, JSON-LD validates, OG image renders at `/og/{slug}.png`
+
+### Output
+
+Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other code changes.
