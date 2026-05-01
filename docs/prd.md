@@ -6,11 +6,11 @@ Programmatic-SEO site answering *"Is today a holiday in [location]?"* — modele
 
 ---
 
-## ⚠️ Stack-level SEO gap to address
+## ⚠️ Stack-level SEO gap — addressed (2026-05-01)
 
-calcengine uses **Astro SSG** — every page is rendered to static HTML at build time, so Googlebot sees full content with zero JS. We're on **Vite + React SPA**, which emits one HTML shell + a JS bundle that hydrates client-side. Googlebot does run JS, but discovery is slower and link equity inside React-rendered DOM is weaker (calcengine hit this with H1: "All `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links").
+calcengine uses **Astro SSG**. We were on **Vite + React SPA** (one HTML shell + JS bundle), which let Googlebot in but slowed discovery and weakened link equity inside React-rendered DOM (calcengine's H1 incident: "all `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links").
 
-**Decision needed (Phase 4-A below):** either pre-render every route to static HTML at build time (e.g. `vite-react-ssg`, `react-snap`, or a small puppeteer pass), or migrate the static surface to Astro + React islands like calcengine. The "Astro + MUI is a dead end" rule from voltloop was about MUI inside `.astro` SSR — calcengine proves Astro + MUI works fine inside `client:only` React islands. We don't have to repeat the voltloop bug; we just have to not put MUI in `.astro` files.
+**Resolution:** Phase 4-A1 shipped `vite-react-ssg` (commit `452bbf6`). Every route in `PAGES` plus `/` and `/holiday-checker` now emits real static HTML at build time, with rendered H1, helmet-managed `<title>`, page-specific canonical, and meta description in the static markup. We did **not** migrate to Astro — kept in the current stack to avoid a rewrite. Migration remains a future option if growth stalls.
 
 ---
 
@@ -120,31 +120,29 @@ Extend `src/lib/data.ts`:
 
 ## Phase 4 — SEO Infrastructure
 
-### 4-A. Static pre-rendering (HIGHEST PRIORITY)
+### 4-A. Static pre-rendering — ✅ done (2026-05-01)
 
-| Option | Effort | Pros | Cons |
+| # | Feature | Status | Notes |
 |---|---|---|---|
-| `vite-react-ssg` | S | Stays in current stack; build-time HTML for every route | Adds plugin, needs route manifest |
-| `react-snap` | S | Drop-in puppeteer pre-render | Slower builds; brittle on dynamic routes |
-| Migrate to Astro + React islands | L | Best SEO; matches calcengine; allows MD/MDX content | Stack rewrite |
+| 4-A1 | `vite-react-ssg` build-time pre-rendering | ✅ done (`452bbf6`) | 11 static HTMLs in `dist/`; `dirStyle: 'nested'`; `<Head>` from vite-react-ssg handles SSR head extraction |
 
-**Recommendation:** start with `vite-react-ssg` (Phase 4-A1). Migrate to Astro only if growth stalls.
+Astro migration deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
 
 ### 4-B. SEO surface features
 
-| # | Feature | Effort | Source of pattern |
-|---|---|---|---|
-| 4.1 | XML sitemap generator (build-time, all `PAGES[].slug`) | S | `calcengine/src/seo/generateSitemap.ts` |
-| 4.2 | `robots.txt` references sitemap URL | done (file exists) | — |
-| 4.3 | JSON-LD: `WebSite` + `SearchAction` on `/` | S | `calcengine/src/seo/jsonLd.ts` |
-| 4.4 | JSON-LD: `Organization` (with `logo`, `sameAs`) | S | calcengine PRD C2 |
-| 4.5 | JSON-LD: `WebApplication` site-wide | S | calcengine |
-| 4.6 | JSON-LD: `BreadcrumbList` on detail pages | M | calcengine — required pattern |
-| 4.7 | JSON-LD: `FAQPage` per location page | M | calcengine — required when FAQ exists |
-| 4.8 | JSON-LD: `Event` per holiday (date, location, name) | M | unique to us — schema.org/Event |
-| 4.9 | OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` | M | `calcengine/src/og/` |
-| 4.10 | Per-page canonical URLs | done | `Seo.tsx` |
-| 4.11 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) | S | calcengine H1 fix — must render outside React island |
+| # | Feature | Effort | Status | Source of pattern |
+|---|---|---|---|---|
+| 4.1 | XML sitemap generator (build-time + dev middleware, all `PAGES[].slug`) | S | ✅ done (`e476b83`) | `calcengine/src/seo/generateSitemap.ts` |
+| 4.2 | `robots.txt` references sitemap URL | — | ✅ done | `public/robots.txt` |
+| 4.3 | JSON-LD: `WebSite` + `SearchAction` on `/` | S | ❌ | `calcengine/src/seo/jsonLd.ts` |
+| 4.4 | JSON-LD: `Organization` (with `logo`, `sameAs`) | S | ❌ | calcengine PRD C2 |
+| 4.5 | JSON-LD: `WebApplication` site-wide | S | ❌ | calcengine |
+| 4.6 | JSON-LD: `BreadcrumbList` on detail pages | M | ❌ | calcengine — required pattern |
+| 4.7 | JSON-LD: `FAQPage` per location page | M | ❌ (blocked on Phase 3-A `faq` field) | calcengine — required when FAQ exists |
+| 4.8 | JSON-LD: `Event` per holiday (date, location, name) | M | ❌ | unique to us — schema.org/Event |
+| 4.9 | OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` | M | ❌ | `calcengine/src/og/` |
+| 4.10 | Per-page canonical URLs | — | ✅ done | `Seo.tsx` |
+| 4.11 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) | S | ❌ | calcengine H1 fix — must render outside React island |
 
 ### 4-C. Legal + E-E-A-T pages
 
@@ -266,10 +264,16 @@ A location/type page is **complete** when:
 
 ## Priority order (next 30 days)
 
-1. **Phase 4-A1** — wire `vite-react-ssg` so every route emits static HTML *(blocks all SEO gains)*
-2. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages
+✅ **Shipped 2026-05-01:**
+- Phase 4-A1 — `vite-react-ssg` static pre-rendering (`452bbf6`)
+- Phase 4-B 4.1 — sitemap.xml at build + dev middleware (`e476b83`)
+
+**Remaining queue:**
+
+1. **Wire CF Pages deploy** — site is unreachable until this lands; everything below is wasted work otherwise. (`AI_AGENTS.md:81` flags this as still-pending.)
+2. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. Blocks 4.6/4.7.
 3. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
-4. **Phase 4-B (4.1, 4.3, 4.6, 4.7)** — sitemap + WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD
+4. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
 5. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
 6. **Phase 4-B 4.9** — OG image build pipeline
 7. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
