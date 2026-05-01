@@ -40,3 +40,9 @@ Thumbs.db
 
 # Lovable / reference scaffolds (kept on disk, not in repo)
 genai/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
