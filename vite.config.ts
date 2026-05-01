@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react-swc";
 import { readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 const SITE = "https://isitholiday.today";
 
 function buildSitemapXml(urls: string[]): string {
@@ -52,7 +54,7 @@ function devSitemapPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), devSitemapPlugin()],
+  plugins: [react(), devSitemapPlugin(), cloudflare()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
