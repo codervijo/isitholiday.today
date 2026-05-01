@@ -71,14 +71,32 @@ If the `sites1` image is missing, build it first with `make buildsh` from `../` 
 ## Prompt history — `docs/Prompts.md`
 After a feature ships successfully (commit lands, build green, acceptance criteria met), append the prompt that drove it to `docs/Prompts.md`. Format: `## YYYY-MM-DD — <short title>` followed by the prompt text and a brief `**Outcome:**` line. Capture only the prompts behind real features, scaffolds, or reusable templates — not every chat, not exploratory questions, not bug-fix back-and-forth. The goal is a durable record of the prompts that produced shipped work.
 
+## Deployment
+- **Production domain:** `https://isitholiday.today` (DNS pointed at this Cloudflare Pages project).
+- **Host:** Cloudflare Pages, auto-deploying on every push to `main` of `github.com:codervijo/isitholiday.today` (no `wrangler.toml` in repo — CF auto-detects the Vite preset and runs `pnpm install && pnpm build`, publishing `dist/`).
+- **Production canonical (hardcoded):** `https://isitholiday.today` in `src/components/Seo.tsx`. If the production domain ever moves, update that constant — every page's `<link rel="canonical">` and `og:url` is derived from it.
+
+### Smoke test after a push
+```bash
+curl -sIL https://isitholiday.today/ | head -3                          # expect 200 OK
+curl -sL  https://isitholiday.today/india/kerala | grep '<h1'           # expect rendered H1, not empty shell
+curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 11 (or PAGES.length + 2)
+curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect Sitemap: line
+```
+
+### Known issues / follow-ups
+- **Trailing-slash mismatch.** With `ssgOptions.dirStyle: 'nested'`, vite-react-ssg emits `dist/<path>/index.html`. CF Pages serves these at `/<path>/` (trailing slash) and 307-redirects `/<path>` → `/<path>/`. Our `Seo.tsx` canonical and `og:url` use the no-slash form (`https://isitholiday.today/india/kerala`). Result: Google indexes one URL form, the canonical points at the other (which redirects). Not breaking, but unnecessary friction. Fix options when this is worth touching: (a) switch `dirStyle: 'flat'` so files emit at `<path>.html` and the no-slash URL serves directly, or (b) make `Seo.tsx` emit canonical with trailing slash for nested paths.
+- **CF Managed Content in robots.txt.** CF prepends an AI-bot block (Amazonbot, ClaudeBot, GPTBot, etc.) above our `public/robots.txt` content. Googlebot is still allowed; our `Sitemap:` line is preserved at the bottom. If the prepend interferes with anything later, it's configurable in the CF Pages dashboard ("AI Audit" / "Block AI Crawlers").
+
 ## Out of scope / don't touch
 - `genai/` — Lovable reference scaffold, gitignored. Don't modify or delete.
 - The parent `sites/` Makefile and `dev_container.sh` — shared across all sibling projects.
 
 ## Status
-- **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm.
+- **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm + `vite-react-ssg`.
+- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live.
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
-- **Next step:** seed more holidays into `src/lib/holidays.ts`, append more `PAGES` entries in `src/lib/data.ts`, wire Cloudflare Pages deploy.
+- **Next step (per `docs/prd.md` priority queue):** Phase 3-A — extend `SeoPage` schema (`tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`) and backfill all 9 pages. Then Phase 4-C (privacy/terms/about) and the remaining Phase 4-B JSON-LD blocks.
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.

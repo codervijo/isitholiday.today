@@ -264,19 +264,21 @@ A location/type page is **complete** when:
 
 ## Priority order (next 30 days)
 
-✅ **Shipped 2026-05-01:**
+✅ **Already live on `https://isitholiday.today` (auto-deploy from `main`):**
 - Phase 4-A1 — `vite-react-ssg` static pre-rendering (`452bbf6`)
 - Phase 4-B 4.1 — sitemap.xml at build + dev middleware (`e476b83`)
+- All 11 static HTML pages indexable; deploy verified post-push.
 
 **Remaining queue:**
 
-1. **Wire CF Pages deploy** — site is unreachable until this lands; everything below is wasted work otherwise. (`AI_AGENTS.md:81` flags this as still-pending.)
-2. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. Blocks 4.6/4.7.
-3. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
-4. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
-5. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
-6. **Phase 4-B 4.9** — OG image build pipeline
-7. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
-8. **Phase 6-A** — split holidays.ts into per-country JSON
+1. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. Blocks 4.6/4.7.
+2. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
+3. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
+4. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
+5. **Phase 4-B 4.9** — OG image build pipeline
+6. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
+7. **Phase 6-A** — split holidays.ts into per-country JSON
+
+**Minor follow-up (not blocking):** trailing-slash canonical mismatch on nested routes — see `AI_AGENTS.md` "Known issues" section.
 
 Everything beyond #8 is post-MVP scaling.
