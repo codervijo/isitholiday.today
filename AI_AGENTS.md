@@ -32,16 +32,28 @@ A programmatic-SEO site that answers one high-frequency query: *"Is today a holi
 - `public/` — robots.txt, favicon.svg
 - `genai/` — Lovable reference scaffold; **gitignored**, kept on disk for reference only
 
-## How to run
+## How to build / install / test — docker only
+**Do not run `pnpm` (or `npm`/`node`) from the host.** The build environment lives in the parent `sites/` Docker image (`sites1:latest`, built from `../Dockerfile`, Volta-managed Node 18.17.1 + pnpm). The host may have a different Node/pnpm — keep them out of this project.
+
+The parent `sites/` directory mounts at `/usr/src/app` inside the container. The interactive entrypoint is `make buildsh` (from `../`), which runs `dev_container.sh` and drops you into a shell. For agent / scripted use, run one-off commands non-interactively against the same image and mount:
+
 ```bash
-pnpm install   # update node_modules + lockfile
-pnpm dev       # vite dev server on :8080
-pnpm build     # production build → dist/
-pnpm preview   # serve dist/ locally
-pnpm test      # vitest run-once
+# from the host, but executing inside the sites1 container:
+docker run --rm -v /home/vijo/work/projects/sites:/usr/src/app sites1 \
+  bash -c 'cd /usr/src/app/isitholiday.today && pnpm install && pnpm build && pnpm test'
 ```
 
-The parent `sites/` Makefile + docker workflow applies (run `make buildsh` first, then `make test proj=isitholiday.today`).
+Inside the container, the parent Makefile targets are also available (they require `IS_DOCKER=yes`, which is true via `/.dockerenv`):
+- `make test proj=isitholiday.today` — `pnpm install` → `pnpm build` → `pnpm test`
+- `make run proj=isitholiday.today` — `pnpm install` → `pnpm dev` (port 8080)
+
+Project-local scripts (run with `pnpm <script>` inside the container):
+- `dev` — vite dev server on :8080
+- `build` — `tsc -b && vite build` → `dist/`
+- `preview` — serve `dist/` locally
+- `test` — `vitest run` (run-once)
+
+If the `sites1` image is missing, build it first with `make buildsh` from `../` (interactive — needs a real terminal) or `docker build -t sites1 ..` from this repo's parent.
 
 ## Key conventions
 - All holiday math lives in `src/lib/holiday.ts` as a pure function. Calculator.tsx is a thin UI shell — never inline math in components.
@@ -55,6 +67,9 @@ The parent `sites/` Makefile + docker workflow applies (run `make buildsh` first
 2. **Vite version floor.** Wrangler refuses Vite < 6. Stay on `vite ^6.x`.
 3. **Frozen lockfile.** CI runs `pnpm install --frozen-lockfile`. Whenever `package.json` changes, regenerate `pnpm-lock.yaml` locally and commit it in the same change.
 4. **Stale src/ from prior scaffolds.** If you swap stacks, fully clean root-owned leftovers (`node_modules`, `pnpm-lock.yaml`, `.astro`, stray `src/env.d.ts`).
+
+## Prompt history — `docs/Prompts.md`
+After a feature ships successfully (commit lands, build green, acceptance criteria met), append the prompt that drove it to `docs/Prompts.md`. Format: `## YYYY-MM-DD — <short title>` followed by the prompt text and a brief `**Outcome:**` line. Capture only the prompts behind real features, scaffolds, or reusable templates — not every chat, not exploratory questions, not bug-fix back-and-forth. The goal is a durable record of the prompts that produced shipped work.
 
 ## Out of scope / don't touch
 - `genai/` — Lovable reference scaffold, gitignored. Don't modify or delete.

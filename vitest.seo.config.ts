@@ -9,8 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["**/node_modules/**", "src/**/*.seo.test.ts"],
+    include: ["src/**/*.seo.test.ts"],
     globals: true,
   },
 });

@@ -152,3 +152,21 @@ Before adding the SEO page, verify `src/lib/holidays.ts` (or `src/data/holidays/
 ### Output
 
 Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other code changes.
+
+## 2026-05-01 — Phase 4-A1: SPA → static HTML pre-rendering via vite-react-ssg
+
+> Wire `vite-react-ssg` so every route emits real static HTML at build time. Until this ships, Googlebot sees an empty React shell on every route — this is the Phase 4-A1 blocker called out in `docs/prd.md` "Priority order (next 30 days)".
+>
+> Approach: install `vite-react-ssg`, switch from `BrowserRouter` JSX `<Routes>` to a data-router `routes` array, declare `getStaticPaths` for the two dynamic routes (`/:country` and `/:country/:state`), derived from `PAGES` slugs in `src/lib/data.ts`. Use `<Head>` from `vite-react-ssg` (a React Helmet wrapper with proper SSR head extraction) instead of `<Helmet>` from `react-helmet-async` directly. Set `ssgOptions: { dirStyle: 'nested', script: 'async' }` for Cloudflare-friendly `/path/index.html` output. Keep `dev: vite` (CSR) so local dev stays simple; production build is `tsc -b && vite-react-ssg build`. All install/build/test must run inside the parent `sites1` Docker image — never host pnpm.
+>
+> Acceptance:
+> - `dist/` contains real `.html` files for every `PAGES[]` slug plus `/`, `/holiday-checker`, with rendered H1 and direct-answer text in the static markup.
+> - Each page has exactly one helmet-managed `<title>`, a page-specific canonical, and a page-specific meta description.
+> - `pnpm test` green.
+> - `pnpm dev` still works.
+
+**Outcome:** 11 static HTML files emitted (`/`, `/holiday-checker/`, `/india/`, `/usa/`, plus 7 nested state/type pages). Each carries a unique helmet `<title>`, canonical, and meta description. The `<Head>` wrapper handles SSR head extraction natively — no manual `helmetContext` wiring needed. `dirStyle: 'nested'` places each route at `path/index.html` so Cloudflare Pages serves clean URLs without rewrites.
+
+**Files touched:** `package.json` (build script + dep), `vite.config.ts` (ssgOptions + types reference), `index.html` (drop static title/desc, helmet owns them), `src/main.tsx` (`ViteReactSSG({ routes })`), `src/App.tsx` (routes array with Root that wraps QueryClientProvider + Layout/Outlet), `src/components/Seo.tsx` (`<Head>` instead of `<Helmet>`).
+
+**Gotcha logged:** `tsc` doesn't pick up `vite-react-ssg`'s `declare module 'vite'` augmentation through `defineConfig` alone — add `/// <reference types="vite-react-ssg" />` at the top of `vite.config.ts` or build fails with "ssgOptions does not exist on UserConfigExport".

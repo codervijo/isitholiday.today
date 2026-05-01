@@ -6,10 +6,11 @@
   "packageManager": "pnpm@9.12.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite-react-ssg build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:seo": "vitest run --config vitest.seo.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.0",
@@ -24,7 +25,8 @@
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.28.0",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vite-react-ssg": "0.9.1-beta.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
