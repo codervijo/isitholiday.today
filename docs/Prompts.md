@@ -170,3 +170,16 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 **Files touched:** `package.json` (build script + dep), `vite.config.ts` (ssgOptions + types reference), `index.html` (drop static title/desc, helmet owns them), `src/main.tsx` (`ViteReactSSG({ routes })`), `src/App.tsx` (routes array with Root that wraps QueryClientProvider + Layout/Outlet), `src/components/Seo.tsx` (`<Head>` instead of `<Helmet>`).
 
 **Gotcha logged:** `tsc` doesn't pick up `vite-react-ssg`'s `declare module 'vite'` augmentation through `defineConfig` alone — add `/// <reference types="vite-react-ssg" />` at the top of `vite.config.ts` or build fails with "ssgOptions does not exist on UserConfigExport".
+
+## 2026-05-01 — Phase 4-B 4.1: build-time sitemap.xml + robots.txt crawl surface
+
+> Now that 4-A1 emits real static HTML, get Google crawling: generate `dist/sitemap.xml` at build time and ship a sitemap-aware `robots.txt`. This is task 4.1 from PRD Phase 4-B, pulled forward ahead of Phase 3-A so Googlebot has something to index while we work on schema depth.
+>
+> Approach: hook `vite-react-ssg`'s `ssgOptions.onFinished(dir)` callback in `vite.config.ts` to walk `dist/` for `**/index.html`, derive canonical URLs (no trailing slash except `/`, matching what `Seo.tsx` writes for `<link rel="canonical">`), and emit a sitemaps.org-spec XML with `<lastmod>` (build date) + `<changefreq>daily</changefreq>` per entry. Self-correcting — any new `PAGES` entry that ships static HTML lands in the sitemap automatically without further code changes. `public/robots.txt` already pointed at `https://isitholiday.today/sitemap.xml`, so Vite's static-asset copy ships it to `dist/robots.txt` for free.
+>
+> Acceptance:
+> - `dist/sitemap.xml` exists with the sitemaps.org namespace and lists exactly the routes emitted as HTML.
+> - `dist/robots.txt` allows all crawlers and references the sitemap URL.
+> - Tests in `ssg-output.seo.test.ts` assert both files are well-formed and the URL set matches `[/, /holiday-checker, ...PAGES[].slug]` exactly.
+
+**Outcome:** 11 URLs in `sitemap.xml`, sorted alphabetically, all canonical-form. 4 new SEO tests added (51 total in `pnpm test:seo`). No new dependencies — uses Node's built-in `fs.readdirSync({ recursive: true })` (Node 18.17+).

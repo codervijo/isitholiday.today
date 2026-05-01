@@ -75,3 +75,37 @@ describe("Phase 4-A1 — vite-react-ssg static output", () => {
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+describe("Crawl surface — sitemap.xml + robots.txt", () => {
+  it("dist/sitemap.xml exists with the sitemaps.org namespace", () => {
+    const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+    expect(sitemap).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(sitemap).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
+  });
+
+  it("sitemap.xml lists exactly the static routes that were emitted (no extras, no missing)", () => {
+    const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+    const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    const expected = [
+      `${SITE}/`,
+      `${SITE}/holiday-checker`,
+      ...PAGES.map((p) => `${SITE}/${p.slug}`),
+    ].sort();
+    expect(locs.sort()).toEqual(expected);
+  });
+
+  it("each sitemap entry has a <lastmod> in YYYY-MM-DD form and changefreq=daily", () => {
+    const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+    const lastmods = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);
+    expect(lastmods.length).toBeGreaterThan(0);
+    for (const d of lastmods) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(sitemap.match(/<changefreq>daily<\/changefreq>/g)?.length).toBe(lastmods.length);
+  });
+
+  it("dist/robots.txt exists, allows all crawlers, and points to sitemap.xml", () => {
+    const robots = readFileSync(path.join(distDir, "robots.txt"), "utf8");
+    expect(robots).toMatch(/User-agent:\s*\*/);
+    expect(robots).toMatch(/Allow:\s*\//);
+    expect(robots).toMatch(new RegExp(`Sitemap:\\s*${escapeRegex(SITE)}/sitemap\\.xml`));
+  });
+});
