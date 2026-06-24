@@ -23,9 +23,9 @@ export default function Layout({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="border-t py-6 text-sm text-muted-foreground">
-        <div className="container flex flex-wrap items-center justify-between gap-2">
-          <span>© {new Date().getFullYear()} isitholiday.today</span>
-          <span>Programmatic SEO • Static-first • Cloudflare Pages</span>
+        <div className="container space-y-1 text-center">
+          <p>Holiday data compiled from official government sources and reviewed for each calendar year.</p>
+          <p>© {new Date().getFullYear()} isitholiday.today · Static-first · Cloudflare Pages</p>
         </div>
       </footer>
     </div>
