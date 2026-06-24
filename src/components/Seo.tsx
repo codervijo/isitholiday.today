@@ -5,11 +5,12 @@ interface SeoProps {
   description: string;
   path?: string;
   image?: string;
+  jsonLd?: Record<string, unknown>[];
 }
 
 const SITE = "https://isitholiday.today";
 
-export default function Seo({ title, description, path = "/", image }: SeoProps) {
+export default function Seo({ title, description, path = "/", image, jsonLd }: SeoProps) {
   const url = `${SITE}${path}`;
   const ogImage = image ?? `${SITE}/favicon.svg`;
   return (
@@ -25,6 +26,11 @@ export default function Seo({ title, description, path = "/", image }: SeoProps)
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      {jsonLd?.map((schema, i) => (
+        <script key={i} type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      ))}
     </Head>
   );
 }
