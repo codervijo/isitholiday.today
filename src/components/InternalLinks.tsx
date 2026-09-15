@@ -15,7 +15,7 @@ export default function InternalLinks({ excludeSlug, limit = 6 }: Props) {
         {items.map((p) => (
           <li key={p.slug}>
             <Link
-              to={`/${p.slug}`}
+              to={`/${p.slug}/`}
               className="block rounded-md border px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               {p.h1}

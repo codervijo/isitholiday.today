@@ -279,7 +279,7 @@ A location/type page is **complete** when:
 6. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
 7. **Phase 6-A** — split holidays.ts into per-country JSON
 
-**Minor follow-up (not blocking):** trailing-slash canonical mismatch on nested routes — see `AI_AGENTS.md` "Known issues" section.
+**Fixed 2026-09-15:** trailing-slash canonical/sitemap/internal-link mismatch (GSC "Page with redirect") — see `AI_AGENTS.md` "Known issues" section.
 
 Everything beyond #8 is post-MVP scaling.
 

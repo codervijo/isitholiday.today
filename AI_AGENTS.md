@@ -79,13 +79,14 @@ After a feature ships successfully (commit lands, build green, acceptance criter
 ### Smoke test after a push
 ```bash
 curl -sIL https://isitholiday.today/ | head -3                          # expect 200 OK
-curl -sL  https://isitholiday.today/india/kerala | grep '<h1'           # expect rendered H1, not empty shell
+curl -sI  https://isitholiday.today/india/kerala/ | head -1            # expect 200 (no-slash form 308s)
+curl -s   https://isitholiday.today/india/kerala/ | grep '<h1'          # expect rendered H1, not empty shell
 curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 11 (or PAGES.length + 2)
 curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect Sitemap: line
 ```
 
 ### Known issues / follow-ups
-- **Trailing-slash mismatch.** With `ssgOptions.dirStyle: 'nested'`, vite-react-ssg emits `dist/<path>/index.html`. CF Pages serves these at `/<path>/` (trailing slash) and 307-redirects `/<path>` → `/<path>/`. Our `Seo.tsx` canonical and `og:url` use the no-slash form (`https://isitholiday.today/india/kerala`). Result: Google indexes one URL form, the canonical points at the other (which redirects). Not breaking, but unnecessary friction. Fix options when this is worth touching: (a) switch `dirStyle: 'flat'` so files emit at `<path>.html` and the no-slash URL serves directly, or (b) make `Seo.tsx` emit canonical with trailing slash for nested paths.
+- **Trailing slashes (fixed 2026-09-15).** CF Pages serves nested `dist/<path>/index.html` at `/<path>/` and 308-redirects `/<path>`. GSC flagged the no-slash canonicals/sitemap URLs as "Page with redirect". All canonicals (`Seo.tsx` via `withTrailingSlash()` in `src/lib/utils.ts`), sitemap `<loc>`s, JSON-LD URLs, and internal `<Link to>`s now use the slashed form. `ssg-output.seo.test.ts` fails on any unslashed internal href — keep new links slashed.
 - **CF Managed Content in robots.txt.** CF prepends an AI-bot block (Amazonbot, ClaudeBot, GPTBot, etc.) above our `public/robots.txt` content. Googlebot is still allowed; our `Sitemap:` line is preserved at the bottom. If the prepend interferes with anything later, it's configurable in the CF Pages dashboard ("AI Audit" / "Block AI Crawlers").
 
 ## Out of scope / don't touch

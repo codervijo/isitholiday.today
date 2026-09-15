@@ -1,4 +1,5 @@
 import { Head } from "vite-react-ssg";
+import { withTrailingSlash } from "@/lib/utils";
 
 interface SeoProps {
   title: string;
@@ -11,7 +12,7 @@ interface SeoProps {
 const SITE = "https://isitholiday.today";
 
 export default function Seo({ title, description, path = "/", image, jsonLd }: SeoProps) {
-  const url = `${SITE}${path}`;
+  const url = `${SITE}${withTrailingSlash(path)}`;
   const ogImage = image ?? `${SITE}/favicon.svg`;
   return (
     <Head>

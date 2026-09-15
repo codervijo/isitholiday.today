@@ -78,7 +78,7 @@ const appSchema = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "Holiday Checker",
-  url: "https://isitholiday.today/holiday-checker",
+  url: "https://isitholiday.today/holiday-checker/",
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "All",
   browserRequirements: "Requires JavaScript",
@@ -107,7 +107,7 @@ export default function Index() {
       <Calculator />
 
       <section className="mt-8">
-        <Link to="/holiday-checker" className="text-sm text-primary underline-offset-4 hover:underline">
+        <Link to="/holiday-checker/" className="text-sm text-primary underline-offset-4 hover:underline">
           Open the dedicated checker page →
         </Link>
       </section>

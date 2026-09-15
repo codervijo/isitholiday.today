@@ -60,7 +60,7 @@ describe("Phase 4-A1 — vite-react-ssg static output", () => {
 
     it("has a page-specific canonical link", () => {
       expect(html).toMatch(
-        new RegExp(`rel="canonical"[^>]*href="${SITE}/${page.slug.replace(/\//g, "\\/")}"`),
+        new RegExp(`rel="canonical"[^>]*href="${SITE}/${page.slug.replace(/\//g, "\\/")}\/"`),
       );
     });
 
@@ -76,6 +76,18 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
+  const routes = ["", "holiday-checker", ...PAGES.map((p) => p.slug)];
+
+  it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
+    const html = readDistHtml(slug);
+    const hrefs = [...html.matchAll(/<a[^>]*href="(\/[^"#?]*)"/g)].map((m) => m[1]);
+    expect(hrefs.length).toBeGreaterThan(0);
+    const unslashed = hrefs.filter((h) => !h.endsWith("/") && !/\.[a-z0-9]+$/i.test(h));
+    expect(unslashed).toEqual([]);
+  });
+});
+
 describe("Crawl surface — sitemap.xml + robots.txt", () => {
   it("dist/sitemap.xml exists with the sitemaps.org namespace", () => {
     const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
@@ -88,8 +100,8 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
     const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     const expected = [
       `${SITE}/`,
-      `${SITE}/holiday-checker`,
-      ...PAGES.map((p) => `${SITE}/${p.slug}`),
+      `${SITE}/holiday-checker/`,
+      ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
   });

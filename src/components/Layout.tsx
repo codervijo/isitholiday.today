@@ -11,9 +11,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             isitholiday.today
           </Link>
           <nav className="flex items-center gap-4">
-            <NavLink to="/holiday-checker">Checker</NavLink>
-            <NavLink to="/india">India</NavLink>
-            <NavLink to="/usa">USA</NavLink>
+            <NavLink to="/holiday-checker/">Checker</NavLink>
+            <NavLink to="/india/">India</NavLink>
+            <NavLink to="/usa/">USA</NavLink>
           </nav>
         </div>
       </header>

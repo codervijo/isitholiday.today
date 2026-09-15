@@ -27,7 +27,7 @@ function urlsFromDist(distDir: string): string[] {
   return all
     .filter((f) => typeof f === "string" && f.endsWith("index.html"))
     .map((f) => f.replace(/\\/g, "/"))
-    .map((f) => (f === "index.html" ? "/" : "/" + path.posix.dirname(f)));
+    .map((f) => (f === "index.html" ? "/" : `/${path.posix.dirname(f)}/`));
 }
 
 function devSitemapPlugin(): Plugin {
@@ -40,7 +40,7 @@ function devSitemapPlugin(): Plugin {
         try {
           const mod = await server.ssrLoadModule("/src/lib/data.ts");
           const pages = (mod as { PAGES: { slug: string }[] }).PAGES;
-          const urls = ["/", "/holiday-checker", ...pages.map((p) => `/${p.slug}`)];
+          const urls = ["/", "/holiday-checker/", ...pages.map((p) => `/${p.slug}/`)];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");
           res.end(buildSitemapXml(urls));
         } catch (err) {
