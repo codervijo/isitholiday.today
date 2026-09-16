@@ -125,6 +125,7 @@ Extend `src/lib/data.ts`:
 | # | Feature | Status | Notes |
 |---|---|---|---|
 | 4-A1 | `vite-react-ssg` build-time pre-rendering | ✅ done (`452bbf6`) | 11 static HTMLs in `dist/`; `dirStyle: 'nested'`; `<Head>` from vite-react-ssg handles SSR head extraction |
+| 4-A2 | Trailing-slash URL normalisation (canonical / sitemap / internal links / JSON-LD) | ✅ done (`e18f8ec`, 2026-09-15) | CF Pages 308-redirects `/<path>` → `/<path>/`; GSC reported `/usa` + `/india/bank-holiday` as "Page with redirect". `withTrailingSlash()` in `src/lib/utils.ts`; SEO test fails on any unslashed internal href |
 
 Astro migration deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
 
@@ -143,6 +144,10 @@ Astro migration deferred — only revisit if SEO growth stalls and `vite-react-s
 | 4.9 | OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` | M | ❌ | `calcengine/src/og/` |
 | 4.10 | Per-page canonical URLs | — | ✅ done | `Seo.tsx` |
 | 4.11 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) | S | ❌ | calcengine H1 fix — must render outside React island |
+| 4.12 | **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice | S | ❌ | measured, not inherited |
+| 4.13 | `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` | XS | ❌ | conformance CHECK_075 |
+| 4.14 | JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` | XS | ❌ | conformance CHECK_092 |
+| 4.15 | Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar (Phase 3-A) or drop it from the sitemap | S | ❌ | GSC coverage, 2026-09-15 |
 
 ### 4-C. Legal + E-E-A-T pages
 
@@ -154,6 +159,24 @@ calcengine's "Critical" SEO issues that cost them: missing legal + missing about
 | 4.21 | Terms of Service | `/terms` | Standard ToS, no warranty, disputes |
 | 4.22 | About | `/about` | Author/operator name, methodology, data sources |
 | 4.23 | Footer with all links | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
+
+### 4-D. Index repair — manual GSC / IndexNow ops
+
+Operator-run, not code. These are the one-shot pushes that tell Google the
+4-A2 fix landed; without them the corrected URLs wait on an organic recrawl.
+Run **after** a deploy carrying 4-A2 + 4.12 is live.
+
+| # | Action | How | Why now |
+|---|---|---|---|
+| 4.30 | Ping IndexNow for all 11 sitemap URLs | `cd ~/work/projects/sites/portfolio && uv run portfolio project fix isitholiday.today` | conformance CHECK_154 — 11 URLs never submitted; key already live at `public/82cd3fc…txt` |
+| 4.31 | Resubmit `sitemap.xml` in Search Console | [Sitemaps](https://search.google.com/search-console/sitemaps?resource_id=sc-domain:isitholiday.today) | last fetched 11 weeks before 2026-09-15 |
+| 4.32 | Request indexing for the non-indexed URLs | [URL inspection](https://search.google.com/search-console/inspect?resource_id=sc-domain:isitholiday.today) — `/usa/bank-holiday/`, `/usa/new-york/`, `/usa/california/`, `/india/kerala/`, `/india/tamil-nadu/`, `/holiday-checker/` | `/usa/california/` is `url_is_unknown_to_google`; the rest are "Discovered — not indexed" |
+
+**Verification (not before ~2 GSC reporting windows):** re-run
+`uv run portfolio project check isitholiday.today` and expect CHECK_161
+(canonical-resolves-200), CHECK_154 (indexnow-submitted) and CHECK_155
+(index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
+Google's schedule, not ours — do not treat a green local build as proof.
 
 ---
 
@@ -232,6 +255,28 @@ Same pattern as calcengine's "OpenAI pricing scraper" — highest churn first.
 
 ---
 
+## Phase 9 — Repo & docs hygiene
+
+Not SEO work; cleanup that keeps the docs honest for the next session. None of
+it blocks traffic.
+
+| # | Item | Notes |
+|---|---|---|
+| 9.1 | Resolve the deploy-config contradiction in `AI_AGENTS.md` | "Deployment" says *no `wrangler.toml`, CF auto-detects*; "Deployment info" + `docs/CLAUDE.md` both say `wrangler.jsonc`. No wrangler file exists in the repo — confirm which is true and delete the loser |
+| 9.2 | Fill or delete the 7 placeholder sections in `AI_AGENTS.md` | Summary / Audience / ICP / Goals / Tech stack / Content strategy / Conventions — all "(to be filled in)", uncommitted as of 2026-09-15 |
+| 9.3 | Fill `docs/CLAUDE.md` — Project blurb + Deferred decisions | still bootstrap template text |
+| 9.4 | Fill the `[content]` block in `lamill.toml` | `site_type`, `primary_keyword`, `secondary_keywords`, `icp`, `tone` all empty; rankmill consumes these |
+| 9.5 | `docs/growth.md` — overdue review + new entry | 2026-05-09 entry was due for review 2026-06-06; add a 4-A2 entry with a baseline (299 impressions / 0 clicks / pos 82.5, GSC 28d as of 2026-09-15) and a review date |
+| 9.6 | Commit or delete `.env.example` | untracked, template-only; the site has no env vars |
+
+**Known checker false positives** (do not "fix" these — they are portfolio-tool
+gaps, recorded so future sessions stop chasing them): CHECK_010 (tests live in
+`src/test/`, not `tests/`), CHECK_063/064 (sitemap is generated in
+`vite.config.ts` `onFinished`, not `public/`), CHECK_050/CHECK_143 (deploy
+target *is* declared — `lamill.toml [deploy]`).
+
+---
+
 ## Constraints (mirror calcengine)
 
 - ❌ Do **NOT** overbuild UI
@@ -266,22 +311,30 @@ A location/type page is **complete** when:
 
 ✅ **Already live on `https://isitholiday.today` (auto-deploy from `main`):**
 - Phase 4-A1 — `vite-react-ssg` static pre-rendering (`452bbf6`)
+- Phase 4-A2 — trailing-slash normalisation (`e18f8ec`, 2026-09-15)
 - Phase 4-B 4.1 — sitemap.xml at build + dev middleware (`e476b83`)
 - All 11 static HTML pages indexable; deploy verified post-push.
 
+**Diagnosis driving this order (GSC 28d + conformance, 2026-09-15):** 299
+impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed.
+Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and
+*thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships
+first; content is the real unlock and takes the most work.
+
 **Remaining queue:**
 
-1. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. Blocks 4.6/4.7.
-2. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
-3. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
-4. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
-5. **Phase 4-B 4.9** — OG image build pipeline
-6. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
-7. **Phase 6-A** — split holidays.ts into per-country JSON
+1. **Phase 4-B 4.12–4.14** — internal-link starvation, `meta robots`, JSON-LD canonical mismatch. Small, mechanical, same sitting. Unblocks crawling of the 4 starved pages.
+2. **Phase 4-D (4.30–4.32)** — IndexNow ping + sitemap resubmit + per-URL indexing requests, once #1 is live. Operator-run.
+3. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. The Soft-404 / thin-content fix. Blocks 4.6/4.7/4.15. **Every holiday fact needs an official source cited in the commit — no invented dates.**
+4. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
+5. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
+6. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
+7. **Phase 4-B 4.9** — OG image build pipeline
+8. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
+9. **Phase 6-A** — split holidays.ts into per-country JSON
+10. **Phase 9** — repo & docs hygiene (non-blocking; do it while waiting on GSC windows)
 
-**Fixed 2026-09-15:** trailing-slash canonical/sitemap/internal-link mismatch (GSC "Page with redirect") — see `AI_AGENTS.md` "Known issues" section.
-
-Everything beyond #8 is post-MVP scaling.
+Everything beyond #10 is post-MVP scaling.
 
 ## Problem
 
