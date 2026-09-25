@@ -20,11 +20,10 @@ const todayIso = (): string => new Date().toISOString().slice(0, 10);
 
 const matchesScope = (h: Holiday, q: HolidayQuery): boolean => {
   if (h.country !== q.country) return false;
-  if (q.state && h.state && h.state !== q.state) return false;
-  if (q.state && !h.state) return true; // national-level applies in state
-  if (!q.state && h.state) return false; // querying country-level skips state-only entries
   if (q.type && h.type !== q.type) return false;
-  return true;
+  if (q.state && h.state && h.state !== q.state) return false;
+  if (!q.state && h.state) return false; // querying country-level skips state-only entries
+  return true; // national-level applies in state
 };
 
 /**
@@ -35,7 +34,11 @@ export function getTodayHoliday(query: HolidayQuery): HolidayResult {
   const date = query.today ?? todayIso();
   const inScope = HOLIDAYS.filter((h) => matchesScope(h, query));
 
-  const todayMatch = inScope.find((h) => h.date === date) ?? null;
+  // State-specific observances win over a national holiday on the same day.
+  const todayMatch =
+    inScope.find((h) => h.date === date && h.state !== null) ??
+    inScope.find((h) => h.date === date) ??
+    null;
 
   const upcoming = inScope
     .filter((h) => h.date > date)
