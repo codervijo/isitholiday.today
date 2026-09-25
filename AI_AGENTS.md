@@ -97,7 +97,8 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 - **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm + `vite-react-ssg`.
 - **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live.
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
-- **Next step (per `docs/prd.md` priority queue):** Phase 3-A — extend `SeoPage` schema (`tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`) and backfill all 9 pages. Then Phase 4-C (privacy/terms/about) and the remaining Phase 4-B JSON-LD blocks.
+- **Current tier:** v2 — Indexability. v2.A–v2.D shipped.
+- **Next step (per `docs/prd.md` § 5. Phases):** v2.E — internal-link starvation fix, `meta robots`, JSON-LD URL = canonical. Then v2.F (operator-run index repair ops) and v2.G (golden-page content).
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
@@ -109,10 +110,11 @@ to the portfolio (see `sites/portfolio/AI_AGENTS.md` for the full
 statement):
 
 - **`vN`** — major capability tier (SemVer-MAJOR semantics).
-- **`vN.X`** — phase letter within a tier (A, B, C, …) for
-  internal slicing.
-- **`vN.X.Y`** — numeric sub-phase for follow-up work that lands
-  after `vN.X` shipped.
+- **`vN.X`** — phase letter within a tier (A, B, C, …). Each phase
+  is a shippable slice. **`vN.A` is always kickoff / decisions lock**;
+  build work starts at `.B`.
+- **Two levels only.** When follow-up work emerges inside a tier, push
+  later phase letters down to make room.
 
 Track current phase + completed work in `docs/prd.md`.
 

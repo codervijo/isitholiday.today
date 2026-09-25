@@ -4,80 +4,160 @@ Programmatic-SEO site answering *"Is today a holiday in [location]?"* — modele
 
 > **Key insight (mirrors calcengine):** This is not a product. It is a **search-engine surface-area generator.** Volume × structure × internal linking = SEO growth.
 
----
-
-## ⚠️ Stack-level SEO gap — addressed (2026-05-01)
-
-calcengine uses **Astro SSG**. We were on **Vite + React SPA** (one HTML shell + JS bundle), which let Googlebot in but slowed discovery and weakened link equity inside React-rendered DOM (calcengine's H1 incident: "all `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links").
-
-**Resolution:** Phase 4-A1 shipped `vite-react-ssg` (commit `452bbf6`). Every route in `PAGES` plus `/` and `/holiday-checker` now emits real static HTML at build time, with rendered H1, helmet-managed `<title>`, page-specific canonical, and meta description in the static markup. We did **not** migrate to Astro — kept in the current stack to avoid a rewrite. Migration remains a future option if growth stalls.
+*(Renumbered 2026-09-25 from `Phase 1–9` / `4-A` / `4.12` to the canonical two-level `vN.X` scheme. Old IDs survive as lineage markers on the rows that replaced them. Commits and `docs/Prompts.md` entries before this date use the old IDs.)*
 
 ---
 
-## Phase 1 — MVP (current state, 2026-04-25)
+## 1. Problem
 
-| # | Feature | Status | File(s) |
-|---|---|---|---|
-| 1.1 | Vite 6 + React 18 + TS + Tailwind 3 + shadcn/ui scaffold | ✅ done | root configs |
-| 1.2 | Pure `getTodayHoliday()` calc with 5 Vitest tests | ✅ done | `src/lib/holiday.ts`, `src/lib/holiday.test.ts` |
-| 1.3 | Holiday seed data — India + USA, 30 entries | ✅ done | `src/lib/holidays.ts` |
-| 1.4 | `Calculator.tsx` widget — country/state/type selectors, ✅/❌ answer, next-holiday line | ✅ done | `src/components/Calculator.tsx` |
-| 1.5 | Routes: `/`, `/holiday-checker`, `/:country`, `/:country/:state`, `*` | ✅ done | `src/App.tsx` |
-| 1.6 | 9 pSEO `PAGES` entries (India, IN/Kerala, IN/Tamil-Nadu, IN bank, USA, US/CA, US/TX, US/NY, US bank) | ✅ done | `src/lib/data.ts` |
-| 1.7 | `Seo` component — `<title>`, meta description, canonical, OG, Twitter | ✅ done | `src/components/Seo.tsx` |
-| 1.8 | Internal links (≥6 per page) | ✅ done | `src/components/InternalLinks.tsx` |
-| 1.9 | `pnpm install`/`build`/`test` clean inside docker | ✅ done | — |
+People need a fast, correct yes/no answer to *"is today a holiday in [country / state]?"* — for public, bank, and school holidays — without digging through government calendars.
 
----
+## 2. Users
 
-## Phase 2 — pSEO Coverage Expansion
+<Who's the target user? What do they care about? Roughly how many
+exist? What's their willingness to pay / engage?>
 
-Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.ts` + matching seed rows in `src/lib/holidays.ts` = one new indexable page with zero code changes.
+## 3. Goals & non-goals
 
-### 2-A. Country expansion
+**Goals:**
+- High-frequency query engine: success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load).
+- Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
+- Prioritize SEO over design.
 
-| # | Slug | Country | Type | Priority | Notes |
-|---|---|---|---|---|---|
-| 2.1 | `uk` | United Kingdom | public | High | Bank Holidays Act schedule; differs across England/Scotland/NI |
-| 2.2 | `uk/scotland` | UK | public | Med | Distinct holidays (St Andrew's Day, 2nd Jan) |
-| 2.3 | `uk/northern-ireland` | UK | public | Med | St Patrick's Day, Battle of the Boyne |
-| 2.4 | `canada` | Canada | public | High | Federal stat holidays |
-| 2.5 | `canada/ontario` | Canada | public | Med | Family Day, Civic Holiday |
-| 2.6 | `canada/quebec` | Canada | public | Med | National Holiday (St-Jean-Baptiste) |
-| 2.7 | `australia` | Australia | public | High | Federal + state-specific |
-| 2.8 | `australia/new-south-wales` | AU | public | Med | Bank Holiday, Labour Day variants |
-| 2.9 | `australia/victoria` | AU | public | Med | Melbourne Cup Day |
-| 2.10 | `germany` | Germany | public | Med | Federal holidays + state variants (Bavaria etc.) |
-| 2.11 | `france` | France | public | Med | 11 jours fériés |
-| 2.12 | `japan` | Japan | public | Med | 16 national holidays |
+**Non-goals:**
+- ❌ Overbuilt UI
+- ❌ Blocking on perfection
+- ❌ Accounts, login, or backend before v5.C is complete
+- ❌ Payments / SaaS — not a product
 
-### 2-B. Type expansion (per country)
+## 4. Versions
 
-| # | Slug pattern | Example | Type | Notes |
-|---|---|---|---|---|
-| 2.20 | `{country}/bank-holiday` | `india/bank-holiday`, `usa/bank-holiday`, `uk/bank-holiday` | bank | Already done for IN/US — extend |
-| 2.21 | `{country}/school-holiday` | `india/school-holiday`, `usa/school-holiday` | school | Term-break dates per country |
-| 2.22 | `{country}/{state}/bank-holiday` | `usa/california/bank-holiday` | bank | State-level variants where relevant |
+Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 
-### 2-C. Date-specific high-intent slugs
+- `vN` = major capability tier; SemVer-MAJOR semantics.
+- `vN.X` = phase letter within a tier; `vN.A` is always kickoff / decisions lock.
 
-| # | Slug | Search intent |
+| Version | Theme | Acceptance |
 |---|---|---|
-| 2.30 | `is-monday-a-holiday` | Day-of-week queries |
-| 2.31 | `is-friday-a-holiday` | Day-of-week queries |
-| 2.32 | `next-public-holiday-india` | "next holiday" queries |
-| 2.33 | `holidays-this-month-usa` | Monthly calendar intent |
-| 2.34 | `is-tomorrow-a-holiday-india` | Forward-looking variant |
+| v1 | MVP | India + USA answer widget, 9 pSEO pages, builds clean in docker |
+| v2 | Indexability | Google crawls and indexes every page: static HTML, clean canonicals, no orphans, golden-page content, legal pages, structured data |
+| v3 | Coverage | 50+ pSEO pages across countries, holiday types, date intents, and content clusters |
+| v4 | Data freshness | Holiday data externalized to per-country JSON with verified freshness markers and ingestion pipelines |
+| v5 | Polish & promotion | UX / a11y polish, analytics, backlink campaigns |
 
-**Target: 50+ pSEO pages by end of Phase 2.** Each = one entry in `data.ts`, no route code.
+## 5. Phases
+
+| Phase | Theme | Features | Status |
+|---|---|---|---|
+| **v1.A** | Kickoff / decisions lock | Stack locked: Vite 6 + React 18 + TS + Tailwind 3 + shadcn/ui + pnpm; Astro+MUI abandoned | ✅ |
+| **v1.B** | MVP build | Scaffold, pure holiday calc, seed data, calculator widget, routes, 9 pages, `Seo`, internal links | ✅ |
+| **v2.A** | Kickoff / decisions lock | Index-repair diagnosis + fix list planned into phases (`c5ef243`, 2026-09-15) | ✅ |
+| **v2.B** | Static pre-rendering | `vite-react-ssg` build-time HTML (`452bbf6`) | ✅ |
+| **v2.C** | Crawl surface | `sitemap.xml` generator + sitemap-aware `robots.txt` (`e476b83`) | ✅ |
+| **v2.D** | Trailing-slash URLs | Canonicals / sitemap / internal links / JSON-LD slashed (`e18f8ec`) | ✅ |
+| **v2.E** | Crawl plumbing fixes | Internal-link starvation, `meta robots`, JSON-LD URL = canonical | next |
+| **v2.F** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
+| **v2.G** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
+| **v2.H** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
+| **v2.I** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
+| **v2.J** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
+| **v3.A** | Kickoff / decisions lock | Lock page-type slugs, country order, data sources | planned |
+| **v3.B** | UK + Canada | 6 country/region pages via official feeds | planned |
+| **v3.C** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
+| **v3.D** | First content cluster | `/india/upcoming-holidays`, `/india/holiday-calendar-2026` | planned |
+| **v3.E** | More countries | Australia, Germany, France, Japan | planned |
+| **v3.F** | Holiday-type pages | bank / school pages per country and state | planned |
+| **v3.G** | Date-intent pages | day-of-week, next-holiday, this-month, tomorrow slugs | planned |
+| **v4.A** | Kickoff / decisions lock | Lock JSON schema + ingestion cadence | planned |
+| **v4.B** | Data layer split | `holidays.ts` → per-country JSON | planned |
+| **v4.C** | Freshness markers | git-derived code freshness + manual data-verified date | planned |
+| **v4.D** | Ingestion pipelines | Scheduled/manual fetches from official sources | planned |
+| **v5.A** | Kickoff / decisions lock | Lock analytics + promotion plan | planned |
+| **v5.B** | UX & accessibility | Dark mode, mobile audit, ARIA, keyboard, reduced motion, loading states | planned |
+| **v5.C** | Analytics & promotion | GA4, Search Console, backlinks, launch posts, UTM | planned |
+
+## 6. Open questions
+
+- *(append-only log; mark answered with date but never delete)*
 
 ---
 
-## Phase 3 — Page Quality Lift (Golden Page Standard)
+## 7. Phase detail
+
+### v1.B — MVP build
+
+| Feature | Status | File(s) |
+|---|---|---|
+| Vite 6 + React 18 + TS + Tailwind 3 + shadcn/ui scaffold *(renumbered 2026-09-25; was 1.1)* | ✅ | root configs |
+| Pure `getTodayHoliday()` calc with 5 Vitest tests *(renumbered 2026-09-25; was 1.2)* | ✅ | `src/lib/holiday.ts`, `src/lib/holiday.test.ts` |
+| Holiday seed data — India + USA, 30 entries *(renumbered 2026-09-25; was 1.3)* | ✅ | `src/lib/holidays.ts` |
+| `Calculator.tsx` widget — country/state/type selectors, ✅/❌ answer, next-holiday line *(renumbered 2026-09-25; was 1.4)* | ✅ | `src/components/Calculator.tsx` |
+| Routes: `/`, `/holiday-checker`, `/:country`, `/:country/:state`, `*` *(renumbered 2026-09-25; was 1.5)* | ✅ | `src/App.tsx` |
+| 9 pSEO `PAGES` entries (India, IN/Kerala, IN/Tamil-Nadu, IN bank, USA, US/CA, US/TX, US/NY, US bank) *(renumbered 2026-09-25; was 1.6)* | ✅ | `src/lib/data.ts` |
+| `Seo` component — `<title>`, meta description, per-page canonical, OG, Twitter *(renumbered 2026-09-25; was 1.7 + 4.10)* | ✅ | `src/components/Seo.tsx` |
+| Internal links (≥6 per page) *(renumbered 2026-09-25; was 1.8)* | ✅ | `src/components/InternalLinks.tsx` |
+| `pnpm install`/`build`/`test` clean inside docker *(renumbered 2026-09-25; was 1.9)* | ✅ | — |
+
+### v2.A — Kickoff / decisions lock
+
+**Diagnosis (GSC 28d + conformance, 2026-09-15):** 299 impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed. Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and *thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships first (v2.D–v2.F); content is the real unlock and takes the most work (v2.G).
+
+**Stack decision (2026-05-01):** calcengine uses Astro SSG; we were a Vite + React SPA, which slowed discovery and weakened link equity inside React-rendered DOM (calcengine's H1 incident: all `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links). Resolved in v2.B with `vite-react-ssg` instead of an Astro rewrite. Astro migration stays deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
+
+### v2.B — Static pre-rendering ✅ (2026-05-01)
+
+| Feature | Status | Notes |
+|---|---|---|
+| `vite-react-ssg` build-time pre-rendering *(renumbered 2026-09-25; was 4-A1)* | ✅ (`452bbf6`) | 11 static HTMLs in `dist/`; `dirStyle: 'nested'`; `<Head>` from vite-react-ssg handles SSR head extraction |
+
+### v2.C — Crawl surface ✅
+
+| Feature | Status | Source of pattern |
+|---|---|---|
+| XML sitemap generator (build-time + dev middleware, all `PAGES[].slug`) *(renumbered 2026-09-25; was 4.1)* | ✅ (`e476b83`) | `calcengine/src/seo/generateSitemap.ts` |
+| `robots.txt` references sitemap URL *(renumbered 2026-09-25; was 4.2)* | ✅ | `public/robots.txt` |
+
+### v2.D — Trailing-slash URLs ✅ (2026-09-15)
+
+| Feature | Status | Notes |
+|---|---|---|
+| Trailing-slash URL normalisation (canonical / sitemap / internal links / JSON-LD) *(renumbered 2026-09-25; was 4-A2)* | ✅ (`e18f8ec`) | CF Pages 308-redirects `/<path>` → `/<path>/`; GSC reported `/usa` + `/india/bank-holiday` as "Page with redirect". `withTrailingSlash()` in `src/lib/utils.ts`; SEO test fails on any unslashed internal href |
+
+### v2.E — Crawl plumbing fixes
+
+Small, mechanical, same sitting. Unblocks crawling of the 4 starved pages.
+
+| Feature | Effort | Status | Source |
+|---|---|---|---|
+| **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice *(renumbered 2026-09-25; was 4.12)* | S | ❌ | measured, not inherited |
+| `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` *(renumbered 2026-09-25; was 4.13)* | XS | ❌ | conformance CHECK_075 |
+| JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` *(renumbered 2026-09-25; was 4.14)* | XS | ❌ | conformance CHECK_092 |
+
+### v2.F — Index repair ops
+
+Operator-run, not code. These are the one-shot pushes that tell Google the
+v2.D fix landed; without them the corrected URLs wait on an organic recrawl.
+Run **after** a deploy carrying v2.D + v2.E is live.
+
+| Action | How | Why now |
+|---|---|---|
+| Ping IndexNow for all 11 sitemap URLs *(renumbered 2026-09-25; was 4.30)* | `cd ~/work/projects/sites/portfolio && uv run portfolio project fix isitholiday.today` | conformance CHECK_154 — 11 URLs never submitted; key already live at `public/82cd3fc…txt` |
+| Resubmit `sitemap.xml` in Search Console *(renumbered 2026-09-25; was 4.31)* | [Sitemaps](https://search.google.com/search-console/sitemaps?resource_id=sc-domain:isitholiday.today) | last fetched 11 weeks before 2026-09-15 |
+| Request indexing for the non-indexed URLs *(renumbered 2026-09-25; was 4.32)* | [URL inspection](https://search.google.com/search-console/inspect?resource_id=sc-domain:isitholiday.today) — `/usa/bank-holiday/`, `/usa/new-york/`, `/usa/california/`, `/india/kerala/`, `/india/tamil-nadu/`, `/holiday-checker/` | `/usa/california/` is `url_is_unknown_to_google`; the rest are "Discovered — not indexed" |
+
+**Verification (not before ~2 GSC reporting windows):** re-run
+`uv run portfolio project check isitholiday.today` and expect CHECK_161
+(canonical-resolves-200), CHECK_154 (indexnow-submitted) and CHECK_155
+(index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
+Google's schedule, not ours — do not treat a green local build as proof.
+
+### v2.G — Golden-page content
+
+The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.I. **Every holiday fact needs an official source cited in the commit — no invented dates.**
 
 calcengine's "golden page" rule: every page must match `openai-cost-calculator` exactly. Define ours, then enforce.
 
-### Golden-page checklist (per location/type page)
+**Golden-page checklist (per location/type page):**
 
 | Element | Requirement | Currently |
 |---|---|---|
@@ -92,9 +172,7 @@ calcengine's "golden page" rule: every page must match `openai-cost-calculator` 
 | Related cards | ≥3 `relatedSlugs` | ✅ (via InternalLinks) |
 | Breadcrumbs | Home › Country › State (with JSON-LD) | ❌ missing |
 
-### 3-A. Schema upgrade — `SeoPage` interface
-
-Extend `src/lib/data.ts`:
+**`SeoPage` schema extension** *(renumbered 2026-09-25; was 3-A)* — extend `src/lib/data.ts`:
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
@@ -116,158 +194,48 @@ Extend `src/lib/data.ts`:
 
 **Migration path:** add fields as optional first, backfill across all 9 entries, then make required.
 
----
-
-## Phase 4 — SEO Infrastructure
-
-### 4-A. Static pre-rendering — ✅ done (2026-05-01)
-
-| # | Feature | Status | Notes |
+| Feature | Effort | Status | Source |
 |---|---|---|---|
-| 4-A1 | `vite-react-ssg` build-time pre-rendering | ✅ done (`452bbf6`) | 11 static HTMLs in `dist/`; `dirStyle: 'nested'`; `<Head>` from vite-react-ssg handles SSR head extraction |
-| 4-A2 | Trailing-slash URL normalisation (canonical / sitemap / internal links / JSON-LD) | ✅ done (`e18f8ec`, 2026-09-15) | CF Pages 308-redirects `/<path>` → `/<path>/`; GSC reported `/usa` + `/india/bank-holiday` as "Page with redirect". `withTrailingSlash()` in `src/lib/utils.ts`; SEO test fails on any unslashed internal href |
+| Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar or drop it from the sitemap *(renumbered 2026-09-25; was 4.15)* | S | ❌ | GSC coverage, 2026-09-15 |
 
-Astro migration deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
-
-### 4-B. SEO surface features
-
-| # | Feature | Effort | Status | Source of pattern |
-|---|---|---|---|---|
-| 4.1 | XML sitemap generator (build-time + dev middleware, all `PAGES[].slug`) | S | ✅ done (`e476b83`) | `calcengine/src/seo/generateSitemap.ts` |
-| 4.2 | `robots.txt` references sitemap URL | — | ✅ done | `public/robots.txt` |
-| 4.3 | JSON-LD: `WebSite` + `SearchAction` on `/` | S | ❌ | `calcengine/src/seo/jsonLd.ts` |
-| 4.4 | JSON-LD: `Organization` (with `logo`, `sameAs`) | S | ❌ | calcengine PRD C2 |
-| 4.5 | JSON-LD: `WebApplication` site-wide | S | ❌ | calcengine |
-| 4.6 | JSON-LD: `BreadcrumbList` on detail pages | M | ❌ | calcengine — required pattern |
-| 4.7 | JSON-LD: `FAQPage` per location page | M | ❌ (blocked on Phase 3-A `faq` field) | calcengine — required when FAQ exists |
-| 4.8 | JSON-LD: `Event` per holiday (date, location, name) | M | ❌ | unique to us — schema.org/Event |
-| 4.9 | OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` | M | ❌ | `calcengine/src/og/` |
-| 4.10 | Per-page canonical URLs | — | ✅ done | `Seo.tsx` |
-| 4.11 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) | S | ❌ | calcengine H1 fix — must render outside React island |
-| 4.12 | **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice | S | ❌ | measured, not inherited |
-| 4.13 | `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` | XS | ❌ | conformance CHECK_075 |
-| 4.14 | JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` | XS | ❌ | conformance CHECK_092 |
-| 4.15 | Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar (Phase 3-A) or drop it from the sitemap | S | ❌ | GSC coverage, 2026-09-15 |
-
-### 4-C. Legal + E-E-A-T pages
+### v2.H — Legal + E-E-A-T
 
 calcengine's "Critical" SEO issues that cost them: missing legal + missing about page.
 
-| # | Page | Path | Required content |
-|---|---|---|---|
-| 4.20 | Privacy Policy | `/privacy` | GDPR/CCPA compliance, cookie disclosure, contact email |
-| 4.21 | Terms of Service | `/terms` | Standard ToS, no warranty, disputes |
-| 4.22 | About | `/about` | Author/operator name, methodology, data sources |
-| 4.23 | Footer with all links | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
-
-### 4-D. Index repair — manual GSC / IndexNow ops
-
-Operator-run, not code. These are the one-shot pushes that tell Google the
-4-A2 fix landed; without them the corrected URLs wait on an organic recrawl.
-Run **after** a deploy carrying 4-A2 + 4.12 is live.
-
-| # | Action | How | Why now |
-|---|---|---|---|
-| 4.30 | Ping IndexNow for all 11 sitemap URLs | `cd ~/work/projects/sites/portfolio && uv run portfolio project fix isitholiday.today` | conformance CHECK_154 — 11 URLs never submitted; key already live at `public/82cd3fc…txt` |
-| 4.31 | Resubmit `sitemap.xml` in Search Console | [Sitemaps](https://search.google.com/search-console/sitemaps?resource_id=sc-domain:isitholiday.today) | last fetched 11 weeks before 2026-09-15 |
-| 4.32 | Request indexing for the non-indexed URLs | [URL inspection](https://search.google.com/search-console/inspect?resource_id=sc-domain:isitholiday.today) — `/usa/bank-holiday/`, `/usa/new-york/`, `/usa/california/`, `/india/kerala/`, `/india/tamil-nadu/`, `/holiday-checker/` | `/usa/california/` is `url_is_unknown_to_google`; the rest are "Discovered — not indexed" |
-
-**Verification (not before ~2 GSC reporting windows):** re-run
-`uv run portfolio project check isitholiday.today` and expect CHECK_161
-(canonical-resolves-200), CHECK_154 (indexnow-submitted) and CHECK_155
-(index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
-Google's schedule, not ours — do not treat a green local build as proof.
-
----
-
-## Phase 5 — Content Cluster Per Page (Three-Page Pattern)
-
-calcengine generates a 3-page cluster per calculator: main + how-to + formula. Adapted for holidays:
-
-| # | Cluster page | Route | Target keywords |
-|---|---|---|---|
-| 5.1 | Main: yes/no answer | `/india`, `/usa/california` | "is today a holiday in [loc]" |
-| 5.2 | List: upcoming holidays | `/india/upcoming-holidays`, `/usa/california/upcoming-holidays` | "[loc] holidays 2026", "next holiday in [loc]" |
-| 5.3 | Calendar: full year view | `/india/holiday-calendar-2026` | "[loc] holiday calendar 2026" |
-| 5.4 | History: past holidays this year | `/india/holidays-so-far-2026` | "[loc] holidays so far 2026" |
-
-Each cluster page reuses the same data (`HOLIDAYS`) but emphasizes a different intent.
-
----
-
-## Phase 6 — Data Externalization & Freshness
-
-calcengine's Phase 3 lesson: **don't hardcode data inside .tsx files** — extract to versioned JSON. We're currently OK (one `holidays.ts` file), but as we scale we should split.
-
-### 6-A. Data layer split
-
-| # | File | Contents | `lastVerified` |
-|---|---|---|---|
-| 6.1 | `src/data/holidays/india.json` | All India national + state holidays | yes |
-| 6.2 | `src/data/holidays/usa.json` | Federal + state holidays | yes |
-| 6.3 | `src/data/holidays/uk.json` | Bank Holidays Act schedule | yes |
-| 6.4 | `src/data/holidays/{country}.json` | one file per country | yes |
-| 6.5 | `src/lib/holidays.ts` | thin barrel that imports + types the JSON | — |
-
-### 6-B. Freshness markers (mirrors calcengine Phase 2)
-
-| # | Signal | Source | Where shown |
-|---|---|---|---|
-| 6.10 | **Code freshness** "Last updated from git at" | `git log -1 --format=%ai` on `data.ts`/`holidays.ts` at build time | Footer of each page + `dateModified` JSON-LD |
-| 6.11 | **Data freshness** "Data verified" | manual `meta.dataUpdated` per `SeoPage` | Inline below calculator |
-
-### 6-C. Ingestion pipelines (priority order)
-
-| # | Source | Method | Why |
-|---|---|---|---|
-| 6.20 | India → `data.gov.in` "Holidays" dataset | scheduled CI scrape | 28 states, evolves yearly |
-| 6.21 | USA → OPM federal holiday schedule | yearly manual update | federal only changes ~once/decade |
-| 6.22 | UK → `gov.uk/bank-holidays.json` (official JSON API) | scheduled CI fetch | official feed exists |
-| 6.23 | Canada → `canada.ca` statutory holidays | yearly manual update | — |
-| 6.24 | Australia → `data.gov.au` holiday API | scheduled CI fetch | official feed exists |
-
-Same pattern as calcengine's "OpenAI pricing scraper" — highest churn first.
-
----
-
-## Phase 7 — UX & Accessibility Polish
-
-| # | Feature | Effort | Source pattern |
-|---|---|---|---|
-| 7.1 | Dark mode (`localStorage` + cross-island sync) | M | calcengine `DarkModeToggle.tsx` + `ThemeContext.tsx` |
-| 7.2 | Mobile-first audit (current scaffold uses `container` only) | S | shadcn defaults |
-| 7.3 | ARIA labels on all interactive elements | S | calcengine standard |
-| 7.4 | Keyboard navigation through Select widgets | S | Radix handles by default |
-| 7.5 | Reduced-motion support | XS | tailwindcss-animate respects it |
-| 7.6 | Loading states / suspense fallbacks (post-SSG) | S | — |
-
----
-
-## Phase 8 — Analytics & Promotion
-
-| # | Feature | Notes |
+| Page | Path | Required content |
 |---|---|---|
-| 8.1 | GA4 page-view tracking | mirror `calcengine/src/analytics/ga.ts` |
-| 8.2 | Search Console verification | manual |
-| 8.3 | Backlink campaign — Reddit (`r/personalfinance`, `r/India`, `r/AskAnAmerican`) | calcengine playbook |
-| 8.4 | Dev.to / HN: "I built a free 'is today a holiday' API" angle | "built a free tool" framing |
-| 8.5 | UTM tagging for inbound campaigns | — |
+| Privacy Policy *(renumbered 2026-09-25; was 4.20)* | `/privacy` | GDPR/CCPA compliance, cookie disclosure, contact email |
+| Terms of Service *(renumbered 2026-09-25; was 4.21)* | `/terms` | Standard ToS, no warranty, disputes |
+| About *(renumbered 2026-09-25; was 4.22)* | `/about` | Author/operator name, methodology, data sources |
+| Footer with all links *(renumbered 2026-09-25; was 4.23)* | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
 
----
+### v2.I — Structured data
 
-## Phase 9 — Repo & docs hygiene
+Breadcrumb + FAQPage land for free once v2.G backfills.
+
+| Feature | Effort | Status | Source of pattern |
+|---|---|---|---|
+| JSON-LD: `WebSite` + `SearchAction` on `/` *(renumbered 2026-09-25; was 4.3)* | S | ❌ | `calcengine/src/seo/jsonLd.ts` |
+| JSON-LD: `Organization` (with `logo`, `sameAs`) *(renumbered 2026-09-25; was 4.4)* | S | ❌ | calcengine PRD C2 |
+| JSON-LD: `WebApplication` site-wide *(renumbered 2026-09-25; was 4.5)* | S | ❌ | calcengine |
+| JSON-LD: `BreadcrumbList` on detail pages *(renumbered 2026-09-25; was 4.6)* | M | ❌ | calcengine — required pattern |
+| JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.G `faq` field) | calcengine — required when FAQ exists |
+| JSON-LD: `Event` per holiday (date, location, name) *(renumbered 2026-09-25; was 4.8)* | M | ❌ | unique to us — schema.org/Event |
+| Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) *(renumbered 2026-09-25; was 4.11)* | S | ❌ | calcengine H1 fix — must render outside React island |
+
+### v2.J — Repo & docs hygiene
 
 Not SEO work; cleanup that keeps the docs honest for the next session. None of
-it blocks traffic.
+it blocks traffic — do it while waiting on GSC windows.
 
-| # | Item | Notes |
-|---|---|---|
-| 9.1 | Resolve the deploy-config contradiction in `AI_AGENTS.md` | "Deployment" says *no `wrangler.toml`, CF auto-detects*; "Deployment info" + `docs/CLAUDE.md` both say `wrangler.jsonc`. No wrangler file exists in the repo — confirm which is true and delete the loser |
-| 9.2 | Fill or delete the 7 placeholder sections in `AI_AGENTS.md` | Summary / Audience / ICP / Goals / Tech stack / Content strategy / Conventions — all "(to be filled in)", uncommitted as of 2026-09-15 |
-| 9.3 | Fill `docs/CLAUDE.md` — Project blurb + Deferred decisions | still bootstrap template text |
-| 9.4 | Fill the `[content]` block in `lamill.toml` | `site_type`, `primary_keyword`, `secondary_keywords`, `icp`, `tone` all empty; rankmill consumes these |
-| 9.5 | `docs/growth.md` — overdue review + new entry | 2026-05-09 entry was due for review 2026-06-06; add a 4-A2 entry with a baseline (299 impressions / 0 clicks / pos 82.5, GSC 28d as of 2026-09-15) and a review date |
-| 9.6 | Commit or delete `.env.example` | untracked, template-only; the site has no env vars |
+| Item | Notes |
+|---|---|
+| Resolve the deploy-config contradiction in `AI_AGENTS.md` *(renumbered 2026-09-25; was 9.1)* | "Deployment" says *no `wrangler.toml`, CF auto-detects*; "Deployment info" + `docs/CLAUDE.md` both say `wrangler.jsonc`. No wrangler file exists in the repo — confirm which is true and delete the loser |
+| Fill or delete the 7 placeholder sections in `AI_AGENTS.md` *(renumbered 2026-09-25; was 9.2)* | Summary / Audience / ICP / Goals / Tech stack / Content strategy / Conventions — all "(to be filled in)", uncommitted as of 2026-09-15 |
+| Fill `docs/CLAUDE.md` — Project blurb + Deferred decisions *(renumbered 2026-09-25; was 9.3)* | still bootstrap template text |
+| Fill the `[content]` block in `lamill.toml` *(renumbered 2026-09-25; was 9.4)* | `site_type`, `primary_keyword`, `secondary_keywords`, `icp`, `tone` all empty; rankmill consumes these |
+| `docs/growth.md` — overdue review + new entry *(renumbered 2026-09-25; was 9.5)* | 2026-05-09 entry was due for review 2026-06-06; add a v2.D entry with a baseline (299 impressions / 0 clicks / pos 82.5, GSC 28d as of 2026-09-15) and a review date |
+| Commit or delete `.env.example` *(renumbered 2026-09-25; was 9.6)* | untracked, template-only; the site has no env vars |
 
 **Known checker false positives** (do not "fix" these — they are portfolio-tool
 gaps, recorded so future sessions stop chasing them): CHECK_010 (tests live in
@@ -275,74 +243,135 @@ gaps, recorded so future sessions stop chasing them): CHECK_010 (tests live in
 `vite.config.ts` `onFinished`, not `public/`), CHECK_050/CHECK_143 (deploy
 target *is* declared — `lamill.toml [deploy]`).
 
+### v3.B — UK + Canada
+
+Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.ts` + matching seed rows in `src/lib/holidays.ts` = one new indexable page with zero code changes. **Target: 50+ pSEO pages by end of v3.**
+
+| Slug | Country | Type | Priority | Notes |
+|---|---|---|---|---|
+| `uk` *(renumbered 2026-09-25; was 2.1)* | United Kingdom | public | High | Bank Holidays Act schedule; differs across England/Scotland/NI |
+| `uk/scotland` *(renumbered 2026-09-25; was 2.2)* | UK | public | Med | Distinct holidays (St Andrew's Day, 2nd Jan) |
+| `uk/northern-ireland` *(renumbered 2026-09-25; was 2.3)* | UK | public | Med | St Patrick's Day, Battle of the Boyne |
+| `canada` *(renumbered 2026-09-25; was 2.4)* | Canada | public | High | Federal stat holidays |
+| `canada/ontario` *(renumbered 2026-09-25; was 2.5)* | Canada | public | Med | Family Day, Civic Holiday |
+| `canada/quebec` *(renumbered 2026-09-25; was 2.6)* | Canada | public | Med | National Holiday (St-Jean-Baptiste) |
+
+### v3.C — OG images
+
+| Feature | Effort | Status | Source of pattern |
+|---|---|---|---|
+| OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` *(renumbered 2026-09-25; was 4.9)* | M | ❌ | `calcengine/src/og/` |
+
+### v3.D — First content cluster
+
+calcengine generates a 3-page cluster per calculator: main + how-to + formula. Adapted for holidays — each cluster page reuses the same data (`HOLIDAYS`) but emphasizes a different intent. First cluster: `/india/upcoming-holidays`, `/india/holiday-calendar-2026`.
+
+| Cluster page | Route | Target keywords |
+|---|---|---|
+| Main: yes/no answer *(renumbered 2026-09-25; was 5.1)* | `/india`, `/usa/california` | "is today a holiday in [loc]" |
+| List: upcoming holidays *(renumbered 2026-09-25; was 5.2)* | `/india/upcoming-holidays`, `/usa/california/upcoming-holidays` | "[loc] holidays 2026", "next holiday in [loc]" |
+| Calendar: full year view *(renumbered 2026-09-25; was 5.3)* | `/india/holiday-calendar-2026` | "[loc] holiday calendar 2026" |
+| History: past holidays this year *(renumbered 2026-09-25; was 5.4)* | `/india/holidays-so-far-2026` | "[loc] holidays so far 2026" |
+
+### v3.E — More countries
+
+| Slug | Country | Type | Priority | Notes |
+|---|---|---|---|---|
+| `australia` *(renumbered 2026-09-25; was 2.7)* | Australia | public | High | Federal + state-specific |
+| `australia/new-south-wales` *(renumbered 2026-09-25; was 2.8)* | AU | public | Med | Bank Holiday, Labour Day variants |
+| `australia/victoria` *(renumbered 2026-09-25; was 2.9)* | AU | public | Med | Melbourne Cup Day |
+| `germany` *(renumbered 2026-09-25; was 2.10)* | Germany | public | Med | Federal holidays + state variants (Bavaria etc.) |
+| `france` *(renumbered 2026-09-25; was 2.11)* | France | public | Med | 11 jours fériés |
+| `japan` *(renumbered 2026-09-25; was 2.12)* | Japan | public | Med | 16 national holidays |
+
+### v3.F — Holiday-type pages
+
+| Slug pattern | Example | Type | Notes |
+|---|---|---|---|
+| `{country}/bank-holiday` *(renumbered 2026-09-25; was 2.20)* | `india/bank-holiday`, `usa/bank-holiday`, `uk/bank-holiday` | bank | Already done for IN/US — extend |
+| `{country}/school-holiday` *(renumbered 2026-09-25; was 2.21)* | `india/school-holiday`, `usa/school-holiday` | school | Term-break dates per country |
+| `{country}/{state}/bank-holiday` *(renumbered 2026-09-25; was 2.22)* | `usa/california/bank-holiday` | bank | State-level variants where relevant |
+
+### v3.G — Date-intent pages
+
+| Slug | Search intent |
+|---|---|
+| `is-monday-a-holiday` *(renumbered 2026-09-25; was 2.30)* | Day-of-week queries |
+| `is-friday-a-holiday` *(renumbered 2026-09-25; was 2.31)* | Day-of-week queries |
+| `next-public-holiday-india` *(renumbered 2026-09-25; was 2.32)* | "next holiday" queries |
+| `holidays-this-month-usa` *(renumbered 2026-09-25; was 2.33)* | Monthly calendar intent |
+| `is-tomorrow-a-holiday-india` *(renumbered 2026-09-25; was 2.34)* | Forward-looking variant |
+
+### v4.B — Data layer split
+
+calcengine's lesson: **don't hardcode data inside .tsx files** — extract to versioned JSON. We're currently OK (one `holidays.ts` file), but as we scale we should split.
+
+| File | Contents | `lastVerified` |
+|---|---|---|
+| `src/data/holidays/india.json` *(renumbered 2026-09-25; was 6.1)* | All India national + state holidays | yes |
+| `src/data/holidays/usa.json` *(renumbered 2026-09-25; was 6.2)* | Federal + state holidays | yes |
+| `src/data/holidays/uk.json` *(renumbered 2026-09-25; was 6.3)* | Bank Holidays Act schedule | yes |
+| `src/data/holidays/{country}.json` *(renumbered 2026-09-25; was 6.4)* | one file per country | yes |
+| `src/lib/holidays.ts` *(renumbered 2026-09-25; was 6.5)* | thin barrel that imports + types the JSON | — |
+
+### v4.C — Freshness markers
+
+Mirrors calcengine's freshness phase.
+
+| Signal | Source | Where shown |
+|---|---|---|
+| **Code freshness** "Last updated from git at" *(renumbered 2026-09-25; was 6.10)* | `git log -1 --format=%ai` on `data.ts`/`holidays.ts` at build time | Footer of each page + `dateModified` JSON-LD |
+| **Data freshness** "Data verified" *(renumbered 2026-09-25; was 6.11)* | manual `meta.dataUpdated` per `SeoPage` | Inline below calculator |
+
+### v4.D — Ingestion pipelines
+
+Same pattern as calcengine's "OpenAI pricing scraper" — highest churn first.
+
+| Source | Method | Why |
+|---|---|---|
+| India → `data.gov.in` "Holidays" dataset *(renumbered 2026-09-25; was 6.20)* | scheduled CI scrape | 28 states, evolves yearly |
+| USA → OPM federal holiday schedule *(renumbered 2026-09-25; was 6.21)* | yearly manual update | federal only changes ~once/decade |
+| UK → `gov.uk/bank-holidays.json` (official JSON API) *(renumbered 2026-09-25; was 6.22)* | scheduled CI fetch | official feed exists |
+| Canada → `canada.ca` statutory holidays *(renumbered 2026-09-25; was 6.23)* | yearly manual update | — |
+| Australia → `data.gov.au` holiday API *(renumbered 2026-09-25; was 6.24)* | scheduled CI fetch | official feed exists |
+
+### v5.B — UX & accessibility
+
+| Feature | Effort | Source pattern |
+|---|---|---|
+| Dark mode (`localStorage` + cross-island sync) *(renumbered 2026-09-25; was 7.1)* | M | calcengine `DarkModeToggle.tsx` + `ThemeContext.tsx` |
+| Mobile-first audit (current scaffold uses `container` only) *(renumbered 2026-09-25; was 7.2)* | S | shadcn defaults |
+| ARIA labels on all interactive elements *(renumbered 2026-09-25; was 7.3)* | S | calcengine standard |
+| Keyboard navigation through Select widgets *(renumbered 2026-09-25; was 7.4)* | S | Radix handles by default |
+| Reduced-motion support *(renumbered 2026-09-25; was 7.5)* | XS | tailwindcss-animate respects it |
+| Loading states / suspense fallbacks (post-SSG) *(renumbered 2026-09-25; was 7.6)* | S | — |
+
+### v5.C — Analytics & promotion
+
+| Feature | Notes |
+|---|---|
+| GA4 page-view tracking *(renumbered 2026-09-25; was 8.1)* | mirror `calcengine/src/analytics/ga.ts` |
+| Search Console verification *(renumbered 2026-09-25; was 8.2)* | manual |
+| Backlink campaign — Reddit (`r/personalfinance`, `r/India`, `r/AskAnAmerican`) *(renumbered 2026-09-25; was 8.3)* | calcengine playbook |
+| Dev.to / HN: "I built a free 'is today a holiday' API" angle *(renumbered 2026-09-25; was 8.4)* | "built a free tool" framing |
+| UTM tagging for inbound campaigns *(renumbered 2026-09-25; was 8.5)* | — |
+
 ---
 
-## Constraints (mirror calcengine)
-
-- ❌ Do **NOT** overbuild UI
-- ❌ Do **NOT** block on perfection
-- ❌ Do **NOT** add accounts, login, or backend before Phase 8 complete
-- ✅ Ship fast, iterate later
-- ✅ Prioritize SEO over design
-
-## Definition of Done — per pSEO page
+## 8. Definition of Done — per pSEO page
 
 A location/type page is **complete** when:
-- Static HTML emitted at build time (Phase 4-A) — Googlebot sees full content
-- Golden-page schema fields all populated (Phase 3-A)
+- Static HTML emitted at build time (v2.B) — Googlebot sees full content
+- Golden-page schema fields all populated (v2.G)
 - ≥3 internal links rendered outside React island
-- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries
-- OG image present at `/og/{slug}.png`
+- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.I)
+- OG image present at `/og/{slug}.png` (v3.C)
 - Listed in `sitemap.xml`
 - `lastUpdated` + `dataUpdated` markers visible
 - Cloudflare deploy green; no console errors
 
----
-
-## Out of scope / don't touch
+## 9. Out of scope / don't touch
 
 - `genai/holiday-hub/` — Lovable reference scaffold, gitignored
 - The parent `sites/` `Makefile` and `dev_container.sh`
 - Backend / accounts / payments — not a product
-
----
-
-## Priority order (next 30 days)
-
-✅ **Already live on `https://isitholiday.today` (auto-deploy from `main`):**
-- Phase 4-A1 — `vite-react-ssg` static pre-rendering (`452bbf6`)
-- Phase 4-A2 — trailing-slash normalisation (`e18f8ec`, 2026-09-15)
-- Phase 4-B 4.1 — sitemap.xml at build + dev middleware (`e476b83`)
-- All 11 static HTML pages indexable; deploy verified post-push.
-
-**Diagnosis driving this order (GSC 28d + conformance, 2026-09-15):** 299
-impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed.
-Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and
-*thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships
-first; content is the real unlock and takes the most work.
-
-**Remaining queue:**
-
-1. **Phase 4-B 4.12–4.14** — internal-link starvation, `meta robots`, JSON-LD canonical mismatch. Small, mechanical, same sitting. Unblocks crawling of the 4 starved pages.
-2. **Phase 4-D (4.30–4.32)** — IndexNow ping + sitemap resubmit + per-URL indexing requests, once #1 is live. Operator-run.
-3. **Phase 3-A** — extend `SeoPage` schema with `tagline`, `intro`, `howItWorks`, `tips`, `faq`, `lastUpdated`, `keywords`; backfill all 9 pages. The Soft-404 / thin-content fix. Blocks 4.6/4.7/4.15. **Every holiday fact needs an official source cited in the commit — no invented dates.**
-4. **Phase 4-C** — privacy / terms / about pages + footer (1 day)
-5. **Phase 4-B (4.3, 4.6, 4.7)** — WebSite/SearchAction + Breadcrumb + FAQPage JSON-LD (4.6/4.7 land for free once 3-A backfills)
-6. **Phase 2-A** — add UK + Canada (8 more pages, quick wins via official JSON feeds)
-7. **Phase 4-B 4.9** — OG image build pipeline
-8. **Phase 5** — first content cluster (`/india/upcoming-holidays`, `/india/holiday-calendar-2026`)
-9. **Phase 6-A** — split holidays.ts into per-country JSON
-10. **Phase 9** — repo & docs hygiene (non-blocking; do it while waiting on GSC windows)
-
-Everything beyond #10 is post-MVP scaling.
-
-## Problem
-
-<1-2 sentences: what is the user-facing problem this site solves?
-Who has it? Why does it matter?>
-
-## Users
-
-<Who's the target user? What do they care about? Roughly how many
-exist? What's their willingness to pay / engage?>
-
