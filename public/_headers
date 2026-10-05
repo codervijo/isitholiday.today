@@ -1,0 +1,15 @@
+# HTML answers change daily (scheduled rebuild — workers/daily-rebuild/), and
+# clean URLs (/india/) don't match a /*.html rule, so revalidate everything by
+# default: neither browsers nor CF's edge may serve yesterday's answer. This
+# also covers robots.txt and sitemap.xml.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Hashed bundles never change. `!` detaches the /* value first — without it CF
+# joins both Cache-Control values with a comma.
+/assets/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable

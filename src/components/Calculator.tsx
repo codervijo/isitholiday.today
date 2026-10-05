@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { getTodayHoliday } from "@/lib/holiday";
+import { scopeTimeZone, useNow } from "@/lib/today";
 import type { HolidayType } from "@/lib/holidays";
 
 const COUNTRIES = [
@@ -58,14 +59,17 @@ export default function Calculator({ prefillCountry = "india", prefillState = nu
   const [state, setState] = useState<string>(prefillState ?? "all");
   const [type, setType] = useState<string>(prefillType ?? "all");
 
+  const now = useNow();
+  const timeZone = scopeTimeZone(country, state === "all" ? null : state);
   const result = useMemo(
     () =>
       getTodayHoliday({
         country,
         state: state === "all" ? null : state,
         type: type === "all" ? null : (type as HolidayType),
+        now,
       }),
-    [country, state, type]
+    [country, state, type, now]
   );
 
   const stateOptions = STATES_BY_COUNTRY[country] ?? [{ value: "all", label: "All" }];
@@ -138,6 +142,9 @@ export default function Calculator({ prefillCountry = "india", prefillState = nu
               </div>
             </div>
           )}
+          <p className="text-xs text-muted-foreground mt-3">
+            Answer for {formatDate(result.date)} in the {timeZone.replace("_", " ")} time zone.
+          </p>
         </div>
       </CardContent>
     </Card>

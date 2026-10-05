@@ -183,3 +183,18 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > - Tests in `ssg-output.seo.test.ts` assert both files are well-formed and the URL set matches `[/, /holiday-checker, ...PAGES[].slug]` exactly.
 
 **Outcome:** 11 URLs in `sitemap.xml`, sorted alphabetically, all canonical-form. 4 new SEO tests added (51 total in `pnpm test:seo`). No new dependencies — uses Node's built-in `fs.readdirSync({ recursive: true })` (Node 18.17+).
+
+## 2026-10-05 — v2.F date correctness + scheduled rebuild
+
+> Critical issue first: date correctness. The live homepage appeared to expose stale date/holiday information to crawlers. Ensure correct current date, correct timezone behavior, deterministic server/static rendering, no stale build-time date accidentally persists, appropriate caching/revalidation, JS hydration does not replace contradictory server HTML. Fix the root cause, not the symptom.
+>
+> Do daily rebuild like we did for montereybayevents.com — do it via the API like montereybayevents.
+
+**Outcome:** "today" is computed per scope timezone (`src/lib/today.ts`); SSR and the first client render share `__BUILD_TIME__`, then a post-mount effect moves to the live clock. `public/_headers` makes HTML revalidate. Cron-only Worker `isitholiday-daily-rebuild` (source: `workers/daily-rebuild/`) uploaded via the CF API, firing a Pages deploy hook at 18:35 / 05:05 / 08:05 UTC.
+
+## 2026-10-05 — /india/ soft-404 + homepage discovery links
+
+> 1. /india/ soft-404 — highest priority. Make sure the deployed page has a substantial, server-rendered answer: today's India holiday status, next holiday, upcoming holidays, links to bank holidays/Kerala/Tamil Nadu, and unique metadata.
+> 3. Strengthen discovery links. Homepage should have crawlable HTML links directly to every location page and /holiday-checker/. Not JS-only selectors.
+
+**Outcome:** optional `intro` + `sources` on `SeoPage`; India intro written only from the source notes in `holidays.ts`; server-rendered "Upcoming holidays" table with source links on all location pages (omitted when the scope has no future dates); every page links to all others as static `<a href>`.

@@ -4,6 +4,8 @@ Programmatic-SEO site answering *"Is today a holiday in [location]?"* — modele
 
 > **Key insight (mirrors calcengine):** This is not a product. It is a **search-engine surface-area generator.** Volume × structure × internal linking = SEO growth.
 
+*(2026-10-05: v2.F Date correctness inserted; old v2.F–v2.J are now v2.G–v2.K.)*
+
 *(Renumbered 2026-09-25 from `Phase 1–9` / `4-A` / `4.12` to the canonical two-level `vN.X` scheme. Old IDs survive as lineage markers on the rows that replaced them. Commits and `docs/Prompts.md` entries before this date use the old IDs.)*
 
 ---
@@ -56,11 +58,12 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.C** | Crawl surface | `sitemap.xml` generator + sitemap-aware `robots.txt` (`e476b83`) | ✅ |
 | **v2.D** | Trailing-slash URLs | Canonicals / sitemap / internal links / JSON-LD slashed (`e18f8ec`) | ✅ |
 | **v2.E** | Crawl plumbing fixes | Internal-link starvation, `meta robots`, JSON-LD URL = canonical | next |
-| **v2.F** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
-| **v2.G** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
-| **v2.H** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
-| **v2.I** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
-| **v2.J** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
+| **v2.F** | Date correctness | Per-scope timezone "today", build-time clock shared by SSR + hydration, scheduled rebuild Worker, HTML cache headers | in progress |
+| **v2.G** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
+| **v2.H** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
+| **v2.I** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
+| **v2.J** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
+| **v2.K** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
 | **v3.A** | Kickoff / decisions lock | Lock page-type slugs, country order, data sources | planned |
 | **v3.B** | UK + Canada | 6 country/region pages via official feeds | planned |
 | **v3.C** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
@@ -100,7 +103,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 
 ### v2.A — Kickoff / decisions lock
 
-**Diagnosis (GSC 28d + conformance, 2026-09-15):** 299 impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed. Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and *thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships first (v2.D–v2.F); content is the real unlock and takes the most work (v2.G).
+**Diagnosis (GSC 28d + conformance, 2026-09-15):** 299 impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed. Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and *thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships first (v2.D–v2.G); content is the real unlock and takes the most work (v2.H).
 
 **Stack decision (2026-05-01):** calcengine uses Astro SSG; we were a Vite + React SPA, which slowed discovery and weakened link equity inside React-rendered DOM (calcengine's H1 incident: all `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links). Resolved in v2.B with `vite-react-ssg` instead of an Astro rewrite. Astro migration stays deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
 
@@ -129,11 +132,29 @@ Small, mechanical, same sitting. Unblocks crawling of the 4 starved pages.
 
 | Feature | Effort | Status | Source |
 |---|---|---|---|
-| **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice *(renumbered 2026-09-25; was 4.12)* | S | ❌ | measured, not inherited |
+| **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice *(renumbered 2026-09-25; was 4.12)* | S | ✅ 2026-10-05 — every page (incl. `/`) links to all 9 others + `/holiday-checker/` as static `<a href>`; switch to sibling/parent once v3 grows the set | measured, not inherited |
 | `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` *(renumbered 2026-09-25; was 4.13)* | XS | ❌ | conformance CHECK_075 |
 | JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` *(renumbered 2026-09-25; was 4.14)* | XS | ❌ | conformance CHECK_092 |
 
-### v2.F — Index repair ops
+### v2.F — Date correctness
+
+**Root cause (2026-10-05):** "today" is evaluated by `vite-react-ssg` at *build* time, so the
+static HTML Googlebot fetches is frozen at the last push. Three compounding faults:
+(1) no scheduled rebuild — Cloudflare Pages only builds on push; (2) `todayIso()` used the
+UTC date, wrong for both India (IST, +5:30) and the US evening; (3) hydration recomputed
+from the visitor's clock during the first render, so client and server HTML could disagree.
+Mirrors montereybayevents.com v1.Q's daily-rebuild fix.
+
+| Feature | Status | File(s) |
+|---|---|---|
+| Per-scope timezone: India → `Asia/Kolkata`; USA → `America/New_York`; CA/TX/NY → state zone | ✅ | `src/lib/today.ts`, `src/lib/holiday.ts` |
+| Build timestamp `__BUILD_TIME__` drives the SSR + first client render (no hydration mismatch); a post-mount effect advances to the live clock | ✅ | `vite.config.ts`, `src/lib/today.ts`, `src/components/Calculator.tsx`, `src/components/Layout.tsx` |
+| Visible "as of" line naming the date + timezone the answer is computed for | ✅ | `src/components/Calculator.tsx` |
+| `public/_headers` — HTML `max-age=0, must-revalidate`; `/assets/*` immutable | ✅ | `public/_headers` |
+| Scheduled rebuild Worker — cron-only, fires a Pages deploy hook just after midnight IST, ET and PT | ✅ uploaded 2026-10-05 via CF API (`isitholiday-daily-rebuild`) | `workers/daily-rebuild/` |
+| Deploy hook `daily-rebuild` → `main` created; bound as `DEPLOY_HOOK` secret; workers.dev disabled | ✅ | CF API |
+
+### v2.G — Index repair ops
 
 Operator-run, not code. These are the one-shot pushes that tell Google the
 v2.D fix landed; without them the corrected URLs wait on an organic recrawl.
@@ -151,9 +172,9 @@ Run **after** a deploy carrying v2.D + v2.E is live.
 (index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
 Google's schedule, not ours — do not treat a green local build as proof.
 
-### v2.G — Golden-page content
+### v2.H — Golden-page content
 
-The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.I. **Every holiday fact needs an official source cited in the commit — no invented dates.**
+The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.J. **Every holiday fact needs an official source cited in the commit — no invented dates.**
 
 calcengine's "golden page" rule: every page must match `openai-cost-calculator` exactly. Define ours, then enforce.
 
@@ -196,9 +217,10 @@ calcengine's "golden page" rule: every page must match `openai-cost-calculator` 
 
 | Feature | Effort | Status | Source |
 |---|---|---|---|
+| `/india/` soft-404 slice (GSC 2026-10-05): `intro` + `sources` fields (optional), India intro from DoPT/RBI source notes, unique 154-char description, server-rendered "Upcoming holidays" table + source links on all 9 pages | M | ✅ 2026-10-05 | GSC coverage |
 | Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar or drop it from the sitemap *(renumbered 2026-09-25; was 4.15)* | S | ❌ | GSC coverage, 2026-09-15 |
 
-### v2.H — Legal + E-E-A-T
+### v2.I — Legal + E-E-A-T
 
 calcengine's "Critical" SEO issues that cost them: missing legal + missing about page.
 
@@ -209,9 +231,9 @@ calcengine's "Critical" SEO issues that cost them: missing legal + missing about
 | About *(renumbered 2026-09-25; was 4.22)* | `/about` | Author/operator name, methodology, data sources |
 | Footer with all links *(renumbered 2026-09-25; was 4.23)* | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
 
-### v2.I — Structured data
+### v2.J — Structured data
 
-Breadcrumb + FAQPage land for free once v2.G backfills.
+Breadcrumb + FAQPage land for free once v2.H backfills.
 
 | Feature | Effort | Status | Source of pattern |
 |---|---|---|---|
@@ -219,11 +241,11 @@ Breadcrumb + FAQPage land for free once v2.G backfills.
 | JSON-LD: `Organization` (with `logo`, `sameAs`) *(renumbered 2026-09-25; was 4.4)* | S | ❌ | calcengine PRD C2 |
 | JSON-LD: `WebApplication` site-wide *(renumbered 2026-09-25; was 4.5)* | S | ❌ | calcengine |
 | JSON-LD: `BreadcrumbList` on detail pages *(renumbered 2026-09-25; was 4.6)* | M | ❌ | calcengine — required pattern |
-| JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.G `faq` field) | calcengine — required when FAQ exists |
+| JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.H `faq` field) | calcengine — required when FAQ exists |
 | JSON-LD: `Event` per holiday (date, location, name) *(renumbered 2026-09-25; was 4.8)* | M | ❌ | unique to us — schema.org/Event |
 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) *(renumbered 2026-09-25; was 4.11)* | S | ❌ | calcengine H1 fix — must render outside React island |
 
-### v2.J — Repo & docs hygiene
+### v2.K — Repo & docs hygiene
 
 Not SEO work; cleanup that keeps the docs honest for the next session. None of
 it blocks traffic — do it while waiting on GSC windows.
@@ -362,9 +384,9 @@ Same pattern as calcengine's "OpenAI pricing scraper" — highest churn first.
 
 A location/type page is **complete** when:
 - Static HTML emitted at build time (v2.B) — Googlebot sees full content
-- Golden-page schema fields all populated (v2.G)
+- Golden-page schema fields all populated (v2.H)
 - ≥3 internal links rendered outside React island
-- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.I)
+- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.J)
 - OG image present at `/og/{slug}.png` (v3.C)
 - Listed in `sitemap.xml`
 - `lastUpdated` + `dataUpdated` markers visible

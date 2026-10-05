@@ -18,7 +18,7 @@ export default function CalculatorPage() {
       </section>
 
       <Calculator />
-      <InternalLinks />
+      <InternalLinks excludeSlug="holiday-checker" />
     </>
   );
 }

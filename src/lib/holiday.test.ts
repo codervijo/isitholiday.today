@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getTodayHoliday } from "./holiday";
+import { getTodayHoliday, getUpcomingHolidays } from "./holiday";
 
 describe("getTodayHoliday", () => {
   it("returns isHoliday=true on a known Indian holiday", () => {
@@ -61,5 +61,14 @@ describe("getTodayHoliday", () => {
     const r = getTodayHoliday({ country: "usa", type: "bank", today: "2026-12-25" });
     expect(r.isHoliday).toBe(true);
     expect(r.type).toBe("bank");
+  });
+});
+
+describe("getUpcomingHolidays", () => {
+  it("lists today and later, soonest first, within scope", () => {
+    const list = getUpcomingHolidays({ country: "india", today: "2026-10-02" }, 3);
+    expect(list.map((h) => h.date)).toEqual([...list.map((h) => h.date)].sort());
+    expect(list[0].name).toBe("Gandhi Jayanti");
+    expect(list.every((h) => h.country === "india" && h.state === null)).toBe(true);
   });
 });

@@ -53,6 +53,13 @@ function devSitemapPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), devSitemapPlugin()],
+  // One instant shared by the SSR pass and the client bundle, so the first
+  // client render reproduces the static HTML exactly. See src/lib/today.ts.
+  // Pinned in the env so a second evaluation of this config in the same build
+  // (client + SSR passes) cannot mint a different instant.
+  define: {
+    __BUILD_TIME__: JSON.stringify((process.env.BUILD_TIME ??= new Date().toISOString())),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

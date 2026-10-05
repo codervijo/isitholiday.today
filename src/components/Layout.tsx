@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import NavLink from "./NavLink";
+import { BUILD_TIME } from "@/lib/today";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -25,7 +26,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="border-t py-6 text-sm text-muted-foreground">
         <div className="container space-y-1 text-center">
           <p>Holiday data compiled from official government sources and reviewed for each calendar year.</p>
-          <p>© {new Date().getFullYear()} isitholiday.today · Static-first · Cloudflare Pages</p>
+          <p>© {BUILD_TIME.getUTCFullYear()} isitholiday.today · Static-first · Cloudflare Pages</p>
         </div>
       </footer>
     </div>
