@@ -74,6 +74,8 @@ After a feature ships successfully (commit lands, build green, acceptance criter
 ## Deployment
 - **Production domain:** `https://isitholiday.today` (DNS pointed at this Cloudflare Pages project).
 - **Host:** Cloudflare Pages, auto-deploying on every push to `main` of `github.com:codervijo/isitholiday.today` (no `wrangler.toml` in repo — CF auto-detects the Vite preset and runs `pnpm install && pnpm build`, publishing `dist/`).
+- **"Today" is a build-time value.** Pages are prerendered, so the answer in the HTML is the date of the last build, computed per scope timezone (`src/lib/today.ts`). The SSR pass and first client render share `__BUILD_TIME__` (no hydration mismatch); a post-mount effect advances visitors to the live clock. Never call `new Date()` in render code — use `useNow()` / `BUILD_TIME`.
+- **Scheduled rebuild:** a cron-only Worker (`workers/daily-rebuild/`, source of record) POSTs a Pages deploy hook just after midnight IST, ET and PT. It holds only the hook URL as a `DEPLOY_HOOK` secret, never an API token. Without it, crawled HTML freezes at the last push.
 - **Production canonical (hardcoded):** `https://isitholiday.today` in `src/components/Seo.tsx`. If the production domain ever moves, update that constant — every page's `<link rel="canonical">` and `og:url` is derived from it.
 
 ### Smoke test after a push
@@ -98,7 +100,8 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 - **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live.
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
 - **Current tier:** v2 — Indexability. v2.A–v2.D shipped.
-- **Next step (per `docs/prd.md` § 5. Phases):** v2.E — internal-link starvation fix, `meta robots`, JSON-LD URL = canonical. Then v2.F (operator-run index repair ops) and v2.G (golden-page content).
+- **Shipped locally (`f270838`, not pushed):** v2.F date correctness; rebuild Worker live on CF since 2026-10-05.
+- **Next step (per `docs/prd.md` § 5. Phases):** v2.E — internal-link starvation fix, `meta robots`, JSON-LD URL = canonical. Then v2.G (US answer-engine pages), v2.H (operator-run index repair ops) and v2.I (golden-page content).
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
@@ -131,3 +134,39 @@ Cloudflare Pages. Push to `main` triggers an auto-build via the
 `wrangler.jsonc` config; build output is `dist/`. Custom domain
 configured via the CF Pages dashboard.
 
+## Summary
+
+isitholiday.today answers "is today a holiday?" for a specific place and kind of closure: US federal, state, and Federal Reserve bank holidays, and India's Central Government gazetted, state, and RBI bank holidays. Every page leads with today's yes/no answer, the next holiday, and an upcoming-holidays table, all prerendered as static HTML and refreshed by a scheduled rebuild. Holiday data is hand-entered from official sources, with each source cited.
+
+## Audience
+
+Adults in the US and India checking whether offices, banks, schools, or mail are closed today.
+
+## ICP
+
+US adults about to go to the bank or post office, or waiting on mail, who search on their phone just before going: "is the post office open today", "is there mail today", "are banks closed today", "is today a federal holiday". They want a one-line answer above the fold and a reason they can trust: which calendar it comes from (OPM, Federal Reserve, USPS). Today they get it from generic search snippets, bank or USPS sites, or calendar sites that don't answer the specific closure question. Keyword data came from Ahrefs and was supplied by the operator (see `docs/prd.md`).
+
+## Goals
+
+Display-ad revenue from organic search traffic. Prioritize low-difficulty, high-volume "today" queries over the head term "is today a holiday" (KD 82), and let authority for that head term build over time.
+
+## Tech stack
+
+Vite 6 + React 18 + TypeScript, prerendered to static HTML with `vite-react-ssg`. Tailwind 3, shadcn/ui (Radix), lucide-react, React Router 6, TanStack Query 5. Vitest 3. pnpm 9. Hosted on Cloudflare Pages, plus one cron-only Worker (`workers/daily-rebuild/`) that triggers rebuilds. See **Stack — locked in** above for versions and dead ends.
+
+## Content strategy
+
+1. **US answer-engine pages first.** One page per closure intent: what holiday is today, is tomorrow a holiday, next holiday, federal holiday today, post office open today, mail today, banks open today. Each page answers above the fold, then gives the schedule, what's open and closed, exceptions, and sources. Planned as `docs/prd.md` v2.G.
+2. **Existing location pages.** These are the 9 US and India country, state, and bank pages, brought up to the golden-page bar (v2.I).
+3. **More countries and calendar clusters** (v3).
+
+Pages are mostly reference/tool pages with short explanatory prose. The prose must not state any fact that lacks a source.
+
+## Conventions
+
+- pnpm only; Vite ≥ 6; build and test only inside the `sites1` Docker image.
+- Holiday data lives in `src/lib/holidays.ts` with an official source cited per block. Never add an unsourced date.
+- "Today" is a build-time value: use `useNow()` / `BUILD_TIME` from `src/lib/today.ts`, never `new Date()` in render code.
+- Internal links and canonicals use trailing slashes (enforced by `ssg-output.seo.test.ts`).
+- New pSEO pages are entries in `src/lib/data.ts`, not new route files.
+- Phases use the two-level `vN.X` scheme in `docs/prd.md`. Deferred decisions go in `docs/CLAUDE.md` § Deferred decisions.
