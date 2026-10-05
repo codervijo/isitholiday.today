@@ -100,7 +100,7 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 - **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live.
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
 - **Current tier:** v2 — Indexability. v2.A–v2.D shipped.
-- **Shipped locally (`f270838`, not pushed):** v2.F date correctness; rebuild Worker live on CF since 2026-10-05.
+- **Shipped + live:** v2.F date correctness (`f270838`); rebuild Worker on CF since 2026-10-05. Session handoff: `docs/handoff.md`.
 - **Next step (per `docs/prd.md` § 5. Phases):** v2.E — internal-link starvation fix, `meta robots`, JSON-LD URL = canonical. Then v2.G (US answer-engine pages), v2.H (operator-run index repair ops) and v2.I (golden-page content).
 
 ## Goal — guiding principle
