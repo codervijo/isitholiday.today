@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { PAGES } from "../lib/data";
+import { CLOSURE_PAGES } from "../lib/closures";
 
 const repoRoot = path.resolve(__dirname, "../..");
 const distDir = path.join(repoRoot, "dist");
@@ -77,7 +78,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -101,6 +102,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
     const expected = [
       `${SITE}/`,
       `${SITE}/holiday-checker/`,
+      ...CLOSURE_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
@@ -119,5 +121,64 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
     expect(robots).toMatch(/User-agent:\s*\*/);
     expect(robots).toMatch(/Allow:\s*\//);
     expect(robots).toMatch(new RegExp(`Sitemap:\\s*${escapeRegex(SITE)}/sitemap\\.xml`));
+  });
+});
+
+describe("v2.E — meta robots + real 404", () => {
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
+
+  it.each(routes)("/%s declares index,follow", (slug) => {
+    expect(readDistHtml(slug)).toMatch(/<meta[^>]*name="robots"[^>]*content="index,follow"/);
+  });
+
+  it("dist/404.html exists, is noindex, and is not in the sitemap", () => {
+    const html = readFileSync(path.join(distDir, "404.html"), "utf8");
+    expect(html).toMatch(/<meta[^>]*name="robots"[^>]*content="noindex,follow"/);
+    expect(existsSync(path.join(distDir, "404"))).toBe(false);
+    expect(readFileSync(path.join(distDir, "sitemap.xml"), "utf8")).not.toContain("404");
+  });
+
+  it("home JSON-LD urls all equal the home canonical", () => {
+    const urls = [...readDistHtml("").matchAll(/"url":"([^"]+)"/g)].map((m) => m[1]);
+    expect(urls.length).toBeGreaterThan(0);
+    expect(new Set(urls)).toEqual(new Set([`${SITE}/`]));
+  });
+});
+
+describe("v2.G — holiday closure pages", () => {
+  describe.each(CLOSURE_PAGES)("/$slug/", (page) => {
+    let html: string;
+    beforeAll(() => {
+      html = readDistHtml(page.slug);
+    });
+
+    it("renders H1, direct answer, and every status row in static markup", () => {
+      expect(html).toContain(`>${page.h1}</h1>`);
+      expect(html).toContain(page.directAnswer);
+      for (const r of page.rows) expect(html).toContain(r.label);
+    });
+
+    it("has one matching <title>, own canonical, and description", () => {
+      const titles = html.match(/<title[^>]*>([^<]+)<\/title>/g) ?? [];
+      expect(titles).toHaveLength(1);
+      const decoded = (titles[0] ?? "").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
+      expect(decoded).toContain(page.title);
+      const desc = html.match(/name="description"[^>]*content="([^"]+)"/)?.[1] ?? "";
+      expect(desc.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&")).toBe(page.description);
+      expect(html).toMatch(new RegExp(`rel="canonical"[^>]*href="${SITE}/${page.slug}/"`));
+    });
+
+    it("FAQPage JSON-LD questions match the visible FAQ", () => {
+      const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)]
+        .map((m) => JSON.parse(m[1]));
+      const faq = blocks.find((b) => b["@type"] === "FAQPage");
+      expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(page.faq.map((f) => f.question));
+      for (const b of blocks) if (b.url) expect(b.url).toBe(`${SITE}/${page.slug}/`);
+    });
+  });
+
+  it("every page links to every closure page", () => {
+    const html = readDistHtml("");
+    for (const p of CLOSURE_PAGES) expect(html).toContain(`href="/${p.slug}/"`);
   });
 });

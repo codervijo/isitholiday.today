@@ -4,6 +4,8 @@ Programmatic-SEO site answering *"Is today a holiday in [location]?"* — modele
 
 > **Key insight (mirrors calcengine):** This is not a product. It is a **search-engine surface-area generator.** Volume × structure × internal linking = SEO growth.
 
+*(2026-11-23: v2.G Holiday closure pages inserted; the old v2.G–v2.L are now v2.H–v2.M.)*
+
 *(2026-10-05: v2.F Date correctness and v2.G Answer-engine pages inserted; the old v2.F–v2.J are now v2.H–v2.L.)*
 
 *(Renumbered 2026-09-25 from `Phase 1–9` / `4-A` / `4.12` to the canonical two-level `vN.X` scheme. Old IDs survive as lineage markers on the rows that replaced them. Commits and `docs/Prompts.md` entries before this date use the old IDs.)*
@@ -57,14 +59,15 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.B** | Static pre-rendering | `vite-react-ssg` build-time HTML (`452bbf6`) | ✅ |
 | **v2.C** | Crawl surface | `sitemap.xml` generator + sitemap-aware `robots.txt` (`e476b83`) | ✅ |
 | **v2.D** | Trailing-slash URLs | Canonicals / sitemap / internal links / JSON-LD slashed (`e18f8ec`) | ✅ |
-| **v2.E** | Crawl plumbing fixes | Internal-link starvation, `meta robots`, JSON-LD URL = canonical | next |
+| **v2.E** | Crawl plumbing fixes | Internal-link starvation, `meta robots`, JSON-LD URL = canonical, real 404 | ✅ |
 | **v2.F** | Date correctness | Per-scope timezone "today", build-time clock shared by SSR + hydration, scheduled rebuild Worker, HTML cache headers (`f270838`, live 2026-10-05) | ✅ |
-| **v2.G** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | planned |
-| **v2.H** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
-| **v2.I** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
-| **v2.J** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
-| **v2.K** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
-| **v2.L** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
+| **v2.G** | Holiday closure pages | One page per remaining 2026 US holiday (Christmas Eve, Christmas, New Year's Eve, New Year's Day): federal / Federal Reserve / Post Office / mail status, sourced | ✅ built 2026-11-23 |
+| **v2.H** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | planned |
+| **v2.I** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
+| **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
+| **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
+| **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
+| **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
 | **v3.A** | Kickoff / decisions lock | Lock page-type slugs, country order, data sources | planned |
 | **v3.B** | UK + Canada | 6 country/region pages via official feeds | planned |
 | **v3.C** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
@@ -83,8 +86,8 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 ## 6. Open questions
 
 - *(append-only log; mark answered with date but never delete)*
-- **2026-10-05 — v2.G:** does `/` itself become the "what holiday is today" page, or does `/what-holiday-is-today/` stay a separate route? Two pages for one intent would compete with each other.
-- **2026-10-05 — v2.G:** homepage checker default country. It is India today, but the target keywords are US.
+- **2026-10-05 — v2.H:** does `/` itself become the "what holiday is today" page, or does `/what-holiday-is-today/` stay a separate route? Two pages for one intent would compete with each other.
+- **2026-10-05 — v2.H:** homepage checker default country. It is India today, but the target keywords are US.
 
 ---
 
@@ -106,7 +109,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 
 ### v2.A — Kickoff / decisions lock
 
-**Diagnosis (GSC 28d + conformance, 2026-09-15):** 299 impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed. Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and *thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships first (v2.D–v2.H); content is the real unlock and takes the most work (v2.I).
+**Diagnosis (GSC 28d + conformance, 2026-09-15):** 299 impressions, 0 clicks, avg position 82.5; 4 of the 10 inspected URLs indexed. Two distinct causes — *plumbing* (redirecting canonicals, orphaned pages) and *thin content* (Soft 404 / crawled-not-indexed). Plumbing is cheap and ships first (v2.D–v2.I); content is the real unlock and takes the most work (v2.J).
 
 **Stack decision (2026-05-01):** calcengine uses Astro SSG; we were a Vite + React SPA, which slowed discovery and weakened link equity inside React-rendered DOM (calcengine's H1 incident: all `/calculators` `<a>` tags lived inside a React island, Googlebot saw zero outbound links). Resolved in v2.B with `vite-react-ssg` instead of an Astro rewrite. Astro migration stays deferred — only revisit if SEO growth stalls and `vite-react-ssg` proves limiting (e.g. needs MD/MDX-driven content).
 
@@ -136,8 +139,8 @@ Small, mechanical, same sitting. Unblocks crawling of the 4 starved pages.
 | Feature | Effort | Status | Source |
 |---|---|---|---|
 | **Internal-link starvation fix** — `InternalLinks` slices `PAGES` to the first 6, so `/usa/new-york/` + `/usa/bank-holiday/` receive **0** inbound internal links and `/usa/texas/` only 6 (measured in `dist/`, 2026-09-15). All four orphan-ish pages are GSC "Discovered — not indexed". Link each page to its siblings + parent instead of a fixed prefix slice *(renumbered 2026-09-25; was 4.12)* | S | ✅ 2026-10-05 — every page (incl. `/`) links to all 9 others + `/holiday-checker/` as static `<a href>`; switch to sibling/parent once v3 grows the set | measured, not inherited |
-| `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` *(renumbered 2026-09-25; was 4.13)* | XS | ❌ | conformance CHECK_075 |
-| JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` *(renumbered 2026-09-25; was 4.14)* | XS | ❌ | conformance CHECK_092 |
+| `<meta name="robots">` — `index,follow` site-wide via `Seo.tsx`; `noindex` on `NotFound` *(renumbered 2026-09-25; was 4.13)* | XS | ✅ 2026-11-23 — plus `dist/404.html` prerendered so CF Pages returns a real 404 (unknown URLs were 200 + homepage, a soft-404 source) | conformance CHECK_075 |
+| JSON-LD URL must equal the page's own canonical — homepage `WebApplication` currently declares `url: /holiday-checker/` *(renumbered 2026-09-25; was 4.14)* | XS | ✅ 2026-11-23 | conformance CHECK_092 |
 
 ### v2.F — Date correctness
 
@@ -157,7 +160,22 @@ Mirrors montereybayevents.com v1.Q's daily-rebuild fix.
 | Scheduled rebuild Worker — cron-only, fires a Pages deploy hook just after midnight IST, ET and PT | ✅ uploaded 2026-10-05 via CF API (`isitholiday-daily-rebuild`) | `workers/daily-rebuild/` |
 | Deploy hook `daily-rebuild` → `main` created; bound as `DEPLOY_HOOK` secret; workers.dev disabled | ✅ | CF API |
 
-### v2.G — Answer-engine pages
+### v2.G — Holiday closure pages
+
+**Why (2026-11-23):** US Google Ads volume (DataForSEO via treg, Dec 2025) shows holiday-specific closure queries spike hard in their own month: "is christmas eve a federal holiday" 246K, "are banks open on christmas eve" 135K, "are banks open on new years eve" 135K, "is the post office open on christmas eve" 110K, "are banks open on new years day" 49.5K. Date-only queries ("is december 26 a holiday") peak at 8.1K and were rejected as thin. Thanksgiving / Black Friday (peak Nov) judged too late to rank in 2026.
+
+Evergreen slugs (no year) so each page accumulates authority across years; content is dated and updated per cycle.
+
+| Feature | Status | File(s) |
+|---|---|---|
+| Closure data: per holiday, status for federal offices, Federal Reserve, Post Offices, mail delivery — every row cites OPM / Federal Reserve K.8 / USPS | ✅ | `src/lib/closures.ts` |
+| Page template: H1 + direct answer, status table, explainer, FAQ (FAQPage JSON-LD = visible text), sources, "last checked" date | ✅ | `src/pages/ClosurePageRoute.tsx` |
+| 4 routes: `/christmas-eve/`, `/christmas/`, `/new-years-eve/`, `/new-years-day/`; linked from every page; in sitemap | ✅ | `src/App.tsx`, `src/components/InternalLinks.tsx` |
+| Cross-check test: closure statuses agree with `HOLIDAYS` (federal + Fed rows) | ✅ | `src/lib/closures.test.ts` |
+| Operator: re-check for a Dec 24 / Dec 31 executive order around Dec 18 and update `closures.ts` | ❌ | Federal Register |
+| Next cycle: roll pages to 2027 dates; add Thanksgiving / Black Friday pages before Nov 2027 | ❌ | — |
+
+### v2.H — Answer-engine pages
 
 Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs and was supplied by the operator on 2026-10-05:
 
@@ -180,11 +198,11 @@ Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs a
 | 7 routes, each with its own intent-specific explainer (definitions, what's open and closed, exceptions) | L | ❌ | Not thin pages: the dynamic answer and static explanatory content must work together |
 | Mail/USPS precision — distinguish retail counters, regular delivery, Priority Mail Express, federal holidays, Sundays | — | ❌ | Say "USPS observes…"; never claim a local branch is open, because the site has no branch data |
 | Bank precision — Federal Reserve schedule vs. individual banks, which can vary | — | ❌ | |
-| JSON-LD that matches the visible answer, plus sitemap entries and links from `/` and every page | S | ❌ | Ties into v2.K structured data |
+| JSON-LD that matches the visible answer, plus sitemap entries and links from `/` and every page | S | ❌ | Ties into v2.L structured data |
 
 **Overlap:** the US date-intent items in v3.G are superseded by this phase. The India variants stay in v3.G.
 
-### v2.H — Index repair ops
+### v2.I — Index repair ops
 
 Operator-run, not code. These are the one-shot pushes that tell Google the
 v2.D fix landed; without them the corrected URLs wait on an organic recrawl.
@@ -202,9 +220,9 @@ Run **after** a deploy carrying v2.D + v2.E is live.
 (index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
 Google's schedule, not ours — do not treat a green local build as proof.
 
-### v2.I — Golden-page content
+### v2.J — Golden-page content
 
-The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.K. **Every holiday fact needs an official source cited in the commit — no invented dates.**
+The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.L. **Every holiday fact needs an official source cited in the commit — no invented dates.**
 
 calcengine's "golden page" rule: every page must match `openai-cost-calculator` exactly. Define ours, then enforce.
 
@@ -250,7 +268,7 @@ calcengine's "golden page" rule: every page must match `openai-cost-calculator` 
 | `/india/` soft-404 slice (GSC 2026-10-05): `intro` + `sources` fields (optional), India intro from DoPT/RBI source notes, unique 154-char description, server-rendered "Upcoming holidays" table + source links on all 9 pages | M | ✅ 2026-10-05 | GSC coverage |
 | Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar or drop it from the sitemap *(renumbered 2026-09-25; was 4.15)* | S | ❌ | GSC coverage, 2026-09-15 |
 
-### v2.J — Legal + E-E-A-T
+### v2.K — Legal + E-E-A-T
 
 calcengine's "Critical" SEO issues that cost them: missing legal + missing about page.
 
@@ -261,9 +279,9 @@ calcengine's "Critical" SEO issues that cost them: missing legal + missing about
 | About *(renumbered 2026-09-25; was 4.22)* | `/about` | Author/operator name, methodology, data sources |
 | Footer with all links *(renumbered 2026-09-25; was 4.23)* | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
 
-### v2.K — Structured data
+### v2.L — Structured data
 
-Breadcrumb + FAQPage land for free once v2.I backfills.
+Breadcrumb + FAQPage land for free once v2.J backfills.
 
 | Feature | Effort | Status | Source of pattern |
 |---|---|---|---|
@@ -271,11 +289,11 @@ Breadcrumb + FAQPage land for free once v2.I backfills.
 | JSON-LD: `Organization` (with `logo`, `sameAs`) *(renumbered 2026-09-25; was 4.4)* | S | ❌ | calcengine PRD C2 |
 | JSON-LD: `WebApplication` site-wide *(renumbered 2026-09-25; was 4.5)* | S | ❌ | calcengine |
 | JSON-LD: `BreadcrumbList` on detail pages *(renumbered 2026-09-25; was 4.6)* | M | ❌ | calcengine — required pattern |
-| JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.I `faq` field) | calcengine — required when FAQ exists |
+| JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.J `faq` field) | calcengine — required when FAQ exists |
 | JSON-LD: `Event` per holiday (date, location, name) *(renumbered 2026-09-25; was 4.8)* | M | ❌ | unique to us — schema.org/Event |
 | Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) *(renumbered 2026-09-25; was 4.11)* | S | ❌ | calcengine H1 fix — must render outside React island |
 
-### v2.L — Repo & docs hygiene
+### v2.M — Repo & docs hygiene
 
 Not SEO work; cleanup that keeps the docs honest for the next session. None of
 it blocks traffic — do it while waiting on GSC windows.
@@ -414,9 +432,9 @@ Same pattern as calcengine's "OpenAI pricing scraper" — highest churn first.
 
 A location/type page is **complete** when:
 - Static HTML emitted at build time (v2.B) — Googlebot sees full content
-- Golden-page schema fields all populated (v2.I)
+- Golden-page schema fields all populated (v2.J)
 - ≥3 internal links rendered outside React island
-- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.K)
+- JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.L)
 - OG image present at `/og/{slug}.png` (v3.C)
 - Listed in `sitemap.xml`
 - `lastUpdated` + `dataUpdated` markers visible

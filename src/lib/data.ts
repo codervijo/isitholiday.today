@@ -33,7 +33,7 @@ export interface SeoPage {
   h1: string;
   description: string;
   directAnswer: string;
-  /** Below-calculator prose (v2.H golden-page field; optional until backfilled). */
+  /** Below-calculator prose (v2.J golden-page field; optional until backfilled). */
   intro?: string[];
   /** Official sources the page's holiday data comes from. */
   sources?: Source[];

@@ -6,6 +6,8 @@ import Index from "./pages/Index";
 import CalculatorPage from "./pages/CalculatorPage";
 import SeoPageRoute from "./pages/SeoPageRoute";
 import NotFound from "./pages/NotFound";
+import ClosurePageRoute from "./pages/ClosurePageRoute";
+import { CLOSURE_PAGES } from "./lib/closures";
 import { PAGES } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,11 @@ export const routes: RouteRecord[] = [
     children: [
       { index: true, Component: Index },
       { path: "holiday-checker", Component: CalculatorPage },
+      // v2.G holiday closure pages: static segments outrank the :country param route.
+      ...CLOSURE_PAGES.map((page) => ({
+        path: page.slug,
+        Component: () => <ClosurePageRoute page={page} />,
+      })),
       {
         path: ":country",
         Component: SeoPageRoute,
@@ -40,6 +47,8 @@ export const routes: RouteRecord[] = [
         Component: SeoPageRoute,
         getStaticPaths: () => nestedSlugs,
       },
+      // Prerendered to dist/404.html (see vite.config.ts) so CF Pages returns a real 404.
+      { path: "404", Component: NotFound },
       { path: "*", Component: NotFound },
     ],
   },

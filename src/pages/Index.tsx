@@ -51,7 +51,7 @@ const FAQS = [
   },
   {
     q: "Which countries are covered?",
-    a: "The United States and India at state level, plus the United Kingdom, Canada, and Australia nationally, across public, bank, and school holiday types where applicable.",
+    a: "The United States (federal holidays, California, Texas, New York, and Federal Reserve bank holidays) and India (Central Government holidays, Kerala, Tamil Nadu, and bank holidays).",
   },
 ];
 
@@ -71,14 +71,14 @@ const orgSchema = {
   name: "isitholiday.today",
   url: "https://isitholiday.today/",
   description:
-    "Instant answers on whether today is a public, bank, or school holiday across the US, India, UK, Canada, and Australia.",
+    "Instant answers on whether today is a public or bank holiday in the US and India.",
 };
 
 const appSchema = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "Holiday Checker",
-  url: "https://isitholiday.today/holiday-checker/",
+  url: "https://isitholiday.today/",
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "All",
   browserRequirements: "Requires JavaScript",
@@ -92,7 +92,7 @@ export default function Index() {
     <>
       <Seo
         title="Is Today a Holiday? — isitholiday.today"
-        description="Instant answer: is today a public, bank, or school holiday in your country or state? Covers India, USA, UK, Canada, Australia."
+        description="Instant answer: is today a public, bank, or school holiday in your country or state? Covers the USA and India."
         path="/"
         jsonLd={[orgSchema, appSchema, faqSchema]}
       />

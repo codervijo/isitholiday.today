@@ -1,7 +1,7 @@
 /// <reference types="vite-react-ssg" />
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import { readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const SITE = "https://isitholiday.today";
@@ -40,7 +40,15 @@ function devSitemapPlugin(): Plugin {
         try {
           const mod = await server.ssrLoadModule("/src/lib/data.ts");
           const pages = (mod as { PAGES: { slug: string }[] }).PAGES;
-          const urls = ["/", "/holiday-checker/", ...pages.map((p) => `/${p.slug}/`)];
+          const closures = (
+            (await server.ssrLoadModule("/src/lib/closures.ts")) as { CLOSURE_PAGES: { slug: string }[] }
+          ).CLOSURE_PAGES;
+          const urls = [
+            "/",
+            "/holiday-checker/",
+            ...closures.map((p) => `/${p.slug}/`),
+            ...pages.map((p) => `/${p.slug}/`),
+          ];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");
           res.end(buildSitemapXml(urls));
         } catch (err) {
@@ -73,6 +81,13 @@ export default defineConfig({
     script: "async",
     dirStyle: "nested",
     onFinished: (dir) => {
+      // CF Pages serves dist/404.html with status 404 for unknown paths. Without
+      // it, unknown URLs fall back to index.html with 200 (soft 404).
+      const nested404 = path.join(dir, "404", "index.html");
+      if (existsSync(nested404)) {
+        renameSync(nested404, path.join(dir, "404.html"));
+        rmSync(path.join(dir, "404"), { recursive: true, force: true });
+      }
       writeFileSync(path.join(dir, "sitemap.xml"), buildSitemapXml(urlsFromDist(dir)));
     },
   },

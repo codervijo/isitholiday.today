@@ -7,17 +7,19 @@ interface SeoProps {
   path?: string;
   image?: string;
   jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
 }
 
 const SITE = "https://isitholiday.today";
 
-export default function Seo({ title, description, path = "/", image, jsonLd }: SeoProps) {
+export default function Seo({ title, description, path = "/", image, jsonLd, noindex = false }: SeoProps) {
   const url = `${SITE}${withTrailingSlash(path)}`;
   const ogImage = image ?? `${SITE}/favicon.svg`;
   return (
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content={noindex ? "noindex,follow" : "index,follow"} />
       <link rel="canonical" href={url} />
       <meta property="og:type" content="website" />
       <meta property="og:url" content={url} />

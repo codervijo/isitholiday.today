@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { PAGES } from "@/lib/data";
+import { CLOSURE_PAGES } from "@/lib/closures";
 
 interface Props {
   excludeSlug?: string;
@@ -12,6 +13,7 @@ interface Props {
 // enough pages to make "link everything" noisy.
 const LINKS = [
   { to: "/holiday-checker/", label: "Holiday checker — any country, state, or type", slug: "holiday-checker" },
+  ...CLOSURE_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
   ...PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
 ];
 

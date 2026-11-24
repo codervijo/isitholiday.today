@@ -198,3 +198,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > 3. Strengthen discovery links. Homepage should have crawlable HTML links directly to every location page and /holiday-checker/. Not JS-only selectors.
 
 **Outcome:** optional `intro` + `sources` on `SeoPage`; India intro written only from the source notes in `holidays.ts`; server-rendered "Upcoming holidays" table with source links on all location pages (omitted when the scope has no future dates); every page links to all others as static `<a href>`.
+
+## 2026-11-23 — v2.E meta robots + real 404; v2.G holiday closure pages
+
+> go [finish v2.E] … make pages till end of this year … what does data show? … yes, slot it as v2.G and go
+
+**Outcome:** v2.E: `meta robots` on every page, `noindex` + prerendered `dist/404.html` (unknown URLs were 200 + homepage), homepage JSON-LD url = canonical, homepage coverage claims trimmed to US + India. v2.G (chosen from DataForSEO Dec-2025 volumes: "is christmas eve a federal holiday" 246K, "are banks open on christmas eve / new years eve" 135K each): `/christmas-eve/`, `/christmas/`, `/new-years-eve/`, `/new-years-day/` — status table (federal / Federal Reserve / Post Offices / mail), explainer, FAQ + FAQPage JSON-LD, every row sourced to OPM / Fed K.8 / USPS. Old v2.G–v2.L renumbered to v2.H–v2.M.
