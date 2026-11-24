@@ -43,8 +43,12 @@ function devSitemapPlugin(): Plugin {
           const closures = (
             (await server.ssrLoadModule("/src/lib/closures.ts")) as { CLOSURE_PAGES: { slug: string }[] }
           ).CLOSURE_PAGES;
+          const answers = (
+            (await server.ssrLoadModule("/src/lib/answerPages.ts")) as { ANSWER_PAGES: { slug: string }[] }
+          ).ANSWER_PAGES;
           const urls = [
             "/",
+            ...answers.map((p) => `/${p.slug}/`),
             "/holiday-checker/",
             ...closures.map((p) => `/${p.slug}/`),
             ...pages.map((p) => `/${p.slug}/`),

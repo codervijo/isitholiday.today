@@ -204,3 +204,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > go [finish v2.E] … make pages till end of this year … what does data show? … yes, slot it as v2.G and go
 
 **Outcome:** v2.E: `meta robots` on every page, `noindex` + prerendered `dist/404.html` (unknown URLs were 200 + homepage), homepage JSON-LD url = canonical, homepage coverage claims trimmed to US + India. v2.G (chosen from DataForSEO Dec-2025 volumes: "is christmas eve a federal holiday" 246K, "are banks open on christmas eve / new years eve" 135K each): `/christmas-eve/`, `/christmas/`, `/new-years-eve/`, `/new-years-day/` — status table (federal / Federal Reserve / Post Offices / mail), explainer, FAQ + FAQPage JSON-LD, every row sourced to OPM / Fed K.8 / USPS. Old v2.G–v2.L renumbered to v2.H–v2.M.
+
+## 2026-11-23 — v2.H US answer-engine pages
+
+> yes to both [`/` is the "what holiday is today" page; homepage defaults to US], build v2.H
+
+**Outcome:** `/` answers "what holiday is today" (federal / Federal Reserve / USPS status for today, US Eastern, plus upcoming federal holidays; checker defaults to USA). Six new pages: `/is-tomorrow-a-holiday/`, `/next-holiday/`, `/federal-holiday-today/`, `/post-office-open-today/`, `/mail-today/`, `/banks-open-today/`. Pure answer logic in `src/lib/usAnswers.ts` (unit-tested on Thanksgiving, Sundays, Saturdays, and the 2027 Saturday-Juneteenth case where OPM observes Friday but USPS and the Fed stay open). USPS postal holiday list added from about.usps.com; weekend mail rules from the USPS FAQ.

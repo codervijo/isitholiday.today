@@ -62,7 +62,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.E** | Crawl plumbing fixes | Internal-link starvation, `meta robots`, JSON-LD URL = canonical, real 404 | ✅ |
 | **v2.F** | Date correctness | Per-scope timezone "today", build-time clock shared by SSR + hydration, scheduled rebuild Worker, HTML cache headers (`f270838`, live 2026-10-05) | ✅ |
 | **v2.G** | Holiday closure pages | One page per remaining 2026 US holiday (Christmas Eve, Christmas, New Year's Eve, New Year's Day): federal / Federal Reserve / Post Office / mail status, sourced | ✅ built 2026-11-23 |
-| **v2.H** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | planned |
+| **v2.H** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | ✅ built 2026-11-23 |
 | **v2.I** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
 | **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
 | **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
@@ -88,6 +88,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 - *(append-only log; mark answered with date but never delete)*
 - **2026-10-05 — v2.H:** does `/` itself become the "what holiday is today" page, or does `/what-holiday-is-today/` stay a separate route? Two pages for one intent would compete with each other.
 - **2026-10-05 — v2.H:** homepage checker default country. It is India today, but the target keywords are US.
+- **Answered 2026-11-23:** `/` *is* the "what holiday is today" page (no separate route); homepage checker defaults to the US.
 
 ---
 
@@ -177,6 +178,8 @@ Evergreen slugs (no year) so each page accumulates authority across years; conte
 
 ### v2.H — Answer-engine pages
 
+**Built 2026-11-23.** `/` is the "what holiday is today" page (US answer block, checker defaults to USA); 6 routes `/is-tomorrow-a-holiday/`, `/next-holiday/`, `/federal-holiday-today/`, `/post-office-open-today/`, `/mail-today/`, `/banks-open-today/`. Logic: `src/lib/usAnswers.ts` (pure, US Eastern date); copy: `src/lib/answerPages.ts`. USPS postal holidays from about.usps.com/newsroom/events/ (remaining 2026 + all 2027); weekend rules from the USPS "No mail delivery?" FAQ (regular delivery Mon–Sat) and a 2025 USPS release (retail usually closed Sundays). No weekend claims for banks or federal offices — no source. Note: "what holiday is today" searchers often want fun national days; this page answers only official calendars.
+
 Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs and was supplied by the operator on 2026-10-05:
 
 | Intent | Volume / KD | Proposed route |
@@ -193,12 +196,12 @@ Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs a
 
 | Feature | Effort | Status | Notes |
 |---|---|---|---|
-| Shared US schedule data — federal (OPM), Federal Reserve, USPS observed holidays — each block source-cited | M | ❌ | Extends `src/lib/holidays.ts`; 2026 + 2027 federal/Fed already present. USPS dates need their own source |
-| Shared answer block — today's status + date, next applicable holiday + days away, recent/next holidays, full upcoming table | M | ❌ | Reuses `getTodayHoliday` / `getUpcomingHolidays` / `useNow`; prerendered and refreshed by v2.F rebuilds |
-| 7 routes, each with its own intent-specific explainer (definitions, what's open and closed, exceptions) | L | ❌ | Not thin pages: the dynamic answer and static explanatory content must work together |
-| Mail/USPS precision — distinguish retail counters, regular delivery, Priority Mail Express, federal holidays, Sundays | — | ❌ | Say "USPS observes…"; never claim a local branch is open, because the site has no branch data |
-| Bank precision — Federal Reserve schedule vs. individual banks, which can vary | — | ❌ | |
-| JSON-LD that matches the visible answer, plus sitemap entries and links from `/` and every page | S | ❌ | Ties into v2.L structured data |
+| Shared US schedule data — federal (OPM), Federal Reserve, USPS observed holidays — each block source-cited | M | ✅ | Extends `src/lib/holidays.ts`; 2026 + 2027 federal/Fed already present. USPS dates need their own source |
+| Shared answer block — today's status + date, next applicable holiday + days away, recent/next holidays, full upcoming table | M | ✅ | Reuses `getTodayHoliday` / `getUpcomingHolidays` / `useNow`; prerendered and refreshed by v2.F rebuilds |
+| 7 routes, each with its own intent-specific explainer (definitions, what's open and closed, exceptions) | L | ✅ | Not thin pages: the dynamic answer and static explanatory content must work together |
+| Mail/USPS precision — distinguish retail counters, regular delivery, Priority Mail Express, federal holidays, Sundays | — | ✅ | Say "USPS observes…"; never claim a local branch is open, because the site has no branch data |
+| Bank precision — Federal Reserve schedule vs. individual banks, which can vary | — | ✅ | |
+| JSON-LD that matches the visible answer, plus sitemap entries and links from `/` and every page | S | ✅ | Ties into v2.L structured data |
 
 **Overlap:** the US date-intent items in v3.G are superseded by this phase. The India variants stay in v3.G.
 

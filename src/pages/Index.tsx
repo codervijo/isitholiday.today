@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import AnswerBlock from "@/components/AnswerBlock";
 import Calculator from "@/components/Calculator";
+import { HOME_ANSWER } from "@/lib/answerPages";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 
@@ -35,7 +37,7 @@ const FED_2026 = [
 const FAQS = [
   {
     q: "How do I know if today is a holiday?",
-    a: "Pick your country and region in the checker at the top of the page. It compares today's date against the official public, bank, and school holiday calendars for that area and returns an instant yes or no, plus the next upcoming holiday.",
+    a: "Pick your country and region in the checker on this page. It compares today's date against the official public, bank, and school holiday calendars for that area and returns an instant yes or no, plus the next upcoming holiday.",
   },
   {
     q: "What's the difference between a public holiday and a bank holiday?",
@@ -91,20 +93,26 @@ export default function Index() {
   return (
     <>
       <Seo
-        title="Is Today a Holiday? — isitholiday.today"
-        description="Instant answer: is today a public, bank, or school holiday in your country or state? Covers the USA and India."
+        title={HOME_ANSWER.title}
+        description={HOME_ANSWER.description}
         path="/"
         jsonLd={[orgSchema, appSchema, faqSchema]}
       />
       <section className="space-y-2 mb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Is today a holiday?</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{HOME_ANSWER.h1}</h1>
+      </section>
+
+      <AnswerBlock kind={HOME_ANSWER.kind} upcomingHeading={HOME_ANSWER.upcomingHeading} />
+
+      <section className="mt-12 border-t pt-10 mb-6 space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight">Check a state, India, or a holiday type</h2>
         <p className="text-muted-foreground max-w-2xl">
-          Pick a country and region for an instant yes/no on whether today is a public, bank, or
-          school holiday — plus the next one coming up.
+          Pick a country and region for a yes/no on whether today is a holiday there, plus the next
+          one coming up.
         </p>
       </section>
 
-      <Calculator />
+      <Calculator prefillCountry="usa" />
 
       <section className="mt-8">
         <Link to="/holiday-checker/" className="text-sm text-primary underline-offset-4 hover:underline">
@@ -176,7 +184,7 @@ export default function Index() {
         </div>
       </section>
 
-      <InternalLinks />
+      <InternalLinks excludeSlug="" />
     </>
   );
 }

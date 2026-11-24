@@ -97,11 +97,11 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 
 ## Status
 - **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm + `vite-react-ssg`.
-- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live (15 once v2.G deploys).
+- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live (21 with v2.G + v2.H).
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
-- **Current tier:** v2 — Indexability. v2.A–v2.F built; v2.E + v2.G (holiday closure pages) built 2026-11-23, not yet committed/deployed.
+- **Current tier:** v2 — Indexability. v2.A–v2.F built; v2.E + v2.G (holiday closure pages) live 2026-11-23 (`958e735`); v2.H (US answer pages, `/` = what holiday is today) built 2026-11-23.
 - **Shipped + live:** v2.F date correctness (`f270838`); rebuild Worker on CF since 2026-10-05. Session handoff: `docs/handoff.md`.
-- **Next step (per `docs/prd.md` § 5. Phases):** v2.H (US answer-engine pages; 2 open questions in PRD § 6), v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
+- **Next step (per `docs/prd.md` § 5. Phases):** v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
@@ -157,7 +157,7 @@ Vite 6 + React 18 + TypeScript, prerendered to static HTML with `vite-react-ssg`
 ## Content strategy
 
 1. **Holiday closure pages** (v2.G): one evergreen page per US holiday (`/christmas-eve/` etc.) answering federal / Federal Reserve / Post Office / mail status, data in `src/lib/closures.ts`, rolled to the next year's dates each cycle.
-2. **US answer-engine pages.** One page per closure intent: what holiday is today, is tomorrow a holiday, next holiday, federal holiday today, post office open today, mail today, banks open today. Each page answers above the fold, then gives the schedule, what's open and closed, exceptions, and sources. Planned as `docs/prd.md` v2.H.
+2. **US answer-engine pages.** One page per closure intent: what holiday is today, is tomorrow a holiday, next holiday, federal holiday today, post office open today, mail today, banks open today. Each page answers above the fold, then gives the schedule, what's open and closed, exceptions, and sources. Built in `docs/prd.md` v2.H (`src/lib/usAnswers.ts`, `src/lib/answerPages.ts`).
 3. **Existing location pages.** These are the 9 US and India country, state, and bank pages, brought up to the golden-page bar (v2.J).
 4. **More countries and calendar clusters** (v3).
 

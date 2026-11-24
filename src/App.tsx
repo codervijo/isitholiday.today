@@ -8,6 +8,8 @@ import SeoPageRoute from "./pages/SeoPageRoute";
 import NotFound from "./pages/NotFound";
 import ClosurePageRoute from "./pages/ClosurePageRoute";
 import { CLOSURE_PAGES } from "./lib/closures";
+import AnswerPageRoute from "./pages/AnswerPageRoute";
+import { ANSWER_PAGES } from "./lib/answerPages";
 import { PAGES } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,11 @@ export const routes: RouteRecord[] = [
     children: [
       { index: true, Component: Index },
       { path: "holiday-checker", Component: CalculatorPage },
+      // v2.H US "today" answer pages.
+      ...ANSWER_PAGES.map((page) => ({
+        path: page.slug,
+        Component: () => <AnswerPageRoute page={page} />,
+      })),
       // v2.G holiday closure pages: static segments outrank the :country param route.
       ...CLOSURE_PAGES.map((page) => ({
         path: page.slug,

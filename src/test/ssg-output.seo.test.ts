@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { PAGES } from "../lib/data";
 import { CLOSURE_PAGES } from "../lib/closures";
+import { ANSWER_PAGES } from "../lib/answerPages";
 
 const repoRoot = path.resolve(__dirname, "../..");
 const distDir = path.join(repoRoot, "dist");
@@ -29,8 +30,8 @@ describe("Phase 4-A1 — vite-react-ssg static output", () => {
 
   it("emits a static index.html for the home route", () => {
     const html = readDistHtml("");
-    expect(html).toMatch(/<h1[^>]*>Is today a holiday\?<\/h1>/);
-    expect(html).toMatch(/<title[^>]*>Is Today a Holiday\? — isitholiday\.today<\/title>/);
+    expect(html).toMatch(/<h1[^>]*>What holiday is today\?<\/h1>/);
+    expect(html).toMatch(/<title[^>]*>What Holiday Is Today\? US Federal, Bank &amp; Postal Holidays — isitholiday\.today<\/title>/);
   });
 
   it("emits a static page for /holiday-checker", () => {
@@ -78,7 +79,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -102,6 +103,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
     const expected = [
       `${SITE}/`,
       `${SITE}/holiday-checker/`,
+      ...ANSWER_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...CLOSURE_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
@@ -180,5 +182,44 @@ describe("v2.G — holiday closure pages", () => {
   it("every page links to every closure page", () => {
     const html = readDistHtml("");
     for (const p of CLOSURE_PAGES) expect(html).toContain(`href="/${p.slug}/"`);
+  });
+});
+
+describe("v2.H — US answer pages", () => {
+  describe.each(ANSWER_PAGES)("/$slug/", (page) => {
+    let html: string;
+    beforeAll(() => {
+      html = readDistHtml(page.slug);
+    });
+
+    it("renders H1 and a prerendered answer (not an empty shell)", () => {
+      expect(html).toContain(`>${page.h1}</h1>`);
+      expect(html).toMatch(/Answer for (<!-- -->)?[A-Z][a-z]+day, /);
+      expect(html).toContain(page.upcomingHeading.replace(/\(/g, "(").slice(0, 20));
+    });
+
+    it("one matching <title>, own canonical, exact description", () => {
+      const titles = html.match(/<title[^>]*>([^<]+)<\/title>/g) ?? [];
+      expect(titles).toHaveLength(1);
+      const dec = (s: string) => s.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+      expect(dec(titles[0] ?? "")).toContain(page.title);
+      expect(html).toMatch(new RegExp(`rel="canonical"[^>]*href="${SITE}/${page.slug}/"`));
+      const desc = html.match(/name="description"[^>]*content="([^"]+)"/)?.[1] ?? "";
+      expect(dec(desc)).toBe(page.description);
+    });
+
+    it("FAQPage JSON-LD matches the visible FAQ; JSON-LD urls = canonical", () => {
+      const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)]
+        .map((m) => JSON.parse(m[1]));
+      const faq = blocks.find((b) => b["@type"] === "FAQPage");
+      expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(page.faq.map((f) => f.question));
+      for (const b of blocks) if (b.url) expect(b.url).toBe(`${SITE}/${page.slug}/`);
+    });
+  });
+
+  it("home links to every answer page and shows today's answer", () => {
+    const html = readDistHtml("");
+    for (const p of ANSWER_PAGES) expect(html).toContain(`href="/${p.slug}/"`);
+    expect(html).toMatch(/Answer for (<!-- -->)?[A-Z][a-z]+day, /);
   });
 });
