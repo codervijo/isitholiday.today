@@ -229,3 +229,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v3.C
 
 **Outcome:** 9 generated pages, one per US federal holiday other than Christmas and New Year's Day (which keep their v2.G pages): `/mlk-day/`, `/presidents-day/`, `/memorial-day/`, `/juneteenth/`, `/fourth-of-july/`, `/labor-day/`, `/columbus-day/`, `/veterans-day/`, `/thanksgiving/`. Each answers "is [holiday] a bank holiday" and shows Federal Reserve, Post Office, mail, NYSE and federal-office status for every related date (observed days included), all read from sourced calendars; pages roll to the next year automatically. New NYSE data (2026–2028, from nyse.com, checked directly) also added as a row on the 4 v2.G pages. Sitemap 32 URLs.
+
+## 2026-11-25 — v3.D 2027 federal holiday calendar + PDF/ICS
+
+> build v3.D
+
+**Outcome:** `/2027-federal-holiday-calendar/` lists every 2027 date on the OPM, Federal Reserve, USPS or NYSE schedules (17 rows, incl. Good Friday and the NYSE early close) with each institution's status, plus derived FAQ. Build-time downloads `/2027-federal-holiday-calendar.ics` (12 all-day events, the days federal offices close) and `.pdf` (pdf-lib, one landscape page), generated from the same data in the SSG `onFinished` hook. Sitemap 33 URLs.

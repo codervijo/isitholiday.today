@@ -5,6 +5,7 @@ import { PAGES } from "../lib/data";
 import { CLOSURE_PAGES } from "../lib/closures";
 import { ANSWER_PAGES } from "../lib/answerPages";
 import { HOLIDAY_DEFS } from "../lib/holidayPages";
+import { CALENDAR_SLUG, ICS_PATH, PDF_PATH, calendarRows, CALENDAR_YEAR } from "../lib/calendar";
 
 const repoRoot = path.resolve(__dirname, "../..");
 const distDir = path.join(repoRoot, "dist");
@@ -80,7 +81,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -107,6 +108,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
       ...ANSWER_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...CLOSURE_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...HOLIDAY_DEFS.map((d) => `${SITE}/${d.slug}/`),
+      `${SITE}/${CALENDAR_SLUG}/`,
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
@@ -129,7 +131,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
 });
 
 describe("v2.E — meta robots + real 404", () => {
-  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("/%s declares index,follow", (slug) => {
     expect(readDistHtml(slug)).toMatch(/<meta[^>]*name="robots"[^>]*content="index,follow"/);
@@ -263,5 +265,51 @@ describe("v3.C — one page per US federal holiday", () => {
   it("home links to every holiday page", () => {
     const html = readDistHtml("");
     for (const d of HOLIDAY_DEFS) expect(html).toContain(`href="/${d.slug}/"`);
+  });
+});
+
+describe("v3.D — annual calendar + downloads", () => {
+  const dec = (s: string) => s.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+  let html: string;
+  beforeAll(() => {
+    html = dec(readDistHtml(CALENDAR_SLUG).replace(/<!-- -->/g, ""));
+  });
+
+  it("H1, one title, canonical, 120–160 char description", () => {
+    expect(html).toContain(`>${CALENDAR_YEAR} federal holiday calendar</h1>`);
+    expect(html.match(/<title[^>]*>[^<]+<\/title>/g)).toHaveLength(1);
+    expect(html).toMatch(new RegExp(`rel="canonical"[^>]*href="${SITE}/${CALENDAR_SLUG}/"`));
+    const desc = html.match(/name="description"[^>]*content="([^"]+)"/)?.[1] ?? "";
+    expect(desc.length).toBeGreaterThanOrEqual(120);
+    expect(desc.length).toBeLessThanOrEqual(160);
+  });
+
+  it("prerenders one table row per calendar date and links the downloads", () => {
+    const rows = calendarRows(CALENDAR_YEAR);
+    for (const r of rows) expect(html).toContain(`>${r.name}<`);
+    expect(html).toContain(`href="${PDF_PATH}"`);
+    expect(html).toContain(`href="${ICS_PATH}"`);
+  });
+
+  it("FAQPage JSON-LD matches the visible FAQ", () => {
+    const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const faq = blocks.find((b) => b["@type"] === "FAQPage");
+    const visible = [...html.matchAll(/<dt[^>]*>([^<]+)<\/dt>/g)].map((m) => m[1]);
+    expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(visible);
+  });
+
+  it("dist has a valid ICS and PDF", () => {
+    const ics = readFileSync(path.join(distDir, ICS_PATH.slice(1)), "utf8");
+    expect(ics.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true);
+    expect(ics.trimEnd().endsWith("END:VCALENDAR")).toBe(true);
+    const pdf = readFileSync(path.join(distDir, PDF_PATH.slice(1)));
+    expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdf.length).toBeGreaterThan(2000);
+  });
+
+  it("not in the sitemap as a page: downloads are files, not URLs", () => {
+    const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+    expect(sitemap).not.toContain(".ics");
+    expect(sitemap).not.toContain(".pdf");
   });
 });

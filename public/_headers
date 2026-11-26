@@ -13,3 +13,7 @@
 /assets/*
   ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
+
+# v3.D calendar download: make calendar apps recognise it.
+/*.ics
+  Content-Type: text/calendar; charset=utf-8

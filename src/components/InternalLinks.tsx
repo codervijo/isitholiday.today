@@ -3,6 +3,7 @@ import { PAGES } from "@/lib/data";
 import { CLOSURE_PAGES } from "@/lib/closures";
 import { ANSWER_PAGES } from "@/lib/answerPages";
 import { HOLIDAY_DEFS } from "@/lib/holidayPages";
+import { CALENDAR_SLUG, CALENDAR_YEAR } from "@/lib/calendar";
 
 interface Props {
   excludeSlug?: string;
@@ -17,6 +18,7 @@ const LINKS = [
   { to: "/holiday-checker/", label: "Holiday checker — any country, state, or type", slug: "holiday-checker" },
   { to: "/", label: "What holiday is today?", slug: "" },
   ...ANSWER_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
+  { to: `/${CALENDAR_SLUG}/`, label: `${CALENDAR_YEAR} federal holiday calendar (PDF, ICS)`, slug: CALENDAR_SLUG },
   ...CLOSURE_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
   ...HOLIDAY_DEFS.map((d) => ({ to: `/${d.slug}/`, label: `Is ${d.name} a bank holiday?`, slug: d.slug })),
   ...PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),

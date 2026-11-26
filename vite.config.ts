@@ -3,6 +3,8 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { existsSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { CALENDAR_SLUG, CALENDAR_YEAR, ICS_PATH, PDF_PATH, buildIcs, calendarRows } from "./src/lib/calendar";
+import { buildCalendarPdf } from "./src/lib/calendarPdf";
 
 const SITE = "https://isitholiday.today";
 
@@ -55,6 +57,7 @@ function devSitemapPlugin(): Plugin {
             "/holiday-checker/",
             ...closures.map((p) => `/${p.slug}/`),
             ...holidays.map((p) => `/${p.slug}/`),
+            `/${CALENDAR_SLUG}/`,
             ...pages.map((p) => `/${p.slug}/`),
           ];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");
@@ -88,7 +91,7 @@ export default defineConfig({
   ssgOptions: {
     script: "async",
     dirStyle: "nested",
-    onFinished: (dir) => {
+    onFinished: async (dir) => {
       // CF Pages serves dist/404.html with status 404 for unknown paths. Without
       // it, unknown URLs fall back to index.html with 200 (soft 404).
       const nested404 = path.join(dir, "404", "index.html");
@@ -97,6 +100,11 @@ export default defineConfig({
         rmSync(path.join(dir, "404"), { recursive: true, force: true });
       }
       writeFileSync(path.join(dir, "sitemap.xml"), buildSitemapXml(urlsFromDist(dir)));
+      // v3.D calendar downloads, generated from the same sourced data as the page.
+      const stamp = process.env.BUILD_TIME ?? new Date().toISOString();
+      const rows = calendarRows(CALENDAR_YEAR);
+      writeFileSync(path.join(dir, ICS_PATH.slice(1)), buildIcs(rows, CALENDAR_YEAR, stamp));
+      writeFileSync(path.join(dir, PDF_PATH.slice(1)), await buildCalendarPdf(rows, CALENDAR_YEAR, stamp.slice(0, 10)));
     },
   },
 });

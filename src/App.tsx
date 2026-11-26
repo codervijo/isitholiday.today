@@ -12,6 +12,8 @@ import AnswerPageRoute from "./pages/AnswerPageRoute";
 import { ANSWER_PAGES } from "./lib/answerPages";
 import { HOLIDAY_DEFS } from "./lib/holidayPages";
 import HolidayPageRoute from "./pages/HolidayPageRoute";
+import CalendarPageRoute from "./pages/CalendarPageRoute";
+import { CALENDAR_SLUG } from "./lib/calendar";
 import { PAGES } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,8 @@ export const routes: RouteRecord[] = [
         path: page.slug,
         Component: () => <AnswerPageRoute page={page} />,
       })),
+      // v3.D annual calendar.
+      { path: CALENDAR_SLUG, Component: CalendarPageRoute },
       // v3.C one page per US federal holiday.
       ...HOLIDAY_DEFS.map((def) => ({
         path: def.slug,

@@ -71,7 +71,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v3.A** | Kickoff / decisions lock | Lock institution × holiday matrix, slug patterns, one source per institution, intent → URL map (no cannibalization); country order | ✅ 2026-11-25 (ran before v2.I) |
 | **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
 | **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | ✅ built 2026-11-25 |
-| **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | planned |
+| **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | ✅ built 2026-11-25 |
 | **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | planned |
 | **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | planned |
 | **v3.G** | UK + Canada | 6 country/region pages via official feeds | planned |
@@ -411,13 +411,15 @@ Cross-cutting requirements for every v3.B–v3.F page: authoritative source cite
 
 **Built.** Routes `/mlk-day/`, `/presidents-day/`, `/memorial-day/`, `/juneteenth/`, `/fourth-of-july/`, `/labor-day/`, `/columbus-day/`, `/veterans-day/`, `/thanksgiving/`; Christmas and New Year's Day stay on their v2.G pages. `src/lib/holidayPages.ts` (pure) finds each holiday's next occurrence from the build date and reads every status from the sourced calendars: OPM + Federal Reserve (`HOLIDAYS`), USPS (`POSTAL_HOLIDAYS`), NYSE (`src/lib/nyse.ts`, 2026–2028 closures + 1 p.m. early closes, read 2026-11-25). Pages roll to the next year on the scheduled rebuild after the last related date (e.g. Thanksgiving after the Friday early close). Weekend cells are "—" unless a source lists the day. When a calendar has no data for the year shown, its row says "Not in this site's data yet": from Jan 19, 2027 each page rolls to 2028 one by one, and only NYSE 2028 is in the data, so 2028 OPM / Fed / USPS dates need adding during 2027.
 
-### v3.D — Annual calendars + downloads
+### v3.D — Annual calendars + downloads ✅ (built 2026-11-25)
 
 | Item | Status |
 |---|---|
-| `/2027-federal-holiday-calendar/` — federal + Fed + USPS + NYSE columns | ❌ |
-| ICS download generated at build time | ❌ |
-| PDF download | ❌ |
+| `/2027-federal-holiday-calendar/` — federal + Fed + USPS + NYSE columns | ✅ |
+| ICS download generated at build time | ✅ `/2027-federal-holiday-calendar.ics` (12 all-day events) |
+| PDF download | ✅ `/2027-federal-holiday-calendar.pdf` (pdf-lib, one landscape page) |
+
+**Built.** `src/lib/calendar.ts` (pure) lists every 2027 date on any sourced calendar (OPM, Federal Reserve, USPS, NYSE closures + early closes) with each institution's status from `holidayPages.cell()`, so the page, ICS and PDF can't disagree. ICS = one all-day event per weekday federal offices close (RFC 5545 folding/escaping, CRLF); `/*.ics` served as `text/calendar` via `public/_headers`. PDF via `pdf-lib` (new devDependency, Helvetica, WinAnsi-only text). Both files are written in `vite.config.ts` `onFinished`; `tsconfig.node.json` now includes `src/lib/*.ts` because the config imports them. Downloads are not in the sitemap. Holiday names link to their v3.C / v2.G pages. Next year: bump `CALENDAR_YEAR` once 2028 OPM / Fed / USPS dates are in the data (the slug changes with it; the 2027 page then needs a redirect or keep-alive decision).
 
 ### v3.E — Religious holiday checker
 
