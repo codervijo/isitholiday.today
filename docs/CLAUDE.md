@@ -88,5 +88,6 @@ future Claude sessions don't re-propose them.
   publisher found; the religious page says so.
 - **Texas DPS, Texas courts, NY courts, NY DMV schedules** (2026-11-26) — no
   official statewide source found; shown as gaps, never filled in.
+- **`/canada/quebec/`** (2026-11-26) — CNESST and LégisQuébec refuse automated reads; no readable official source. Don't bypass their bot protection.
 - **`<changefreq>` in the sitemap** (2026-11-26) — Google ignores it; lastmod
   carries the signal (`src/lib/lastmod.ts`).

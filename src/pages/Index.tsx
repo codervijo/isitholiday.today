@@ -54,7 +54,7 @@ const FAQS = [
   },
   {
     q: "Which countries are covered?",
-    a: "The United States (federal holidays, California, Texas, New York, and Federal Reserve bank holidays) and India (Central Government holidays, Kerala, Tamil Nadu, and bank holidays).",
+    a: "The United States (federal holidays, California, Texas, New York, and Federal Reserve bank holidays), India (Central Government holidays, Kerala, Tamil Nadu, and bank holidays), the United Kingdom (bank holidays for England and Wales, Scotland and Northern Ireland) and Canada (federal general holidays and Ontario).",
   },
 ];
 
@@ -84,7 +84,7 @@ const orgSchema = {
   url: "https://isitholiday.today/",
   logo: "https://isitholiday.today/favicon.svg",
   description:
-    "Instant answers on whether today is a public or bank holiday in the US and India.",
+    "Instant answers on whether today is a public or bank holiday in the US, India, the UK and Canada.",
 };
 
 

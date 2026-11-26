@@ -13,7 +13,9 @@ import NotFound from "./NotFound";
 
 const SITE = "https://isitholiday.today";
 
-const COUNTRY_NAMES: Record<string, string> = { india: "India", usa: "the USA" };
+const COUNTRY_NAMES: Record<string, string> = { india: "India", usa: "the USA", uk: "the UK", canada: "Canada" };
+/** Regions whose slug doesn't title-case cleanly (v3.G). */
+const REGION_NAMES: Record<string, string> = { "england-and-wales": "England and Wales", federal: "Canada (federal)" };
 
 const titleCase = (slug: string) =>
   slug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
@@ -26,7 +28,7 @@ export default function SeoPageRoute() {
   if (!page) return <NotFound />;
 
   const { country, state = null, type = null } = page.prefill;
-  const place = state ? titleCase(state) : (COUNTRY_NAMES[country] ?? titleCase(country));
+  const place = state ? (REGION_NAMES[state] ?? titleCase(state)) : (COUNTRY_NAMES[country] ?? titleCase(country));
   const heading = `Upcoming ${type === "bank" ? "bank holidays" : "holidays"} in ${place}`;
 
   return (

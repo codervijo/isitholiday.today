@@ -59,7 +59,7 @@ export default function Breadcrumbs({ trail }: { trail: Crumb[] }) {
   );
 }
 
-const COUNTRY_CRUMB: Record<string, string> = { india: "India", usa: "USA" };
+const COUNTRY_CRUMB: Record<string, string> = { india: "India", usa: "USA", uk: "UK", canada: "Canada" };
 const titleCase = (s: string) => s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 
 /** Trail for a location page slug ("usa", "usa/california", "india/bank-holiday"). */

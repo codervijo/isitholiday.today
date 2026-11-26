@@ -23,6 +23,18 @@ const OPM: Source = {
   label: "OPM federal holidays",
   url: "https://www.opm.gov/policy-data-oversight/pay-leave/federal-holidays/",
 };
+const GOV_UK: Source = { label: "GOV.UK bank holidays", url: "https://www.gov.uk/bank-holidays" };
+const CA_CLC: Source = {
+  label: "Canada.ca: general holidays (federally regulated workplaces)",
+  url: "https://www.canada.ca/en/services/jobs/workplace/federal-labour-standards/vacations-holidays.html",
+};
+const CA_HOLIDAYS_ACT: Source = { label: "Holidays Act (Canada)", url: "https://laws-lois.justice.gc.ca/eng/acts/H-5/" };
+const CRA_HOLIDAYS: Source = { label: "CRA public holidays 2026", url: "https://www.canada.ca/en/revenue-agency/services/tax/public-holidays.html" };
+const ON_ESA: Source = {
+  label: "Ontario: public holidays (Employment Standards Act guide)",
+  url: "https://www.ontario.ca/document/your-guide-employment-standards-act-0/public-holidays",
+};
+
 const FED: Source = {
   label: "Federal Reserve holiday schedule",
   url: "https://www.federalreserve.gov/aboutthefed/k8.htm",
@@ -691,6 +703,340 @@ export const PAGES: SeoPage[] = [
     relatedSlugs: ["banks-open-today", "banks-open-tomorrow", "usa", "india/bank-holiday"],
     sources: [FED],
     prefill: { country: "usa", type: "bank" },
+  },
+  // ---------- v3.G: United Kingdom + Canada ----------
+  {
+    slug: "uk",
+    title: "Is Today a Bank Holiday in the UK? England and Wales — isitholiday.today",
+    h1: "Is Today a Bank Holiday in the UK?",
+    description:
+      "Is today a bank holiday in the UK? Today's answer for England and Wales from GOV.UK's official list, plus the next bank holiday and every date through 2028.",
+    directAnswer:
+      "Checked against GOV.UK's official bank holiday list for England and Wales, using today's date in UK time. Scotland and Northern Ireland have their own lists and pages.",
+    tagline: "See whether today is a bank holiday in England and Wales, and when the next one is.",
+    keywords: [
+      "is today a bank holiday",
+      "is today a bank holiday uk",
+      "uk bank holidays 2027",
+      "next bank holiday",
+      "bank holidays england 2027",
+      "bank holiday substitute day",
+    ],
+    intro: [
+      "The government publishes UK bank holidays on GOV.UK as three separate lists: England and Wales, Scotland, and Northern Ireland. This page answers for England and Wales; Scotland and Northern Ireland have their own pages because their dates differ.",
+      "England and Wales have eight bank holidays in 2027: New Year's Day (1 January), Good Friday (26 March), Easter Monday (29 March), the early May bank holiday (3 May), the spring bank holiday (31 May), the summer bank holiday (30 August), and substitute days for Christmas Day and Boxing Day on 27 and 28 December.",
+      "When a bank holiday falls on a weekend, GOV.UK lists a weekday substitute day instead. In 2026 Boxing Day falls on a Saturday, so the bank holiday is Monday, 28 December 2026; in 2027 both Christmas Day and Boxing Day fall on a weekend.",
+    ],
+    howItWorks: [
+      "The page takes today's date in UK time (GMT or BST).",
+      "It checks the date against GOV.UK's bank holiday list for England and Wales.",
+      "Substitute days count as the bank holiday, because GOV.UK lists them as the bank holiday dates.",
+      "If today is a bank holiday the answer names it; otherwise it shows the next one and how many days away it is.",
+    ],
+    tips: [
+      "Christmas 2027 needs care: 25 and 26 December fall on a weekend, so the bank holidays are Monday 27 and Tuesday 28 December.",
+      "Easter Monday is a bank holiday in England, Wales and Northern Ireland, but not in Scotland.",
+      "Scotland's summer bank holiday is Monday, 2 August 2027, four weeks before the one in England and Wales on 30 August.",
+      "This page lists bank holidays only; it has no data on individual shops or businesses, so check their opening hours.",
+    ],
+    faq: [
+      {
+        question: "How many bank holidays are there in England and Wales in 2027?",
+        answer:
+          "Eight, per GOV.UK: New Year's Day, Good Friday, Easter Monday, the early May bank holiday, the spring bank holiday, the summer bank holiday, and substitute days for Christmas Day and Boxing Day on Monday 27 and Tuesday 28 December 2027, because 25 and 26 December fall on a weekend.",
+      },
+      {
+        question: "What is a substitute bank holiday?",
+        answer:
+          "When a bank holiday falls on a Saturday or Sunday, GOV.UK lists a weekday as the bank holiday instead and marks it as a substitute day. In 2026 Boxing Day falls on a Saturday, so the bank holiday in England and Wales is Monday, 28 December 2026.",
+      },
+      {
+        question: "Is Easter Monday a bank holiday in the UK?",
+        answer:
+          "In England, Wales and Northern Ireland, yes: GOV.UK lists Easter Monday, 29 March 2027, as a bank holiday in both of those lists. Scotland's list has no Easter Monday. All three UK lists include Good Friday, which falls on 26 March 2027.",
+      },
+      {
+        question: "When are the Christmas bank holidays in 2026?",
+        answer:
+          "In England and Wales, Christmas Day is Friday, 25 December 2026. Boxing Day falls on Saturday, 26 December, so GOV.UK lists Monday, 28 December 2026, as the substitute bank holiday. Scotland and Northern Ireland have the same two Christmas bank holiday dates in 2026.",
+      },
+      {
+        question: "Do Scotland and Northern Ireland have different bank holidays?",
+        answer:
+          "Yes. GOV.UK publishes a separate list for each. Scotland adds 2 January and St Andrew's Day and has its summer bank holiday in early August; Northern Ireland adds St Patrick's Day and the Battle of the Boyne (Orangemen's Day). Each has its own page on this site.",
+      },
+    ],
+    lastUpdated: "November 2026",
+    dataUpdated: "2026-11-26",
+    relatedSlugs: ["uk/scotland", "uk/northern-ireland", "canada", "usa"],
+    sources: [GOV_UK],
+    prefill: { country: "uk", state: "england-and-wales" },
+  },
+  {
+    slug: "uk/scotland",
+    title: "Is Today a Bank Holiday in Scotland? — isitholiday.today",
+    h1: "Is Today a Bank Holiday in Scotland?",
+    description:
+      "Is today a bank holiday in Scotland? Today's answer from GOV.UK's official Scottish list, including St Andrew's Day and 2 January, plus every upcoming date.",
+    directAnswer: "Checked against GOV.UK's official bank holiday list for Scotland, using today's date in UK time.",
+    tagline: "See whether today is a bank holiday in Scotland, including St Andrew's Day and 2 January.",
+    keywords: [
+      "is today a bank holiday in scotland",
+      "scotland bank holidays 2027",
+      "st andrews day bank holiday",
+      "2nd january bank holiday scotland",
+      "scottish bank holidays",
+      "next bank holiday scotland",
+    ],
+    intro: [
+      "GOV.UK publishes Scotland's bank holidays as a separate list from England and Wales. Scotland's list includes 2 January and St Andrew's Day (30 November), has no Easter Monday, and has its summer bank holiday on 2 August in 2027 rather than at the end of August.",
+      "In 2027 Scotland has nine bank holidays on GOV.UK's list: New Year's Day, a substitute day for 2 January on Monday 4 January, Good Friday (26 March), the early May (3 May) and spring (31 May) bank holidays, the summer bank holiday (2 August), St Andrew's Day (30 November), and substitute days for Christmas Day and Boxing Day on 27 and 28 December.",
+      "Substitute days are listed when a bank holiday falls on a weekend. 2 January 2027 is a Saturday, so the bank holiday moves to Monday, 4 January.",
+    ],
+    howItWorks: [
+      "The page takes today's date in UK time (GMT or BST).",
+      "It checks the date against GOV.UK's bank holiday list for Scotland only.",
+      "Substitute days count as the bank holiday, as GOV.UK lists them.",
+      "If today is a bank holiday the answer names it; otherwise it shows the next one and how many days away it is.",
+    ],
+    tips: [
+      "St Andrew's Day 2026 is Monday, 30 November, and St Andrew's Day 2027 is Tuesday, 30 November.",
+      "There is no Easter Monday bank holiday in Scotland; Good Friday, 26 March 2027, is on the list.",
+      "New Year 2027 gives two bank holidays: Friday 1 January and the substitute for 2 January on Monday 4 January.",
+      "This page lists bank holidays only; check individual shops, offices and services for their own opening hours.",
+    ],
+    faq: [
+      {
+        question: "Is St Andrew's Day a bank holiday in Scotland?",
+        answer:
+          "Yes. GOV.UK lists St Andrew's Day as a Scottish bank holiday on Monday, 30 November 2026, and Tuesday, 30 November 2027. It is not on the England and Wales or Northern Ireland lists, so it is a bank holiday in Scotland only.",
+      },
+      {
+        question: "Is 2 January a bank holiday in Scotland?",
+        answer:
+          "Yes. Scotland's list includes 2 January, which the England and Wales and Northern Ireland lists do not. In 2027, 2 January falls on a Saturday, so GOV.UK lists Monday, 4 January 2027, as the substitute bank holiday for it in Scotland.",
+      },
+      {
+        question: "Is Easter Monday a bank holiday in Scotland?",
+        answer:
+          "No. GOV.UK's Scottish list has Good Friday, 26 March 2027, but no Easter Monday. England, Wales and Northern Ireland do have Easter Monday as a bank holiday, on 29 March 2027, so the two parts of the UK differ that week.",
+      },
+      {
+        question: "When is the summer bank holiday in Scotland?",
+        answer:
+          "Monday, 2 August 2027, per GOV.UK's Scottish list. That is four weeks earlier than the summer bank holiday in England, Wales and Northern Ireland, which GOV.UK lists on Monday, 30 August 2027, so check which of the two lists applies to you.",
+      },
+      {
+        question: "How many bank holidays does Scotland have in 2027?",
+        answer:
+          "Nine on GOV.UK's list: New Year's Day, the 2 January substitute day, Good Friday, the early May and spring bank holidays, the summer bank holiday, St Andrew's Day, and substitute days for Christmas Day and Boxing Day on 27 and 28 December 2027.",
+      },
+    ],
+    lastUpdated: "November 2026",
+    dataUpdated: "2026-11-26",
+    relatedSlugs: ["uk", "uk/northern-ireland", "canada"],
+    sources: [GOV_UK],
+    prefill: { country: "uk", state: "scotland" },
+  },
+  {
+    slug: "uk/northern-ireland",
+    title: "Is Today a Bank Holiday in Northern Ireland? — isitholiday.today",
+    h1: "Is Today a Bank Holiday in Northern Ireland?",
+    description:
+      "Is today a bank holiday in Northern Ireland? Today's answer from GOV.UK's official list, including St Patrick's Day and the Battle of the Boyne, plus dates.",
+    directAnswer: "Checked against GOV.UK's official bank holiday list for Northern Ireland, using today's date in UK time.",
+    tagline: "See whether today is a bank holiday in Northern Ireland, including St Patrick's Day and the Twelfth.",
+    keywords: [
+      "is today a bank holiday in northern ireland",
+      "northern ireland bank holidays 2027",
+      "st patricks day bank holiday",
+      "battle of the boyne bank holiday",
+      "12th july bank holiday",
+      "ni bank holidays",
+    ],
+    intro: [
+      "GOV.UK publishes Northern Ireland's bank holidays as its own list. It has every bank holiday in England and Wales plus two of its own: St Patrick's Day (17 March) and the Battle of the Boyne, also called Orangemen's Day (12 July).",
+      "In 2027 Northern Ireland has ten bank holidays: New Year's Day, St Patrick's Day (17 March), Good Friday (26 March), Easter Monday (29 March), the early May (3 May) and spring (31 May) bank holidays, the Battle of the Boyne (12 July), the summer bank holiday (30 August), and substitute days for Christmas Day and Boxing Day on 27 and 28 December.",
+      "When a bank holiday falls on a weekend, GOV.UK lists a weekday substitute day. Both Christmas bank holidays in 2027 are substitute days because 25 and 26 December fall on a Saturday and Sunday.",
+    ],
+    howItWorks: [
+      "The page takes today's date in UK time (GMT or BST).",
+      "It checks the date against GOV.UK's bank holiday list for Northern Ireland.",
+      "Substitute days count as the bank holiday, as GOV.UK lists them.",
+      "If today is a bank holiday the answer names it; otherwise it shows the next one and how many days away it is.",
+    ],
+    tips: [
+      "St Patrick's Day 2027 is a Wednesday, 17 March: a midweek bank holiday in Northern Ireland only.",
+      "The Battle of the Boyne bank holiday is Monday, 12 July 2027.",
+      "Christmas 2027: the bank holidays are Monday 27 and Tuesday 28 December, not the 25th and 26th.",
+      "This page lists bank holidays only; check individual shops, offices and services for their own opening hours.",
+    ],
+    faq: [
+      {
+        question: "Is St Patrick's Day a bank holiday in Northern Ireland?",
+        answer:
+          "Yes. GOV.UK lists St Patrick's Day, Wednesday, 17 March 2027, as a bank holiday in Northern Ireland. It is not on the England and Wales or Scotland lists, so it is a bank holiday in Northern Ireland only within the UK.",
+      },
+      {
+        question: "Is 12 July a bank holiday in Northern Ireland?",
+        answer:
+          "Yes. GOV.UK lists the Battle of the Boyne, also called Orangemen's Day, as a Northern Ireland bank holiday on Monday, 12 July 2027. No other part of the UK has it on its bank holiday list, so it applies in Northern Ireland only.",
+      },
+      {
+        question: "How many bank holidays does Northern Ireland have in 2027?",
+        answer:
+          "Ten on GOV.UK's list: New Year's Day, St Patrick's Day, Good Friday, Easter Monday, the early May and spring bank holidays, the Battle of the Boyne, the summer bank holiday, and substitute days for Christmas Day and Boxing Day on 27 and 28 December.",
+      },
+      {
+        question: "Is Easter Monday a bank holiday in Northern Ireland?",
+        answer:
+          "Yes. GOV.UK lists Easter Monday, 29 March 2027, as a bank holiday in Northern Ireland, as it does in England and Wales. Scotland's list has no Easter Monday. Good Friday, 26 March 2027, is a bank holiday in all three parts of the UK.",
+      },
+      {
+        question: "When are the Christmas bank holidays in Northern Ireland in 2027?",
+        answer:
+          "Monday, 27 December and Tuesday, 28 December 2027. Christmas Day and Boxing Day fall on a Saturday and Sunday that year, so GOV.UK lists both bank holidays as substitute days on the following Monday and Tuesday. The same two substitute days apply in England, Wales and Scotland.",
+      },
+    ],
+    lastUpdated: "November 2026",
+    dataUpdated: "2026-11-26",
+    relatedSlugs: ["uk", "uk/scotland", "canada"],
+    sources: [GOV_UK],
+    prefill: { country: "uk", state: "northern-ireland" },
+  },
+  {
+    slug: "canada",
+    title: "Is Today a Holiday in Canada? Federal Statutory Holidays — isitholiday.today",
+    h1: "Is Today a Holiday in Canada?",
+    description:
+      "Is today a statutory holiday in Canada? Checked against the 10 federal general holidays in the Canada Labour Code, with upcoming dates and the Ontario list.",
+    directAnswer:
+      "Checked against the 10 general holidays in the Canada Labour Code, which apply to federally regulated workplaces, using today's date in Eastern time. Provinces set their own lists; Ontario has its own page.",
+    tagline: "See whether today is a federal general holiday in Canada, and when the next one is.",
+    keywords: [
+      "is today a holiday in canada",
+      "canada statutory holidays 2027",
+      "federal statutory holidays canada",
+      "is today a stat holiday",
+      "national day for truth and reconciliation holiday",
+      "canada general holidays",
+    ],
+    intro: [
+      "Canada has no single list of holidays for every worker. The Canada Labour Code gives employees of federally regulated employers 10 general holidays, while each province sets its own list for most other workplaces. This page answers for the federal list; Ontario has its own page.",
+      "The 10 federal general holidays are New Year's Day, Good Friday, Victoria Day, Canada Day, Labour Day, the National Day for Truth and Reconciliation (September 30), Thanksgiving Day, Remembrance Day, Christmas Day and Boxing Day.",
+      "Federal law fixes most dates. The Holidays Act makes Canada Day July 1 (July 2 when July 1 is a Sunday), Remembrance Day November 11, and Victoria Day the Monday immediately preceding May 25; the Interpretation Act makes Labour Day the first Monday in September. Thanksgiving is set by proclamation each year, so this site adds the 2027 date once it is published.",
+      "When New Year's Day, Canada Day, the National Day for Truth and Reconciliation, Remembrance Day, Christmas Day or Boxing Day falls on a Saturday or Sunday that is not a scheduled work day, the employee gets a paid holiday on the scheduled work day immediately before or after it.",
+    ],
+    howItWorks: [
+      "The page takes today's date in Eastern time (Ottawa).",
+      "It checks the date against the federal general holidays: 2026 dates from the CRA's public holiday list, 2027 dates from the rules in federal law.",
+      "A holiday on a weekend is shown on its calendar date; the Code moves the paid day to the work day before or after, which depends on the employee's schedule.",
+      "If today is a holiday the answer names it; otherwise it shows the next one and how many days away it is.",
+    ],
+    tips: [
+      "Check whether your employer is federally regulated; provincial holiday lists apply to most other workplaces.",
+      "Boxing Day 2026 falls on a Saturday and Christmas Day 2027 on a Saturday; under the Code the paid day moves to the scheduled work day immediately before or after.",
+      "Victoria Day 2027 is Monday, May 24: the Monday immediately preceding May 25.",
+      "Thanksgiving 2027 is not listed yet; its date is set by proclamation.",
+    ],
+    faq: [
+      {
+        question: "What are the statutory holidays in Canada?",
+        answer:
+          "For federally regulated workplaces, the Canada Labour Code lists 10 general holidays: New Year's Day, Good Friday, Victoria Day, Canada Day, Labour Day, the National Day for Truth and Reconciliation, Thanksgiving Day, Remembrance Day, Christmas Day and Boxing Day. Provinces set their own lists for most other workers.",
+      },
+      {
+        question: "Is the National Day for Truth and Reconciliation a holiday?",
+        answer:
+          "It is one of the 10 general holidays in the Canada Labour Code, observed on September 30, so Thursday, September 30, 2027, for federally regulated workplaces. It is not one of the nine public holidays in Ontario's Employment Standards Act, so most Ontario employers do not have to give it.",
+      },
+      {
+        question: "Is Remembrance Day a statutory holiday in Canada?",
+        answer:
+          "For federally regulated workplaces, yes: it is a general holiday under the Canada Labour Code, on November 11 (Thursday, November 11, 2027). In Ontario it is not a public holiday; Ontario's guide says some employers give it but are not required to under the Employment Standards Act.",
+      },
+      {
+        question: "When is Victoria Day 2027?",
+        answer:
+          "Monday, May 24, 2027. The Holidays Act makes Victoria Day the first Monday immediately preceding May 25, and in 2027 that Monday is May 24. It is a general holiday under the Canada Labour Code and a public holiday in Ontario.",
+      },
+      {
+        question: "What happens when a federal holiday falls on a weekend?",
+        answer:
+          "For New Year's Day, Canada Day, the National Day for Truth and Reconciliation, Remembrance Day, Christmas Day and Boxing Day, a weekend day that is not a scheduled work day gives the employee a paid holiday on the scheduled work day immediately before or after the holiday, under the Canada Labour Code.",
+      },
+    ],
+    lastUpdated: "November 2026",
+    dataUpdated: "2026-11-26",
+    relatedSlugs: ["canada/ontario", "uk", "usa"],
+    sources: [CA_CLC, CA_HOLIDAYS_ACT, CRA_HOLIDAYS],
+    prefill: { country: "canada", state: "federal" },
+  },
+  {
+    slug: "canada/ontario",
+    title: "Is Today a Holiday in Ontario? Public Holidays — isitholiday.today",
+    h1: "Is Today a Holiday in Ontario?",
+    description:
+      "Is today a public holiday in Ontario? Checked against the nine public holidays in Ontario's Employment Standards Act, including Family Day, with upcoming dates.",
+    directAnswer: "Checked against the nine public holidays in Ontario's Employment Standards Act, using today's date in Eastern time.",
+    tagline: "See whether today is a public holiday in Ontario, including Family Day, and when the next one is.",
+    keywords: [
+      "is today a holiday in ontario",
+      "ontario statutory holidays 2027",
+      "ontario public holidays",
+      "family day ontario 2027",
+      "is today a stat holiday in ontario",
+      "ontario holidays 2027",
+    ],
+    intro: [
+      "Ontario has nine public holidays under the Employment Standards Act: New Year's Day, Family Day, Good Friday, Victoria Day, Canada Day, Labour Day, Thanksgiving Day, Christmas Day and Boxing Day (December 26). Most employees who qualify get these days off with public holiday pay.",
+      "The Act makes Family Day the third Monday in February, which is Monday, February 15, 2027. Victoria Day, Canada Day and Labour Day follow federal law; Thanksgiving is set by proclamation each year, so this site adds the 2027 date once it is published.",
+      "Ontario's guide says some employers give a holiday on Easter Sunday, Easter Monday, the first Monday in August or Remembrance Day, but are not required to under the Act, so this page does not count those days.",
+    ],
+    howItWorks: [
+      "The page takes today's date in Eastern time (Toronto).",
+      "It checks the date against Ontario's nine public holidays: 2026 dates from the CRA's public holiday list, 2027 dates from the Act and federal law.",
+      "A holiday on a weekend is shown on its calendar date; an employee who isn't scheduled that day gets a substitute day, which depends on the employer.",
+      "If today is a public holiday the answer names it; otherwise it shows the next one and how many days away it is.",
+    ],
+    tips: [
+      "Family Day 2027 is Monday, February 15.",
+      "The first Monday in August is not an Ontario public holiday under the Act, even though many employers give it.",
+      "Boxing Day 2026 falls on a Saturday, and both Christmas Day and Boxing Day 2027 fall on a weekend: employees not scheduled that day are owed a substitute day off or public holiday pay.",
+      "Federally regulated workplaces in Ontario follow the federal list instead, which adds the National Day for Truth and Reconciliation and Remembrance Day.",
+    ],
+    faq: [
+      {
+        question: "How many public holidays does Ontario have?",
+        answer:
+          "Nine, under the Employment Standards Act: New Year's Day, Family Day, Good Friday, Victoria Day, Canada Day, Labour Day, Thanksgiving Day, Christmas Day and Boxing Day (December 26). Most employees who qualify are entitled to take these days off work and be paid public holiday pay.",
+      },
+      {
+        question: "When is Family Day in Ontario in 2027?",
+        answer:
+          "Monday, February 15, 2027. Ontario's Employment Standards Act defines Family Day as the third Monday in February, and in 2027 that is February 15. It is one of Ontario's nine public holidays but is not on the federal list of general holidays.",
+      },
+      {
+        question: "Is the first Monday in August a holiday in Ontario?",
+        answer:
+          "Not under the Employment Standards Act. Ontario's guide says some employers give their employees a holiday on the first Monday in August, as well as Easter Sunday, Easter Monday or Remembrance Day, but the employer is not required to do so under the Act.",
+      },
+      {
+        question: "Is Remembrance Day a holiday in Ontario?",
+        answer:
+          "Not a public holiday under Ontario's Employment Standards Act; the guide says employers who give it are not required to. Federally regulated workplaces in Ontario are different: the Canada Labour Code makes Remembrance Day, November 11, a general holiday for their employees.",
+      },
+      {
+        question: "What if a public holiday falls on my day off in Ontario?",
+        answer:
+          "When a public holiday falls on a day that is not ordinarily a working day for you, or during your vacation, Ontario's guide says you are entitled to a substitute holiday off with public holiday pay, or to public holiday pay if you agree to that in writing or electronically.",
+      },
+    ],
+    lastUpdated: "November 2026",
+    dataUpdated: "2026-11-26",
+    relatedSlugs: ["canada", "uk", "usa"],
+    sources: [ON_ESA, CA_HOLIDAYS_ACT, CRA_HOLIDAYS],
+    prefill: { country: "canada", state: "ontario" },
   },
 ];
 

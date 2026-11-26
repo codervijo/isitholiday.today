@@ -265,3 +265,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v2.M
 
 **Outcome:** deploy-config contradiction resolved (no wrangler file; Pages Git integration), `docs/CLAUDE.md` project blurb + deferred decisions filled, `lamill.toml [content]` filled from AI_AGENTS ICP/goals and v3.A keywords, `docs/growth.md` reviewed and extended with real GSC numbers, `.env.example` deleted (operator). v2 tier complete.
+
+## 2026-11-26 — v3.G UK + Canada
+
+> build v3.G
+
+**Outcome:** 5 new location pages with golden content: `/uk/` (England and Wales), `/uk/scotland/`, `/uk/northern-ireland/` from the official gov.uk JSON feed (2026–2028), `/canada/` (Canada Labour Code general holidays; 2026 from CRA, 2027 from the Holidays Act / Interpretation Act rules) and `/canada/ontario/` (ESA). Region-scoped data (no country-wide rows), calculator without "All of" for UK/Canada, London/Toronto timezones. Quebec deferred — CNESST and LégisQuébec block automated reads. Rebuild Worker gains a 00:05 UTC cron (uploaded via CF API). Sitemap 43 URLs.

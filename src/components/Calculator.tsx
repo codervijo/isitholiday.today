@@ -16,6 +16,8 @@ import type { HolidayType } from "@/lib/holidays";
 const COUNTRIES = [
   { value: "india", label: "India" },
   { value: "usa", label: "United States" },
+  { value: "uk", label: "United Kingdom" },
+  { value: "canada", label: "Canada" },
 ];
 
 const STATES_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
@@ -30,7 +32,21 @@ const STATES_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
     { value: "texas", label: "Texas" },
     { value: "new-york", label: "New York" },
   ],
+  // No "All of" option: the UK's divisions and Canada's jurisdictions each have
+  // their own list, and there is no country-wide one (v3.G).
+  uk: [
+    { value: "england-and-wales", label: "England and Wales" },
+    { value: "scotland", label: "Scotland" },
+    { value: "northern-ireland", label: "Northern Ireland" },
+  ],
+  canada: [
+    { value: "federal", label: "Federal (federally regulated workplaces)" },
+    { value: "ontario", label: "Ontario" },
+  ],
 };
+
+/** First region when a country has no "all" option. */
+const defaultState = (country: string) => STATES_BY_COUNTRY[country]?.[0]?.value ?? "all";
 
 const TYPES: { value: HolidayType | "all"; label: string }[] = [
   { value: "all", label: "Any type" },
@@ -56,7 +72,7 @@ const formatDate = (iso: string) =>
 
 export default function Calculator({ prefillCountry = "india", prefillState = null, prefillType = null }: Props) {
   const [country, setCountry] = useState<string>(prefillCountry);
-  const [state, setState] = useState<string>(prefillState ?? "all");
+  const [state, setState] = useState<string>(prefillState ?? defaultState(prefillCountry));
   const [type, setType] = useState<string>(prefillType ?? "all");
 
   const now = useNow();
@@ -83,7 +99,7 @@ export default function Calculator({ prefillCountry = "india", prefillState = nu
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Select value={country} onValueChange={(v) => { setCountry(v); setState("all"); }}>
+            <Select value={country} onValueChange={(v) => { setCountry(v); setState(defaultState(v)); }}>
               <SelectTrigger id="country"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {COUNTRIES.map((c) => (

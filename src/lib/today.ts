@@ -22,6 +22,9 @@ export const BUILD_TIME: Date =
 const COUNTRY_TZ: Record<string, string> = {
   india: "Asia/Kolkata",
   usa: "America/New_York",
+  uk: "Europe/London",
+  // Ontario and federal answers use Eastern time (Ottawa, Toronto).
+  canada: "America/Toronto",
 };
 
 const STATE_TZ: Record<string, string> = {

@@ -74,7 +74,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | ✅ built 2026-11-25 |
 | **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | ✅ built 2026-11-26 |
 | **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | ✅ built 2026-11-26 (TX/NY gaps open) |
-| **v3.G** | UK + Canada | 6 country/region pages via official feeds | planned |
+| **v3.G** | UK + Canada | 6 country/region pages via official feeds | ✅ built 2026-11-26 (5 pages; Quebec deferred) |
 | **v3.H** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
 | **v3.I** | First content cluster | `/india/upcoming-holidays`, `/india/holiday-calendar-2026` | planned |
 | **v3.J** | More countries | Australia, Germany, France, Japan | planned |
@@ -463,7 +463,7 @@ Cross-cutting requirements for every v3.B–v3.F page: authoritative source cite
 
 **Built.** Placement: a section on the existing `/usa/california/`, `/usa/texas/`, `/usa/new-york/` pages (the owners of state intent) rather than new URLs, so a state with one source doesn't get thin standalone pages. `src/lib/stateInstitutions.ts` holds each institution's dates, read 2026-11-26: CalHR rules applied to Nov 2026 – Dec 2027 (excluded employees; Saturday = holiday credit, Sunday → Monday), California courts 2026–2027, California DMV (through Jan 1, 2027; "DMV offices are closed on weekends"), Texas SAO FY2027 PDF (through Aug 31, 2027; closed / skeleton crew / optional statuses, Gov Code 662.004 quoted), NY Civil Service 2026 + 2027 (pass days, floating holidays for some units). Section shows each institution's status today (US Eastern), the next 10 closures, coverage dates, and the gap institutions as "no official statewide holiday schedule found". California courts publish Farmworkers Day 2027 as Fri Apr 9 while CalHR's rule is Mar 31 — both shown as published. Retrying the gap sources with a browser user-agent was blocked by the session's permission check; not retried.
 
-### v3.G — UK + Canada
+### v3.G — UK + Canada ✅ (built 2026-11-26)
 
 Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.ts` + matching seed rows in `src/lib/holidays.ts` = one new indexable page with zero code changes. **Target: 50+ pSEO pages by end of v3.**
 
@@ -475,6 +475,20 @@ Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.
 | `canada` *(renumbered 2026-09-25; was 2.4)* | Canada | public | High | Federal stat holidays |
 | `canada/ontario` *(renumbered 2026-09-25; was 2.5)* | Canada | public | Med | Family Day, Civic Holiday |
 | `canada/quebec` *(renumbered 2026-09-25; was 2.6)* | Canada | public | Med | National Holiday (St-Jean-Baptiste) |
+
+**Built (2026-11-26).** `/uk/` (England and Wales), `/uk/scotland/`, `/uk/northern-ireland/`, `/canada/` (federal general holidays), `/canada/ontario/`, each with full golden-page content. Data in `src/lib/holidays.ts`, read 2026-11-26:
+- UK: generated from the official `gov.uk/bank-holidays.json` feed, 2026–2028, every row division-scoped (no country-wide rows — the checker applies national rows inside every region, which would put England's dates in Scotland). `/uk/` answers for England and Wales.
+- Canada federal (state `federal`): the 10 general holidays in Canada Labour Code s.166; 2026 dates from CRA's public holiday list; 2027 dates applied from the Holidays Act (Canada Day, Remembrance Day, Victoria Day = Monday immediately preceding May 25) and Interpretation Act (Labour Day, Sept 30). Weekend rule (paid day on the work day immediately before *or* after) depends on the employee's schedule, so no observed rows.
+- Ontario: the nine public holidays in ESA s.1 (Family Day = third Monday in February); the ESA guide's "not required" days (Easter Monday, first Monday in August, Remembrance Day) are stated, not counted.
+- Thanksgiving 2027 (Canada) omitted: set by proclamation, not yet published.
+- Calculator: UK and Canada have no "All of" option; first region is the default. Timezones: Europe/London, America/Toronto.
+- Rebuild Worker: `workers/daily-rebuild/wrangler.jsonc` gains a 00:05 UTC cron for UK midnight — uploaded 2026-11-26 via the CF schedules API (now 4 crons).
+
+| Follow-up | Status |
+|---|---|
+| `canada/quebec`: CNESST page serves a JS challenge and LégisQuébec returns 403 to automated reads — no readable official source; not built | ❌ deferred |
+| Canada Thanksgiving 2027 once proclaimed; CRA 2027 list when published | ❌ |
+| Upload the 00:05 UTC cron to `isitholiday-daily-rebuild` | ✅ 2026-11-26 |
 
 ### v3.H — OG images
 

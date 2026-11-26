@@ -18,14 +18,16 @@
 
   // Cloudflare cron is UTC with no DST handling. One run just after midnight
   // in each zone the site answers for:
+  //   00:05 UTC → 00:05 GMT / 01:05 BST (UK pages; v3.G)
   //   18:35 UTC → 00:05 IST (India; no DST)
   //   05:05 UTC → 00:05 EST / 01:05 EDT (US Eastern; USA + New York pages)
   //   08:05 UTC → 00:05 PST / 01:05 PDT (US Pacific; California page)
   // Texas (Central) flips at 05:00/06:00 UTC and is caught by the 05:05 run in
-  // summer and the 08:05 run in winter. ~90 builds/month, under the Pages
-  // free-tier 500.
+  // summer and the 08:05 run in winter. Canada (federal, Ontario) uses
+  // Eastern time and is caught by the 05:05 run. ~120 builds/month, under the
+  // Pages free-tier 500.
   "triggers": {
-    "crons": ["35 18 * * *", "5 5 * * *", "5 8 * * *"]
+    "crons": ["5 0 * * *", "35 18 * * *", "5 5 * * *", "5 8 * * *"]
   },
 
   // No routes and no fetch handler: nothing public can trigger a deploy.
