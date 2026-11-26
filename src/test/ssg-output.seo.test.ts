@@ -5,6 +5,7 @@ import { PAGES } from "../lib/data";
 import { CLOSURE_PAGES } from "../lib/closures";
 import { ANSWER_PAGES } from "../lib/answerPages";
 import { HOLIDAY_DEFS } from "../lib/holidayPages";
+import { RELIGIOUS_SLUG, OBSERVANCES } from "../lib/religious";
 import { CALENDAR_SLUG, ICS_PATH, PDF_PATH, calendarRows, CALENDAR_YEAR } from "../lib/calendar";
 
 const repoRoot = path.resolve(__dirname, "../..");
@@ -81,7 +82,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -109,6 +110,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
       ...CLOSURE_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...HOLIDAY_DEFS.map((d) => `${SITE}/${d.slug}/`),
       `${SITE}/${CALENDAR_SLUG}/`,
+      `${SITE}/${RELIGIOUS_SLUG}/`,
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
@@ -131,7 +133,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
 });
 
 describe("v2.E — meta robots + real 404", () => {
-  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("/%s declares index,follow", (slug) => {
     expect(readDistHtml(slug)).toMatch(/<meta[^>]*name="robots"[^>]*content="index,follow"/);
@@ -311,5 +313,40 @@ describe("v3.D — annual calendar + downloads", () => {
     const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
     expect(sitemap).not.toContain(".ics");
     expect(sitemap).not.toContain(".pdf");
+  });
+});
+
+describe("v3.E — religious holiday page", () => {
+  const dec = (s: string) => s.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+  let html: string;
+  beforeAll(() => {
+    html = dec(readDistHtml(RELIGIOUS_SLUG).replace(/<!-- -->/g, ""));
+  });
+
+  it("H1, one title, canonical, 120–160 char description", () => {
+    expect(html).toContain(">What religious holiday is today?</h1>");
+    expect(html.match(/<title[^>]*>[^<]+<\/title>/g)).toHaveLength(1);
+    expect(html).toMatch(new RegExp(`rel="canonical"[^>]*href="${SITE}/${RELIGIOUS_SLUG}/"`));
+    const desc = html.match(/name="description"[^>]*content="([^"]+)"/)?.[1] ?? "";
+    expect(desc.length).toBeGreaterThanOrEqual(120);
+    expect(desc.length).toBeLessThanOrEqual(160);
+  });
+
+  it("prerenders today's answer and an upcoming table from the data", () => {
+    expect(html).toMatch(/Answer for [A-Z][a-z]+day, /);
+    expect(html).toContain("Upcoming religious holidays");
+    expect(OBSERVANCES.some((o) => html.includes(`>${o.name}<`))).toBe(true);
+  });
+
+  it("credits Hebcal (CC BY 4.0) and states what is not covered", () => {
+    expect(html).toContain("Hebcal.com, licensed CC BY 4.0");
+    expect(html).toContain("Not covered yet: Hindu");
+  });
+
+  it("FAQPage JSON-LD matches the visible FAQ", () => {
+    const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const faq = blocks.find((b) => b["@type"] === "FAQPage");
+    const visible = [...html.matchAll(/<dt[^>]*>([^<]+)<\/dt>/g)].map((m) => m[1]);
+    expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(visible);
   });
 });

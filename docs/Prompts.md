@@ -235,3 +235,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v3.D
 
 **Outcome:** `/2027-federal-holiday-calendar/` lists every 2027 date on the OPM, Federal Reserve, USPS or NYSE schedules (17 rows, incl. Good Friday and the NYSE early close) with each institution's status, plus derived FAQ. Build-time downloads `/2027-federal-holiday-calendar.ics` (12 all-day events, the days federal offices close) and `.pdf` (pdf-lib, one landscape page), generated from the same data in the SSG `onFinished` hook. Sitemap 33 URLs.
+
+## 2026-11-26 — v3.E religious holiday checker
+
+> build v3.E
+
+**Outcome:** `/religious-holiday-today/` answers "what religious holiday is today" for Jewish (Hebcal, CC BY 4.0), Catholic (USCCB 2027 liturgical calendar), Islamic (FCNA calculated calendar; Eid al-Adha marked expected) and Orthodox (ACROD movable feasts) observances, Nov 2026 – Dec 2027, all fetched and read directly. Shows today's observances, what begins at sundown tonight, the next 12, source notes and a data-derived FAQ. Hindu / Buddhist / Sikh explicitly not covered (no authoritative US source). Sitemap 34 URLs.

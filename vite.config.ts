@@ -58,6 +58,7 @@ function devSitemapPlugin(): Plugin {
             ...closures.map((p) => `/${p.slug}/`),
             ...holidays.map((p) => `/${p.slug}/`),
             `/${CALENDAR_SLUG}/`,
+            "/religious-holiday-today/",
             ...pages.map((p) => `/${p.slug}/`),
           ];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");

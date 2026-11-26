@@ -13,6 +13,8 @@ import { ANSWER_PAGES } from "./lib/answerPages";
 import { HOLIDAY_DEFS } from "./lib/holidayPages";
 import HolidayPageRoute from "./pages/HolidayPageRoute";
 import CalendarPageRoute from "./pages/CalendarPageRoute";
+import ReligiousPageRoute from "./pages/ReligiousPageRoute";
+import { RELIGIOUS_SLUG } from "./lib/religious";
 import { CALENDAR_SLUG } from "./lib/calendar";
 import { PAGES } from "./lib/data";
 
@@ -43,6 +45,8 @@ export const routes: RouteRecord[] = [
         path: page.slug,
         Component: () => <AnswerPageRoute page={page} />,
       })),
+      // v3.E religious holidays.
+      { path: RELIGIOUS_SLUG, Component: ReligiousPageRoute },
       // v3.D annual calendar.
       { path: CALENDAR_SLUG, Component: CalendarPageRoute },
       // v3.C one page per US federal holiday.

@@ -83,7 +83,7 @@ After a feature ships successfully (commit lands, build green, acceptance criter
 curl -sIL https://isitholiday.today/ | head -3                          # expect 200 OK
 curl -sI  https://isitholiday.today/india/kerala/ | head -1            # expect 200 (no-slash form 308s)
 curl -s   https://isitholiday.today/india/kerala/ | grep '<h1'          # expect rendered H1, not empty shell
-curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 33 (PAGES + home + checker + ANSWER_PAGES + CLOSURE_PAGES + HOLIDAY_DEFS + calendar)
+curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 34 (PAGES + home + checker + ANSWER_PAGES + CLOSURE_PAGES + HOLIDAY_DEFS + calendar + religious) = 34
 curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect Sitemap: line
 ```
 
@@ -97,11 +97,11 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 
 ## Status
 - **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm + `vite-react-ssg`.
-- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml: 33 URLs with v2.G + v2.H + v3.B–v3.D.
+- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml: 34 URLs with v2.G + v2.H + v3.B–v3.E.
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
 - **Current tier:** v2 — Indexability. v2.A–v2.F built; v2.E + v2.G (holiday closure pages) live 2026-11-23 (`958e735`); v2.H (US answer pages, `/` = what holiday is today) built 2026-11-23.
 - **Shipped + live:** v2.F date correctness (`f270838`); rebuild Worker on CF since 2026-10-05. Session handoff: `docs/handoff.md`.
-- **Next step (per `docs/prd.md` § 5. Phases):** v3.A closed, v3.B + v3.C + v3.D built 2026-11-25 (tomorrow pages; 9 per-holiday pages with NYSE; 2027 calendar page + PDF + ICS; 33 sitemap URLs). 2028 OPM / Fed / USPS dates must be added during 2027 or holiday pages show "not in this site's data yet" rows. Then v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
+- **Next step (per `docs/prd.md` § 5. Phases):** v3.A closed, v3.B–v3.E built 2026-11-25/26 (tomorrow pages; 9 per-holiday pages with NYSE; 2027 calendar + PDF + ICS; religious holiday page; 34 sitemap URLs). 2028 OPM / Fed / USPS dates must be added during 2027 or holiday pages show "not in this site's data yet" rows. Then v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.

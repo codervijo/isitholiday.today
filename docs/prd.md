@@ -72,7 +72,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
 | **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | ✅ built 2026-11-25 |
 | **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | ✅ built 2026-11-25 |
-| **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | planned |
+| **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | ✅ built 2026-11-26 |
 | **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | planned |
 | **v3.G** | UK + Canada | 6 country/region pages via official feeds | planned |
 | **v3.H** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
@@ -421,11 +421,14 @@ Cross-cutting requirements for every v3.B–v3.F page: authoritative source cite
 
 **Built.** `src/lib/calendar.ts` (pure) lists every 2027 date on any sourced calendar (OPM, Federal Reserve, USPS, NYSE closures + early closes) with each institution's status from `holidayPages.cell()`, so the page, ICS and PDF can't disagree. ICS = one all-day event per weekday federal offices close (RFC 5545 folding/escaping, CRLF); `/*.ics` served as `text/calendar` via `public/_headers`. PDF via `pdf-lib` (new devDependency, Helvetica, WinAnsi-only text). Both files are written in `vite.config.ts` `onFinished`; `tsconfig.node.json` now includes `src/lib/*.ts` because the config imports them. Downloads are not in the sitemap. Holiday names link to their v3.C / v2.G pages. Next year: bump `CALENDAR_YEAR` once 2028 OPM / Fed / USPS dates are in the data (the slug changes with it; the 2027 page then needs a redirect or keep-alive decision).
 
-### v3.E — Religious holiday checker
+### v3.E — Religious holiday checker ✅ (built 2026-11-26)
 
 | Item | Status |
 |---|---|
-| "What religious holiday is today" page, data + source per v3.A | ❌ |
+| "What religious holiday is today" page, data + source per v3.A | ✅ `/religious-holiday-today/` |
+| Add 2028 observances (Hebcal, USCCB 2028cal.pdf, FCNA, ACROD) before Dec 2027 | ❌ |
+
+**Built.** `src/lib/religious.ts` holds 42 observances (Nov 2026 – Dec 2027), each read 2026-11-26 from its source: Hebcal API (Diaspora, major holidays; CC BY 4.0, credited on the page), USCCB 2027 liturgical calendar PDF (Advent 2026 – Dec 2027; Holydays of Obligation and regional rules: Ascension Thursday only in 5 provinces, Hawaii, All Saints 2027 abrogated), FCNA calculated calendar (month starts; Ashura and Eid al-Adha counted from them, Eid al-Adha marked "expected" because FCNA defers to Saudi Arafah), ACROD movable feasts (Orthodox; fixed feasts not on that page, so not included). Page shows today's observances (US Eastern; "day N of M" for multi-day), Jewish/Islamic observances beginning at sundown tonight, the next 12, per-faith source notes, and a data-derived FAQ (Easter 2027, Ramadan 2027, Yom Kippur 2027, Hanukkah 2026). Hindu, Buddhist, Sikh stated as not covered.
 
 ### v3.F — State institutions
 
