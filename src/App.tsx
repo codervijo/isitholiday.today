@@ -10,6 +10,8 @@ import ClosurePageRoute from "./pages/ClosurePageRoute";
 import { CLOSURE_PAGES } from "./lib/closures";
 import AnswerPageRoute from "./pages/AnswerPageRoute";
 import { ANSWER_PAGES } from "./lib/answerPages";
+import { HOLIDAY_DEFS } from "./lib/holidayPages";
+import HolidayPageRoute from "./pages/HolidayPageRoute";
 import { PAGES } from "./lib/data";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,11 @@ export const routes: RouteRecord[] = [
       ...ANSWER_PAGES.map((page) => ({
         path: page.slug,
         Component: () => <AnswerPageRoute page={page} />,
+      })),
+      // v3.C one page per US federal holiday.
+      ...HOLIDAY_DEFS.map((def) => ({
+        path: def.slug,
+        Component: () => <HolidayPageRoute def={def} />,
       })),
       // v2.G holiday closure pages: static segments outrank the :country param route.
       ...CLOSURE_PAGES.map((page) => ({

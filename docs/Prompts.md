@@ -223,3 +223,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v3.B
 
 **Outcome:** two new pages, `/banks-open-tomorrow/` ("are banks open tomorrow" / "is tomorrow a bank holiday") and `/mail-tomorrow/` ("is there mail tomorrow"), driven by new `banks-tomorrow` / `mail-tomorrow` answer kinds. `/post-office-open-today/` retitled to also target "is today a postal holiday"; `/banks-open-today/` description no longer says "bank holiday"; `/usa/bank-holiday/` (owner of "is today a bank holiday") got a full description and Federal Reserve intro. Sitemap 23 URLs.
+
+## 2026-11-25 — v3.C per-holiday pages (banks, USPS, NYSE, federal)
+
+> build v3.C
+
+**Outcome:** 9 generated pages, one per US federal holiday other than Christmas and New Year's Day (which keep their v2.G pages): `/mlk-day/`, `/presidents-day/`, `/memorial-day/`, `/juneteenth/`, `/fourth-of-july/`, `/labor-day/`, `/columbus-day/`, `/veterans-day/`, `/thanksgiving/`. Each answers "is [holiday] a bank holiday" and shows Federal Reserve, Post Office, mail, NYSE and federal-office status for every related date (observed days included), all read from sourced calendars; pages roll to the next year automatically. New NYSE data (2026–2028, from nyse.com, checked directly) also added as a row on the 4 v2.G pages. Sitemap 32 URLs.

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { PAGES } from "@/lib/data";
 import { CLOSURE_PAGES } from "@/lib/closures";
 import { ANSWER_PAGES } from "@/lib/answerPages";
+import { HOLIDAY_DEFS } from "@/lib/holidayPages";
 
 interface Props {
   excludeSlug?: string;
@@ -17,6 +18,7 @@ const LINKS = [
   { to: "/", label: "What holiday is today?", slug: "" },
   ...ANSWER_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
   ...CLOSURE_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
+  ...HOLIDAY_DEFS.map((d) => ({ to: `/${d.slug}/`, label: `Is ${d.name} a bank holiday?`, slug: d.slug })),
   ...PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
 ];
 

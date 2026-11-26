@@ -46,11 +46,15 @@ function devSitemapPlugin(): Plugin {
           const answers = (
             (await server.ssrLoadModule("/src/lib/answerPages.ts")) as { ANSWER_PAGES: { slug: string }[] }
           ).ANSWER_PAGES;
+          const holidays = (
+            (await server.ssrLoadModule("/src/lib/holidayPages.ts")) as { HOLIDAY_DEFS: { slug: string }[] }
+          ).HOLIDAY_DEFS;
           const urls = [
             "/",
             ...answers.map((p) => `/${p.slug}/`),
             "/holiday-checker/",
             ...closures.map((p) => `/${p.slug}/`),
+            ...holidays.map((p) => `/${p.slug}/`),
             ...pages.map((p) => `/${p.slug}/`),
           ];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");

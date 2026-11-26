@@ -70,7 +70,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
 | **v3.A** | Kickoff / decisions lock | Lock institution × holiday matrix, slug patterns, one source per institution, intent → URL map (no cannibalization); country order | ✅ 2026-11-25 (ran before v2.I) |
 | **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
-| **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | planned |
+| **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | ✅ built 2026-11-25 |
 | **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | planned |
 | **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | planned |
 | **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | planned |
@@ -400,13 +400,16 @@ Cross-cutting requirements for every v3.B–v3.F page: authoritative source cite
 
 **Built.** `computeAnswer` gains `banks-tomorrow` and `mail-tomorrow` (shared `bankAnswer` / `mailAnswer` helpers; tomorrow = US Eastern today + 1). `/usa/bank-holiday/` got a full description and a 3-paragraph intro from the Federal Reserve schedule. No new sources. Sitemap: 23 URLs.
 
-### v3.C — Institution × holiday pages
+### v3.C — Institution × holiday pages ✅ (built 2026-11-25)
 
 | Item | Status |
 |---|---|
-| One page per US federal holiday covering banks, USPS, federal offices, NYSE (v2.G pattern), observed-date aware | ❌ |
-| Order by KD: Veterans Day first | ❌ |
-| NYSE status column in existing v2.G pages | ❌ |
+| One page per US federal holiday covering banks, USPS, federal offices, NYSE (v2.G pattern), observed-date aware | ✅ 9 pages |
+| Order by KD: Veterans Day first | ✅ all 9 shipped together (generated, no per-page copy) |
+| NYSE status column in existing v2.G pages | ✅ row added to all 4 |
+| Add 2028 OPM / Federal Reserve / USPS dates when published (operator, during 2027) | ❌ |
+
+**Built.** Routes `/mlk-day/`, `/presidents-day/`, `/memorial-day/`, `/juneteenth/`, `/fourth-of-july/`, `/labor-day/`, `/columbus-day/`, `/veterans-day/`, `/thanksgiving/`; Christmas and New Year's Day stay on their v2.G pages. `src/lib/holidayPages.ts` (pure) finds each holiday's next occurrence from the build date and reads every status from the sourced calendars: OPM + Federal Reserve (`HOLIDAYS`), USPS (`POSTAL_HOLIDAYS`), NYSE (`src/lib/nyse.ts`, 2026–2028 closures + 1 p.m. early closes, read 2026-11-25). Pages roll to the next year on the scheduled rebuild after the last related date (e.g. Thanksgiving after the Friday early close). Weekend cells are "—" unless a source lists the day. When a calendar has no data for the year shown, its row says "Not in this site's data yet": from Jan 19, 2027 each page rolls to 2028 one by one, and only NYSE 2028 is in the data, so 2028 OPM / Fed / USPS dates need adding during 2027.
 
 ### v3.D — Annual calendars + downloads
 

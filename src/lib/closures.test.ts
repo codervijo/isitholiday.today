@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { CLOSURE_PAGES, CHECKED, SOURCES } from "./closures";
 import { HOLIDAYS } from "./holidays";
+import { nyseClosed, nyseEarly } from "./nyse";
 
 const usaOn = (date: string, type: "public" | "bank") =>
   HOLIDAYS.some((h) => h.country === "usa" && h.state === null && h.type === type && h.date === date);
@@ -15,7 +16,9 @@ describe("closure pages agree with the sourced holiday data", () => {
     const row = (who: string) => p.rows.find((r) => r.who === who)!;
     expect(row("Federal government offices").status).toBe(p.federalHoliday ? "closed" : "open");
     expect(row("Federal Reserve").status).toBe(p.fedClosed ? "closed" : "open");
-    expect(p.rows).toHaveLength(4);
+    expect(p.rows).toHaveLength(5);
+    const nyse = row("Stock market (NYSE)").status;
+    expect(nyse).toBe(nyseClosed(p.date) ? "closed" : nyseEarly(p.date) ? "early" : "open");
   });
 
   it.each(CLOSURE_PAGES)("$slug: every row cites a known source; description 120–160 chars", (p) => {

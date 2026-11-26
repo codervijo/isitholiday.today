@@ -32,6 +32,10 @@ export const US_SOURCES = {
     label: "USPS FAQ: No mail delivery?",
     url: "https://faq.usps.com/s/article/No-Mail-Delivery",
   },
+  nyse: {
+    label: "NYSE holidays & trading hours",
+    url: "https://www.nyse.com/markets/hours-calendars",
+  },
   uspsSunday: {
     label: "USPS release: retail Post Offices closed Easter Sunday (2025)",
     url: "https://about.usps.com/newsroom/local-releases/ny/2025/0404-retail-post-offices-closed-easter-sunday.htm",

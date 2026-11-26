@@ -4,6 +4,7 @@ import path from "node:path";
 import { PAGES } from "../lib/data";
 import { CLOSURE_PAGES } from "../lib/closures";
 import { ANSWER_PAGES } from "../lib/answerPages";
+import { HOLIDAY_DEFS } from "../lib/holidayPages";
 
 const repoRoot = path.resolve(__dirname, "../..");
 const distDir = path.join(repoRoot, "dist");
@@ -79,7 +80,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -105,6 +106,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
       `${SITE}/holiday-checker/`,
       ...ANSWER_PAGES.map((p) => `${SITE}/${p.slug}/`),
       ...CLOSURE_PAGES.map((p) => `${SITE}/${p.slug}/`),
+      ...HOLIDAY_DEFS.map((d) => `${SITE}/${d.slug}/`),
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
@@ -127,7 +129,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
 });
 
 describe("v2.E — meta robots + real 404", () => {
-  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("/%s declares index,follow", (slug) => {
     expect(readDistHtml(slug)).toMatch(/<meta[^>]*name="robots"[^>]*content="index,follow"/);
@@ -221,5 +223,45 @@ describe("v2.H — US answer pages", () => {
     const html = readDistHtml("");
     for (const p of ANSWER_PAGES) expect(html).toContain(`href="/${p.slug}/"`);
     expect(html).toMatch(/Answer for (<!-- -->)?[A-Z][a-z]+day, /);
+  });
+});
+
+describe("v3.C — one page per US federal holiday", () => {
+  const dec = (s: string) => s.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+
+  describe.each(HOLIDAY_DEFS)("/$slug/", (def) => {
+    let html: string;
+    beforeAll(() => {
+      html = dec(readDistHtml(def.slug).replace(/<!-- -->/g, ""));
+    });
+
+    it("H1 + title name the holiday and a year; own canonical", () => {
+      expect(html).toMatch(new RegExp(`>Is ${escapeRegex(def.name)} 20\\d\\d a bank holiday\\?</h1>`));
+      const titles = html.match(/<title[^>]*>([^<]+)<\/title>/g) ?? [];
+      expect(titles).toHaveLength(1);
+      expect(titles[0]).toContain(`Is ${def.short} 20`);
+      expect(html).toMatch(new RegExp(`rel="canonical"[^>]*href="${SITE}/${def.slug}/"`));
+      const desc = html.match(/name="description"[^>]*content="([^"]+)"/)?.[1] ?? "";
+      expect(desc.length).toBeGreaterThanOrEqual(120);
+      expect(desc.length).toBeLessThanOrEqual(160);
+    });
+
+    it("prerenders the status table with all five institutions", () => {
+      for (const who of ["Federal Reserve Banks", "Post Offices", "Mail delivery", "Stock market (NYSE)", "Federal government offices"])
+        expect(html).toContain(`>${who}</td>`);
+    });
+
+    it("FAQPage JSON-LD matches the visible FAQ; JSON-LD urls = canonical", () => {
+      const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)].map((m) => JSON.parse(m[1]));
+      const faq = blocks.find((b) => b["@type"] === "FAQPage");
+      const visible = [...html.matchAll(/<dt[^>]*>([^<]+)<\/dt>/g)].map((m) => m[1]);
+      expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(visible);
+      for (const b of blocks) if (b.url) expect(b.url).toBe(`${SITE}/${def.slug}/`);
+    });
+  });
+
+  it("home links to every holiday page", () => {
+    const html = readDistHtml("");
+    for (const d of HOLIDAY_DEFS) expect(html).toContain(`href="/${d.slug}/"`);
   });
 });

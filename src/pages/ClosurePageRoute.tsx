@@ -99,10 +99,14 @@ export default function ClosurePageRoute({ page }: { page: ClosurePage }) {
                   <td className="px-4 py-3 font-medium whitespace-nowrap">{r.who}</td>
                   <td
                     className={`px-4 py-3 whitespace-nowrap font-semibold ${
-                      r.status === "closed" ? "text-red-700 dark:text-red-400" : "text-green-700 dark:text-green-400"
+                      r.status === "closed"
+                        ? "text-red-700 dark:text-red-400"
+                        : r.status === "early"
+                          ? "text-amber-700 dark:text-amber-400"
+                          : "text-green-700 dark:text-green-400"
                     }`}
                   >
-                    {r.status === "closed" ? "❌ " : "✅ "}
+                    {r.status === "closed" ? "❌ " : r.status === "early" ? "⏰ " : "✅ "}
                     {r.label}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">

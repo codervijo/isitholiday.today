@@ -34,6 +34,10 @@ export const SOURCES = {
     label: "USPS holiday release, Dec 24, 2025",
     url: "https://about.usps.com/newsroom/local-releases/mn/2025/1224-postal-service-closed-christmas-day-and-new-year-day.htm",
   },
+  nyse: {
+    label: "NYSE holidays & trading hours",
+    url: "https://www.nyse.com/markets/hours-calendars",
+  },
   eo2025: {
     label: "Government Executive: feds get Dec 24 and Dec 26, 2025 off",
     url: "https://www.govexec.com/pay-benefits/2025/12/feds-will-have-dec-24-and-dec-26/410226/",
@@ -42,11 +46,11 @@ export const SOURCES = {
 
 export type SourceId = keyof typeof SOURCES;
 
-export type ClosureStatus = "open" | "closed";
+export type ClosureStatus = "open" | "closed" | "early";
 
 export interface ClosureRow {
   /** Who/what the row is about. */
-  who: "Federal government offices" | "Federal Reserve" | "Post Offices" | "Mail delivery";
+  who: "Federal government offices" | "Federal Reserve" | "Post Offices" | "Mail delivery" | "Stock market (NYSE)";
   status: ClosureStatus;
   /** Short label shown in the status column. */
   label: string;
@@ -124,6 +128,13 @@ export const CLOSURE_PAGES: ClosurePage[] = [
         detail: "Christmas Eve is not a postal holiday, so it is a regular USPS service day.",
         sources: ["usps"],
       },
+      {
+        who: "Stock market (NYSE)",
+        status: "early",
+        label: "Closes early, 1:00 p.m. ET",
+        detail: "NYSE lists Thursday, Dec 24, 2026 as an early close: markets close at 1:00 p.m. ET (1:15 p.m. for eligible options).",
+        sources: ["nyse"],
+      },
     ],
     explainer: {
       heading: "Why Christmas Eve is sometimes a day off for federal workers",
@@ -199,6 +210,13 @@ export const CLOSURE_PAGES: ClosurePage[] = [
           "Christmas Day is a postal holiday. In 2025 USPS said regular mail delivery would resume the day after Christmas.",
         sources: ["usps", "usps2025"],
       },
+      {
+        who: "Stock market (NYSE)",
+        status: "closed",
+        label: "Closed",
+        detail: "Christmas Day, Friday, Dec 25, 2026, is on NYSE's market holiday list.",
+        sources: ["nyse"],
+      },
     ],
     explainer: {
       heading: "What is closed on Christmas Day",
@@ -266,6 +284,13 @@ export const CLOSURE_PAGES: ClosurePage[] = [
         label: "Regular service day",
         detail: "New Year's Eve is not a postal holiday, so it is a regular USPS service day.",
         sources: ["usps"],
+      },
+      {
+        who: "Stock market (NYSE)",
+        status: "open",
+        label: "Open",
+        detail: "Dec 31, 2026 is not on NYSE's 2026 holiday or early-close list.",
+        sources: ["nyse"],
       },
     ],
     explainer: {
@@ -335,6 +360,13 @@ export const CLOSURE_PAGES: ClosurePage[] = [
         detail:
           "New Year's Day is a postal holiday. In 2025 USPS said regular mail delivery would resume the day after New Year's Day.",
         sources: ["usps", "usps2025"],
+      },
+      {
+        who: "Stock market (NYSE)",
+        status: "closed",
+        label: "Closed",
+        detail: "New Year's Day, Friday, Jan 1, 2027, is on NYSE's market holiday list.",
+        sources: ["nyse"],
       },
     ],
     explainer: {
