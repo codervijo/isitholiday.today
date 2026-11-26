@@ -247,3 +247,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v3.F
 
 **Outcome:** `/usa/california/`, `/usa/texas/`, `/usa/new-york/` gain a "state offices, courts and DMV today" section: today's status per institution, next 10 closures, coverage dates, sources. Data read directly from CalHR (rules applied), California courts, California DMV, Texas SAO FY2027 PDF, NY Civil Service 2026/2027. Texas DPS / Texas courts / NY courts / NY DMV shown as gaps (no official statewide schedule found). No new URLs.
+
+## 2026-11-26 — v2.I index repair ops (automated parts)
+
+> build v2.I
+
+**Outcome:** IndexNow + sitemap resubmit already run after every deploy; verification checks CHECK_154 / 155 / 161 pass. Inspected all 34 sitemap URLs via the URL Inspection API: 3 indexed, 25 discovered-not-indexed, 4 unknown (incl. `/christmas-eve/`), 1 crawled-not-indexed, 1 stale soft 404. Wrote a 3-day manual Request-indexing plan into the PRD (most time-sensitive first). No code changes.

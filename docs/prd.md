@@ -63,7 +63,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.F** | Date correctness | Per-scope timezone "today", build-time clock shared by SSR + hydration, scheduled rebuild Worker, HTML cache headers (`f270838`, live 2026-10-05) | ✅ |
 | **v2.G** | Holiday closure pages | One page per remaining 2026 US holiday (Christmas Eve, Christmas, New Year's Eve, New Year's Day): federal / Federal Reserve / Post Office / mail status, sourced | ✅ built 2026-11-23 |
 | **v2.H** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | ✅ built 2026-11-23 |
-| **v2.I** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | planned |
+| **v2.I** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | 🚧 automated parts ✅ 2026-11-26; manual requests pending |
 | **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
 | **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
 | **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
@@ -210,7 +210,7 @@ Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs a
 
 **Overlap:** the US date-intent items in v3.L are superseded by this phase. The India variants stay in v3.L.
 
-### v2.I — Index repair ops
+### v2.I — Index repair ops 🚧 (automated parts done 2026-11-26)
 
 Operator-run, not code. These are the one-shot pushes that tell Google the
 v2.D fix landed; without them the corrected URLs wait on an organic recrawl.
@@ -221,6 +221,18 @@ Run **after** a deploy carrying v2.D + v2.E is live.
 | Ping IndexNow for all 11 sitemap URLs *(renumbered 2026-09-25; was 4.30)* | `cd ~/work/projects/sites/portfolio && uv run portfolio project fix isitholiday.today` | conformance CHECK_154 — 11 URLs never submitted; key already live at `public/82cd3fc…txt` |
 | Resubmit `sitemap.xml` in Search Console *(renumbered 2026-09-25; was 4.31)* | [Sitemaps](https://search.google.com/search-console/sitemaps?resource_id=sc-domain:isitholiday.today) | last fetched 11 weeks before 2026-09-15 |
 | Request indexing for the non-indexed URLs *(renumbered 2026-09-25; was 4.32)* | [URL inspection](https://search.google.com/search-console/inspect?resource_id=sc-domain:isitholiday.today) — `/usa/bank-holiday/`, `/usa/new-york/`, `/usa/california/`, `/india/kerala/`, `/india/tamil-nadu/`, `/holiday-checker/` | `/usa/california/` is `url_is_unknown_to_google`; the rest are "Discovered — not indexed" |
+
+**Status 2026-11-26.** IndexNow ✅ — every new URL submitted after each deploy (v2.G → v3.E) plus the three v3.F state pages; key live. Sitemap ✅ — resubmitted after each deploy (direct `sitemaps.submit` PUT; `submit_sitemap` skips already-listed feeds), last 2026-11-26 03:03 UTC, 34 URLs. Verification ✅ — `portfolio project check`: CHECK_154, CHECK_155, CHECK_161 pass.
+
+URL Inspection API over all 34 sitemap URLs (2026-11-26): 3 indexed (`/`, `/usa/`, `/india/bank-holiday/`), 25 Discovered – not indexed, 4 unknown to Google (`/christmas-eve/`, `/banks-open-tomorrow/`, `/next-holiday/`, `/post-office-open-today/`), 1 Crawled – not indexed (`/usa/texas/`, crawled 2026-10-01, before v3.F), 1 Soft 404 (`/india/`, crawled 2026-07-19, before its content). Discovered-not-indexed on a low-authority site is crawl priority, not a page defect.
+
+Manual "Request indexing" plan (operator; GSC allows roughly 10 requests a day per property), most time-sensitive first:
+
+| Day | URLs | Status |
+|---|---|---|
+| 1 | `/christmas-eve/`, `/christmas/`, `/new-years-eve/`, `/new-years-day/`, `/banks-open-today/`, `/usa/bank-holiday/`, `/banks-open-tomorrow/`, `/post-office-open-today/`, `/mail-today/`, `/2027-federal-holiday-calendar/` | ❌ |
+| 2 | `/religious-holiday-today/`, `/mlk-day/`, `/federal-holiday-today/`, `/is-tomorrow-a-holiday/`, `/next-holiday/`, `/mail-tomorrow/`, `/usa/texas/`, `/usa/california/`, `/usa/new-york/`, `/india/` | ❌ |
+| 3 | `/presidents-day/`, `/memorial-day/`, `/juneteenth/`, `/fourth-of-july/`, `/labor-day/`, `/columbus-day/`, `/veterans-day/`, `/thanksgiving/`, `/holiday-checker/`, `/india/kerala/`, `/india/tamil-nadu/` | ❌ |
 
 **Verification (not before ~2 GSC reporting windows):** re-run
 `uv run portfolio project check isitholiday.today` and expect CHECK_161
