@@ -1,7 +1,9 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import { CHECKED, SOURCES, type ClosurePage, type SourceId } from "@/lib/closures";
 import { todayIn, useNow } from "@/lib/today";
+import { lastmodFor } from "@/lib/lastmod";
 
 const SITE = "https://isitholiday.today";
 
@@ -55,7 +57,7 @@ export default function ClosurePageRoute({ page }: { page: ClosurePage }) {
       name: page.title,
       url,
       description: page.description,
-      dateModified: CHECKED,
+      dateModified: lastmodFor(`/${page.slug}/`, now).value,
     },
     {
       "@context": "https://schema.org",
@@ -72,6 +74,7 @@ export default function ClosurePageRoute({ page }: { page: ClosurePage }) {
   return (
     <>
       <Seo title={page.title} description={page.description} path={`/${page.slug}`} jsonLd={jsonLd} />
+      <Breadcrumbs trail={[{ name: page.holiday, path: `/${page.slug}` }]} />
       <section className="space-y-3 mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{page.h1}</h1>
         <p className="text-base max-w-2xl">{page.directAnswer}</p>

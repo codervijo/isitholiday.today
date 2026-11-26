@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import {
@@ -13,6 +14,7 @@ import {
   type Observance,
 } from "@/lib/religious";
 import { todayIn, useNow } from "@/lib/today";
+import { lastmodFor } from "@/lib/lastmod";
 import { US_TZ, addDays, daysBetween, formatLong } from "@/lib/usAnswers";
 
 const SITE = "https://isitholiday.today";
@@ -86,7 +88,7 @@ export default function ReligiousPageRoute() {
       : `No major Jewish, Catholic, Orthodox or Islamic observance on these calendars today, ${formatLong(today)}.`;
 
   const jsonLd = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: RELIGIOUS_TITLE, url, description: RELIGIOUS_DESCRIPTION },
+    { "@context": "https://schema.org", "@type": "WebPage", name: RELIGIOUS_TITLE, url, description: RELIGIOUS_DESCRIPTION, dateModified: lastmodFor(`/${RELIGIOUS_SLUG}/`, now).value },
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -98,6 +100,7 @@ export default function ReligiousPageRoute() {
   return (
     <>
       <Seo title={RELIGIOUS_TITLE} description={RELIGIOUS_DESCRIPTION} path={`/${RELIGIOUS_SLUG}`} jsonLd={jsonLd} />
+      <Breadcrumbs trail={[{ name: "Religious holidays today", path: `/${RELIGIOUS_SLUG}` }]} />
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-5">What religious holiday is today?</h1>
 
       <section className="rounded-xl border-2 border-violet-300 bg-violet-50 dark:bg-violet-950/30 p-5 sm:p-6 mb-8" aria-live="polite">

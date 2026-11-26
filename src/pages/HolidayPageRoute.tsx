@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/lib/holidayPages";
 import { US_SOURCES, US_TZ, daysBetween } from "@/lib/usAnswers";
 import { todayIn, useNow } from "@/lib/today";
+import { lastmodFor } from "@/lib/lastmod";
 
 const SITE = "https://isitholiday.today";
 
@@ -50,7 +52,7 @@ export default function HolidayPageRoute({ def }: { def: HolidayDef }) {
   const sourceIds = [...new Set(INSTITUTIONS.flatMap((i) => i.sources))];
 
   const jsonLd = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: v.title, url, description: v.description },
+    { "@context": "https://schema.org", "@type": "WebPage", name: v.title, url, description: v.description, dateModified: lastmodFor(`/${def.slug}/`, now).value },
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -66,6 +68,7 @@ export default function HolidayPageRoute({ def }: { def: HolidayDef }) {
   return (
     <>
       <Seo title={v.title} description={v.description} path={`/${def.slug}`} jsonLd={jsonLd} />
+      <Breadcrumbs trail={[{ name: def.name, path: `/${def.slug}` }]} />
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-5">{v.h1}</h1>
 
       <section className="rounded-xl border-2 border-sky-300 bg-sky-50 dark:bg-sky-950/30 p-5 sm:p-6 mb-8" aria-live="polite">

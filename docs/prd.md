@@ -64,9 +64,9 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.G** | Holiday closure pages | One page per remaining 2026 US holiday (Christmas Eve, Christmas, New Year's Eve, New Year's Day): federal / Federal Reserve / Post Office / mail status, sourced | ✅ built 2026-11-23 |
 | **v2.H** | Answer-engine pages | 7 US "today" intents: what holiday is today, tomorrow, next holiday, federal, post office, mail, banks | ✅ built 2026-11-23 |
 | **v2.I** | Index repair ops | IndexNow ping, sitemap resubmit, per-URL indexing requests (operator-run) | ✅ 2026-11-26 (manual requests dropped by operator) |
-| **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | planned |
-| **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
-| **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
+| **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | ✅ built 2026-11-26 |
+| **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | ✅ built 2026-11-26 |
+| **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | ✅ built 2026-11-26 (SearchAction + Event dropped) |
 | **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
 | **v3.A** | Kickoff / decisions lock | Lock institution × holiday matrix, slug patterns, one source per institution, intent → URL map (no cannibalization); country order | ✅ 2026-11-25 (ran before v2.I) |
 | **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
@@ -240,7 +240,7 @@ Manual "Request indexing" plan — **dropped 2026-11-26 by operator** ("not aski
 (index-regression on `/india/bank-holiday`) to clear. Index coverage moves on
 Google's schedule, not ours — do not treat a green local build as proof.
 
-### v2.J — Golden-page content
+### v2.J — Golden-page content ✅ (built 2026-11-26)
 
 The Soft-404 / thin-content fix. Blocks the Breadcrumb + FAQPage rows in v2.L. **Every holiday fact needs an official source cited in the commit — no invented dates.**
 
@@ -286,9 +286,11 @@ calcengine's "golden page" rule: every page must match `openai-cost-calculator` 
 | Feature | Effort | Status | Source |
 |---|---|---|---|
 | `/india/` soft-404 slice (GSC 2026-10-05): `intro` + `sources` fields (optional), India intro from DoPT/RBI source notes, unique 154-char description, server-rendered "Upcoming holidays" table + source links on all 9 pages | M | ✅ 2026-10-05 | GSC coverage |
-| Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar or drop it from the sitemap *(renumbered 2026-09-25; was 4.15)* | S | ❌ | GSC coverage, 2026-09-15 |
+| Decide `/holiday-checker/` fate — GSC "Crawled — currently not indexed". Either lift it past the golden-page bar or drop it from the sitemap *(renumbered 2026-09-25; was 4.15)* | S | ✅ 2026-11-26 — lifted to the golden-page bar, kept in sitemap | GSC coverage, 2026-09-15 |
 
-### v2.K — Legal + E-E-A-T
+**Built (2026-11-26).** `SeoPage` now requires the golden fields (tagline, keywords, intro, howItWorks, tips, exactly 5 FAQs of 40–80 words, lastUpdated, dataUpdated, relatedSlugs, 120–160 char description); all 9 pages + `/holiday-checker/` (`CHECKER_PAGE`) backfilled from facts already sourced in the repo (no new fetches; India data last verified 2026-09-25, noted in `data.ts`). Shared rendering in `src/components/GoldenSections.tsx`; FAQPage JSON-LD on every location page and the checker. Enforced by `src/lib/data.test.ts` + `src/test/golden.seo.test.ts`. Not written because not sourced: Kerala/TN holidays beyond Onam/Pongal, RBI 2nd/4th-Saturday rules.
+
+### v2.K — Legal + E-E-A-T ✅ (built 2026-11-26)
 
 calcengine's "Critical" SEO issues that cost them: missing legal + missing about page.
 
@@ -299,7 +301,9 @@ calcengine's "Critical" SEO issues that cost them: missing legal + missing about
 | About *(renumbered 2026-09-25; was 4.22)* | `/about` | Author/operator name, methodology, data sources |
 | Footer with all links *(renumbered 2026-09-25; was 4.23)* | `Layout.tsx` footer | Privacy, Terms, About, key country pages, GitHub |
 
-### v2.L — Structured data
+**Built (2026-11-26).** `/about/`, `/privacy/`, `/terms/` + site-wide footer (Home, USA, India, 2027 calendar, checker, All pages, About, Privacy, Terms; no GitHub — repo not linked publicly). Operator decisions: About is brand-only (no personal name); contact hello@isitholiday.today (Cloudflare Email Routing → hello@lamill.io, verified live 2026-11-26). Privacy discloses GA4 (`G-V1WWFCFFC4`, loaded in `index.html`) and Cloudflare Pages hosting; no accounts/forms. Terms name no jurisdiction. Open: Privacy says the site "does not sell personal information for money" — GA4 settings (e.g. Google signals) not audited against it.
+
+### v2.L — Structured data ✅ (built 2026-11-26)
 
 Breadcrumb + FAQPage land for free once v2.J backfills.
 
@@ -311,7 +315,11 @@ Breadcrumb + FAQPage land for free once v2.J backfills.
 | JSON-LD: `BreadcrumbList` on detail pages *(renumbered 2026-09-25; was 4.6)* | M | ❌ | calcengine — required pattern |
 | JSON-LD: `FAQPage` per location page *(renumbered 2026-09-25; was 4.7)* | M | ❌ (blocked on v2.J `faq` field) | calcengine — required when FAQ exists |
 | JSON-LD: `Event` per holiday (date, location, name) *(renumbered 2026-09-25; was 4.8)* | M | ❌ | unique to us — schema.org/Event |
-| Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) *(renumbered 2026-09-25; was 4.11)* | S | ❌ | calcengine H1 fix — must render outside React island |
+| Static fallback `<ul>` of all pages on `/all-locations` (Googlebot-friendly) *(renumbered 2026-09-25; was 4.11)* | S | ✅ | calcengine H1 fix — must render outside React island |
+
+**Built (2026-11-26).** `/`: WebSite (no SearchAction — the site has no search), Organization (logo `/favicon.svg`; no `sameAs` — no social profiles), WebApplication, FAQPage. WebApplication also on `/holiday-checker/` only. Every non-home page: visible breadcrumb + BreadcrumbList (`src/components/Breadcrumbs.tsx`). FAQPage on location pages comes from v2.J. Event per holiday **dropped** — public holidays aren't events under Google's Event guidelines. `/all-locations/` lists every page, grouped; enforced by `src/test/structured-data.seo.test.ts` (every block parses, urls canonical, breadcrumb positions, all-locations links every built page). Later: a raster logo (Google prefers ≥112×112 PNG over SVG).
+
+**lastmod (2026-11-26, same pass).** Sitemap `<lastmod>` was the build date on every URL (3 rebuilds/day → every page "changed today"); now `src/lib/lastmod.ts`: daily-answer pages = local midnight in the page's own timezone (ET; CA Pacific; TX Central; India IST) — identical across a day's rebuilds; content pages = `REVISED` date per group, holiday pages also move to their year-rollover date. `<changefreq>` removed. WebPage `dateModified` on answer, closure, holiday, calendar and religious pages comes from the same function. Guards: `lastmod.test.ts` fails locally when a group's files changed after its `REVISED` date (Cloudflare builds fetch one commit, so git can't drive it at build time); SEO tests check format, timezone, no future dates, and dateModified == sitemap lastmod. Also fixed: the v3.F state section used US Eastern "today" on the California/Texas pages; now the state's own timezone.
 
 ### v2.M — Repo & docs hygiene
 

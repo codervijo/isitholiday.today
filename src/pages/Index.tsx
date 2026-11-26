@@ -4,6 +4,7 @@ import Calculator from "@/components/Calculator";
 import { HOME_ANSWER } from "@/lib/answerPages";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
+import { webAppSchema } from "@/lib/schema";
 
 const HOLIDAY_TYPES = [
   {
@@ -67,27 +68,25 @@ const faqSchema = {
   })),
 };
 
+// v2.L site-level structured data. No SearchAction: the site has no search.
+// No sameAs: there are no social profiles. Logo = the real file in public/.
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "isitholiday.today",
+  url: "https://isitholiday.today/",
+};
+
 const orgSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "isitholiday.today",
   url: "https://isitholiday.today/",
+  logo: "https://isitholiday.today/favicon.svg",
   description:
     "Instant answers on whether today is a public or bank holiday in the US and India.",
 };
 
-const appSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "Holiday Checker",
-  url: "https://isitholiday.today/",
-  applicationCategory: "UtilitiesApplication",
-  operatingSystem: "All",
-  browserRequirements: "Requires JavaScript",
-  description:
-    "Check instantly whether today is a public, bank, or school holiday for a chosen country and state or region.",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-};
 
 export default function Index() {
   return (
@@ -96,7 +95,7 @@ export default function Index() {
         title={HOME_ANSWER.title}
         description={HOME_ANSWER.description}
         path="/"
-        jsonLd={[orgSchema, appSchema, faqSchema]}
+        jsonLd={[websiteSchema, orgSchema, webAppSchema("https://isitholiday.today/"), faqSchema]}
       />
       <section className="space-y-2 mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{HOME_ANSWER.h1}</h1>

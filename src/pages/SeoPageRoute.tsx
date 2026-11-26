@@ -1,12 +1,17 @@
 import { useParams } from "react-router-dom";
+import Breadcrumbs, { locationTrail } from "@/components/Breadcrumbs";
 import Calculator from "@/components/Calculator";
+import { GoldenBody, GoldenFaq, GoldenHeader, faqJsonLd } from "@/components/GoldenSections";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import StateInstitutions from "@/components/StateInstitutions";
 import UpcomingHolidays from "@/components/UpcomingHolidays";
 import { isStateKey } from "@/lib/stateInstitutions";
 import { findPageBySlug } from "@/lib/data";
+import { scopeTimeZone } from "@/lib/today";
 import NotFound from "./NotFound";
+
+const SITE = "https://isitholiday.today";
 
 const COUNTRY_NAMES: Record<string, string> = { india: "India", usa: "the USA" };
 
@@ -26,9 +31,16 @@ export default function SeoPageRoute() {
 
   return (
     <>
-      <Seo title={page.title} description={page.description} path={`/${page.slug}`} />
+      <Seo
+        title={page.title}
+        description={page.description}
+        path={`/${page.slug}`}
+        jsonLd={[faqJsonLd(page, `${SITE}/${page.slug}/`)]}
+      />
+      <Breadcrumbs trail={locationTrail(page.slug)} />
       <section className="space-y-2 mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{page.h1}</h1>
+        <GoldenHeader content={page} />
         <p className="text-base max-w-2xl">{page.directAnswer}</p>
       </section>
 
@@ -38,18 +50,13 @@ export default function SeoPageRoute() {
         prefillType={page.prefill.type ?? null}
       />
 
-      {page.intro && (
-        <section className="mt-12 border-t pt-10 space-y-4 max-w-3xl">
-          <h2 className="text-2xl font-bold tracking-tight">How holidays work in {place}</h2>
-          {page.intro.map((para) => (
-            <p key={para.slice(0, 32)} className="text-muted-foreground">{para}</p>
-          ))}
-        </section>
-      )}
+      <GoldenBody content={page} introHeading={`How holidays work in ${place}`} />
 
       <UpcomingHolidays query={{ country, state, type }} heading={heading} sources={page.sources} />
 
-      {country === "usa" && !type && isStateKey(state) && <StateInstitutions state={state} />}
+      {country === "usa" && !type && isStateKey(state) && <StateInstitutions state={state} tz={scopeTimeZone(country, state)} />}
+
+      <GoldenFaq content={page} />
 
       <InternalLinks excludeSlug={page.slug} />
     </>

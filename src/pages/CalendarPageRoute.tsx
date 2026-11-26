@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import {
@@ -14,6 +15,8 @@ import {
 } from "@/lib/calendar";
 import type { CellStatus } from "@/lib/holidayPages";
 import { US_SOURCES } from "@/lib/usAnswers";
+import { lastmodFor } from "@/lib/lastmod";
+import { useNow } from "@/lib/today";
 import { formatLong } from "@/lib/holidayPages";
 
 const SITE = "https://isitholiday.today";
@@ -71,8 +74,9 @@ export function calendarCopy() {
 export default function CalendarPageRoute() {
   const { rows, names, title, description, faq } = calendarCopy();
   const url = `${SITE}/${CALENDAR_SLUG}/`;
+  const dateModified = lastmodFor(`/${CALENDAR_SLUG}/`, useNow()).value;
   const jsonLd = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: title, url, description },
+    { "@context": "https://schema.org", "@type": "WebPage", name: title, url, description, dateModified },
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -84,6 +88,7 @@ export default function CalendarPageRoute() {
   return (
     <>
       <Seo title={title} description={description} path={`/${CALENDAR_SLUG}`} jsonLd={jsonLd} />
+      <Breadcrumbs trail={[{ name: `${Y} federal holiday calendar`, path: `/${CALENDAR_SLUG}` }]} />
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{Y} federal holiday calendar</h1>
       <p className="text-base max-w-3xl mb-6">
         OPM lists {names.length} US federal holidays for {Y}. The table shows every day in {Y} that a federal, Federal

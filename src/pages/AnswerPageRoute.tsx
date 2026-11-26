@@ -1,15 +1,19 @@
 import AnswerBlock from "@/components/AnswerBlock";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
 import type { AnswerPage } from "@/lib/answerPages";
+import { lastmodFor } from "@/lib/lastmod";
+import { useNow } from "@/lib/today";
 
 const SITE = "https://isitholiday.today";
 
 /** One US "today" answer page (v2.H). Static copy from answerPages.ts; answer from usAnswers.ts. */
 export default function AnswerPageRoute({ page }: { page: AnswerPage }) {
   const url = `${SITE}/${page.slug}/`;
+  const dateModified = lastmodFor(`/${page.slug}/`, useNow()).value;
   const jsonLd = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: page.title, url, description: page.description },
+    { "@context": "https://schema.org", "@type": "WebPage", name: page.title, url, description: page.description, dateModified },
     ...(page.faq.length
       ? [
           {
@@ -29,6 +33,7 @@ export default function AnswerPageRoute({ page }: { page: AnswerPage }) {
   return (
     <>
       <Seo title={page.title} description={page.description} path={`/${page.slug}`} jsonLd={jsonLd} />
+      <Breadcrumbs trail={[{ name: page.h1.replace(/\?$/, ""), path: `/${page.slug}` }]} />
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-5">{page.h1}</h1>
 
       <AnswerBlock kind={page.kind} upcomingHeading={page.upcomingHeading} />

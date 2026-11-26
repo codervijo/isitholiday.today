@@ -253,3 +253,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v2.I
 
 **Outcome:** IndexNow + sitemap resubmit already run after every deploy; verification checks CHECK_154 / 155 / 161 pass. Inspected all 34 sitemap URLs via the URL Inspection API: 3 indexed, 25 discovered-not-indexed, 4 unknown (incl. `/christmas-eve/`), 1 crawled-not-indexed, 1 stale soft 404. Wrote a 3-day manual Request-indexing plan into the PRD (most time-sensitive first). No code changes.
+
+## 2026-11-26 — v2.J + v2.K + v2.L (parallel) and lastmod audit
+
+> build v2.J-v2.L in parallel and then check to make sure lastmod is used correctly and properly across the whole site
+
+**Outcome:** three parallel builders in git worktrees, merged by hand. v2.J: golden-page fields required on all 9 location pages + `/holiday-checker/`, rendered with FAQPage JSON-LD. v2.K: `/about/` (brand only), `/privacy/` (GA4 + Cloudflare disclosed), `/terms/`, site-wide footer; contact hello@isitholiday.today (routing verified live). v2.L: WebSite + Organization + WebApplication on `/`, breadcrumbs + BreadcrumbList on every page, `/all-locations/`; SearchAction and Event dropped. lastmod: sitemap now uses content-change dates (daily pages = local midnight in their timezone; content pages = REVISED / rollover), `<changefreq>` removed, WebPage dateModified matches, git guard test. Sitemap 38 URLs.

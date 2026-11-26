@@ -13,10 +13,14 @@ import { ANSWER_PAGES } from "./lib/answerPages";
 import { HOLIDAY_DEFS } from "./lib/holidayPages";
 import HolidayPageRoute from "./pages/HolidayPageRoute";
 import CalendarPageRoute from "./pages/CalendarPageRoute";
+import AboutPage from "./pages/AboutPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import ReligiousPageRoute from "./pages/ReligiousPageRoute";
 import { RELIGIOUS_SLUG } from "./lib/religious";
 import { CALENDAR_SLUG } from "./lib/calendar";
 import { PAGES } from "./lib/data";
+import AllLocationsPage, { ALL_LOCATIONS_SLUG } from "./pages/AllLocationsPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +44,12 @@ export const routes: RouteRecord[] = [
     children: [
       { index: true, Component: Index },
       { path: "holiday-checker", Component: CalculatorPage },
+      // v2.K legal + E-E-A-T.
+      { path: "about", Component: AboutPage },
+      { path: "privacy", Component: PrivacyPage },
+      { path: "terms", Component: TermsPage },
+      // v2.L static list of every page.
+      { path: ALL_LOCATIONS_SLUG, Component: AllLocationsPage },
       // v2.H US "today" answer pages.
       ...ANSWER_PAGES.map((page) => ({
         path: page.slug,

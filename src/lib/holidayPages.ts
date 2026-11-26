@@ -233,6 +233,20 @@ export function occurrence(def: HolidayDef, today: string): { year: number; nomi
   return null;
 }
 
+/**
+ * Date the page started showing its current occurrence: the day after the
+ * previous occurrence's last related date. Used for lastmod — the page's
+ * dates and statuses changed then, not on every rebuild.
+ */
+export function holidayContentSince(def: HolidayDef, today: string): string {
+  const occ = occurrence(def, today);
+  const year = occ ? occ.year : Number(today.slice(0, 4));
+  const prev = windowDates(def, def.nominal(year - 1));
+  const d = new Date(prev[prev.length - 1] + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export function buildHolidayView(def: HolidayDef, today: string): HolidayView | null {
   const occ = occurrence(def, today);
   if (!occ) return null;

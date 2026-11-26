@@ -5,17 +5,19 @@ import { existsSync, readdirSync, renameSync, rmSync, writeFileSync } from "node
 import path from "node:path";
 import { CALENDAR_SLUG, CALENDAR_YEAR, ICS_PATH, PDF_PATH, buildIcs, calendarRows } from "./src/lib/calendar";
 import { buildCalendarPdf } from "./src/lib/calendarPdf";
+import { lastmodFor } from "./src/lib/lastmod";
 
 const SITE = "https://isitholiday.today";
 
-function buildSitemapXml(urls: string[]): string {
-  const today = new Date().toISOString().slice(0, 10);
+/**
+ * <lastmod> = when the page's main content last changed (src/lib/lastmod.ts),
+ * not the build time. No <changefreq>: Google ignores it, and "daily" was
+ * false for content pages.
+ */
+function buildSitemapXml(urls: string[], now: Date): string {
   const entries = [...urls]
     .sort()
-    .map(
-      (u) =>
-        `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq></url>`,
-    )
+    .map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${lastmodFor(u, now).value}</lastmod></url>`)
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -59,10 +61,14 @@ function devSitemapPlugin(): Plugin {
             ...holidays.map((p) => `/${p.slug}/`),
             `/${CALENDAR_SLUG}/`,
             "/religious-holiday-today/",
+            "/all-locations/",
+            "/about/",
+            "/privacy/",
+            "/terms/",
             ...pages.map((p) => `/${p.slug}/`),
           ];
           res.setHeader("Content-Type", "application/xml; charset=utf-8");
-          res.end(buildSitemapXml(urls));
+          res.end(buildSitemapXml(urls, new Date()));
         } catch (err) {
           next(err as Error);
         }
@@ -100,7 +106,8 @@ export default defineConfig({
         renameSync(nested404, path.join(dir, "404.html"));
         rmSync(path.join(dir, "404"), { recursive: true, force: true });
       }
-      writeFileSync(path.join(dir, "sitemap.xml"), buildSitemapXml(urlsFromDist(dir)));
+      const builtAt = new Date(process.env.BUILD_TIME ?? Date.now());
+      writeFileSync(path.join(dir, "sitemap.xml"), buildSitemapXml(urlsFromDist(dir), builtAt));
       // v3.D calendar downloads, generated from the same sourced data as the page.
       const stamp = process.env.BUILD_TIME ?? new Date().toISOString();
       const rows = calendarRows(CALENDAR_YEAR);

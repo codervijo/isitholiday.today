@@ -18,6 +18,7 @@ interface Props {
 const LINKS = [
   { to: "/holiday-checker/", label: "Holiday checker — any country, state, or type", slug: "holiday-checker" },
   { to: "/", label: "What holiday is today?", slug: "" },
+  { to: "/all-locations/", label: "All pages", slug: "all-locations" },
   ...ANSWER_PAGES.map((p) => ({ to: `/${p.slug}/`, label: p.h1, slug: p.slug })),
   { to: `/${RELIGIOUS_SLUG}/`, label: "What religious holiday is today?", slug: RELIGIOUS_SLUG },
   { to: `/${CALENDAR_SLUG}/`, label: `${CALENDAR_YEAR} federal holiday calendar (PDF, ICS)`, slug: CALENDAR_SLUG },

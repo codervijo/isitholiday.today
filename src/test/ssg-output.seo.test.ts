@@ -83,7 +83,7 @@ function escapeRegex(s: string): string {
 }
 
 describe("Trailing slashes — CF Pages 308-redirects /<path> to /<path>/", () => {
-  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...ANSWER_PAGES.map((p) => p.slug), ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, "about", "privacy", "terms", "all-locations", ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("internal page links in /%s point at the slashed (200) URL", (slug) => {
     const html = readDistHtml(slug);
@@ -112,17 +112,21 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
       ...HOLIDAY_DEFS.map((d) => `${SITE}/${d.slug}/`),
       `${SITE}/${CALENDAR_SLUG}/`,
       `${SITE}/${RELIGIOUS_SLUG}/`,
+      `${SITE}/about/`,
+      `${SITE}/privacy/`,
+      `${SITE}/terms/`,
+      `${SITE}/all-locations/`,
       ...PAGES.map((p) => `${SITE}/${p.slug}/`),
     ].sort();
     expect(locs.sort()).toEqual(expected);
   });
 
-  it("each sitemap entry has a <lastmod> in YYYY-MM-DD form and changefreq=daily", () => {
+  it("each sitemap entry has a W3C <lastmod> and no <changefreq>", () => {
     const sitemap = readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
     const lastmods = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);
-    expect(lastmods.length).toBeGreaterThan(0);
-    for (const d of lastmods) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(sitemap.match(/<changefreq>daily<\/changefreq>/g)?.length).toBe(lastmods.length);
+    expect(lastmods.length).toBe([...sitemap.matchAll(/<loc>/g)].length);
+    for (const d of lastmods) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}(T00:00:00[+-]\d{2}:\d{2})?$/);
+    expect(sitemap).not.toContain("<changefreq>");
   });
 
   it("dist/robots.txt exists, allows all crawlers, and points to sitemap.xml", () => {
@@ -134,7 +138,7 @@ describe("Crawl surface — sitemap.xml + robots.txt", () => {
 });
 
 describe("v2.E — meta robots + real 404", () => {
-  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, ...PAGES.map((p) => p.slug)];
+  const routes = ["", "holiday-checker", ...CLOSURE_PAGES.map((p) => p.slug), ...HOLIDAY_DEFS.map((d) => d.slug), CALENDAR_SLUG, RELIGIOUS_SLUG, "about", "privacy", "terms", "all-locations", ...PAGES.map((p) => p.slug)];
 
   it.each(routes)("/%s declares index,follow", (slug) => {
     expect(readDistHtml(slug)).toMatch(/<meta[^>]*name="robots"[^>]*content="index,follow"/);
@@ -362,5 +366,47 @@ describe("v3.F — state offices, courts and DMV on the state pages", () => {
       expect(html).toContain(`href="${inst.source.url}"`);
     }
     for (const g of GAPS[state]) expect(html).toContain(`>${g}</td>`);
+  });
+});
+
+describe("lastmod — sitemap, JSON-LD dateModified and the build agree", () => {
+  const sitemap = () => readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+  const entries = () =>
+    [...sitemap().matchAll(/<loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g)].map((m) => ({
+      path: m[1].replace(SITE, ""),
+      lastmod: m[2],
+    }));
+
+  it("no lastmod is in the future; all share one build", () => {
+    const latest = Date.now() + 36 * 3600_000; // local midnight can be ahead of UTC by < 14h
+    for (const e of entries()) expect(Date.parse(e.lastmod), e.path).toBeLessThanOrEqual(latest);
+  });
+
+  it("daily pages use local midnight in their own timezone", () => {
+    const byPath = Object.fromEntries(entries().map((e) => [e.path, e.lastmod]));
+    expect(byPath["/"]).toMatch(/T00:00:00-0[45]:00$/);
+    expect(byPath["/usa/california/"]).toMatch(/T00:00:00-0[78]:00$/);
+    expect(byPath["/usa/texas/"]).toMatch(/T00:00:00-0[56]:00$/);
+    expect(byPath["/india/"]).toMatch(/T00:00:00\+05:30$/);
+  });
+
+  it("content pages carry a plain date (no build timestamp)", () => {
+    const byPath = Object.fromEntries(entries().map((e) => [e.path, e.lastmod]));
+    for (const p of ["/privacy/", "/terms/", "/about/", "/all-locations/", "/christmas-eve/", "/veterans-day/", `/${CALENDAR_SLUG}/`])
+      expect(byPath[p], p).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("every WebPage dateModified equals the page's sitemap lastmod", () => {
+    let checked = 0;
+    for (const e of entries()) {
+      const html = readDistHtml(e.path.replace(/^\/|\/$/g, ""));
+      const blocks = [...html.matchAll(/<script[^>]*application\/ld\+json[^>]*>([^<]+)<\/script>/g)].map((m) => JSON.parse(m[1]));
+      for (const b of blocks)
+        if (b.dateModified) {
+          expect(b.dateModified, e.path).toBe(e.lastmod);
+          checked++;
+        }
+    }
+    expect(checked).toBeGreaterThan(20);
   });
 });
