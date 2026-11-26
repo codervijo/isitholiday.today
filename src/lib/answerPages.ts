@@ -25,6 +25,18 @@ const FEDERAL_EXPLAINER = [
   "The Federal Reserve and the Postal Service keep their own schedules. They don't always follow OPM's Saturday rule: for a Saturday holiday, Federal Reserve Banks are open the preceding Friday, and USPS keeps Post Offices open that Friday.",
 ];
 
+const MAIL_EXPLAINER = [
+  "USPS says regular mail delivery occurs Monday through Saturday, with the exception of postal holidays. So there is no regular mail on Sundays or on a postal holiday.",
+  "On Sundays, USPS says Priority Mail Express and Amazon parcels are the only mail eligible for delivery.",
+  "For a postal holiday on a Saturday (Juneteenth and Christmas in 2027), USPS says deliveries will occur as normal on the Friday before.",
+];
+
+const BANK_EXPLAINER = [
+  "In the US, \"bank holiday\" usually means a day on the Federal Reserve's holiday schedule. The Federal Reserve publishes that schedule; it lists the same days as the federal holidays.",
+  "The Federal Reserve handles Saturday holidays differently from OPM: \"For holidays falling on Saturday, Federal Reserve Banks and Branches will be open the preceding Friday.\" For holidays falling on Sunday, all Federal Reserve offices are closed the following Monday.",
+  "Individual banks set their own branch hours, including weekends. This site has no branch-level data, so check with your bank.",
+];
+
 /** The homepage answers "what holiday is today". */
 export const HOME_ANSWER: AnswerPage = {
   slug: "",
@@ -108,10 +120,10 @@ export const ANSWER_PAGES: AnswerPage[] = [
   {
     slug: "post-office-open-today",
     kind: "post-office",
-    title: "Is the Post Office Open Today? USPS Holiday Check",
+    title: "Is the Post Office Open Today? Is Today a Postal Holiday?",
     h1: "Is the post office open today?",
     description:
-      "Is the post office open today? Checks today against USPS's postal holiday list and Sunday retail closures, plus the next postal holiday and how far away it is.",
+      "Is the post office open today, and is today a postal holiday? Checks today against the USPS postal holiday list and Sunday closures, plus the next one.",
     upcomingHeading: "Upcoming USPS postal holidays",
     explainer: {
       heading: "When Post Offices close",
@@ -122,6 +134,11 @@ export const ANSWER_PAGES: AnswerPage[] = [
       ],
     },
     faq: [
+      {
+        question: "Is today a postal holiday?",
+        answer:
+          "The answer box at the top of this page checks today against USPS's published postal holiday list, in US Eastern time. On a postal holiday Post Offices close and there is no regular mail delivery.",
+      },
       {
         question: "Is the post office open on federal holidays?",
         answer:
@@ -144,11 +161,7 @@ export const ANSWER_PAGES: AnswerPage[] = [
     upcomingHeading: "Upcoming USPS postal holidays (no regular delivery)",
     explainer: {
       heading: "When mail is delivered",
-      paragraphs: [
-        "USPS says regular mail delivery occurs Monday through Saturday, with the exception of postal holidays. So there is no regular mail on Sundays or on a postal holiday.",
-        "On Sundays, USPS says Priority Mail Express and Amazon parcels are the only mail eligible for delivery.",
-        "For a postal holiday on a Saturday (Juneteenth and Christmas in 2027), USPS says deliveries will occur as normal on the Friday before.",
-      ],
+      paragraphs: MAIL_EXPLAINER,
     },
     faq: [
       {
@@ -164,20 +177,38 @@ export const ANSWER_PAGES: AnswerPage[] = [
     ],
   },
   {
+    slug: "mail-tomorrow",
+    kind: "mail-tomorrow",
+    title: "Is There Mail Tomorrow? USPS Delivery Check",
+    h1: "Is there mail tomorrow?",
+    description:
+      "Is there mail tomorrow? Checks tomorrow against the USPS postal holiday list and Sunday delivery rules, plus the next postal holiday with no regular mail.",
+    upcomingHeading: "Upcoming USPS postal holidays (no regular delivery)",
+    explainer: { heading: "When mail is delivered", paragraphs: MAIL_EXPLAINER },
+    faq: [
+      {
+        question: "Is there mail the day after a holiday?",
+        answer:
+          "Yes, if that day is Monday through Saturday and not itself a postal holiday. USPS says regular delivery occurs Monday through Saturday, with the exception of postal holidays.",
+      },
+      {
+        question: "What timezone is \"tomorrow\" based on?",
+        answer:
+          "US Eastern time. The page is rebuilt shortly after midnight Eastern, and your browser updates the answer from its own clock when the page loads.",
+      },
+    ],
+  },
+  {
     slug: "banks-open-today",
     kind: "banks",
     title: "Are Banks Closed Today? Federal Reserve Holiday Check",
     h1: "Are banks closed today?",
     description:
-      "Are banks closed today? Checks today against the Federal Reserve holiday schedule, the calendar US bank holidays follow, and the next Federal Reserve holiday.",
+      "Are banks open or closed today? Checks today against the Federal Reserve holiday schedule, plus the next Federal Reserve closure and how many days away it is.",
     upcomingHeading: "Upcoming Federal Reserve holidays",
     explainer: {
       heading: "What a bank holiday means",
-      paragraphs: [
-        "In the US, \"bank holiday\" usually means a day on the Federal Reserve's holiday schedule. The Federal Reserve publishes that schedule; it lists the same days as the federal holidays.",
-        "The Federal Reserve handles Saturday holidays differently from OPM: \"For holidays falling on Saturday, Federal Reserve Banks and Branches will be open the preceding Friday.\" For holidays falling on Sunday, all Federal Reserve offices are closed the following Monday.",
-        "Individual banks set their own branch hours, including weekends. This site has no branch-level data, so check with your bank.",
-      ],
+      paragraphs: BANK_EXPLAINER,
     },
     faq: [
       {
@@ -189,6 +220,28 @@ export const ANSWER_PAGES: AnswerPage[] = [
         question: "What if a holiday falls on a Saturday?",
         answer:
           "Federal Reserve Banks and Branches are open the preceding Friday. If a holiday falls on a Sunday, Federal Reserve offices close the following Monday.",
+      },
+    ],
+  },
+  {
+    slug: "banks-open-tomorrow",
+    kind: "banks-tomorrow",
+    title: "Are Banks Open Tomorrow? Is Tomorrow a Bank Holiday?",
+    h1: "Are banks open tomorrow?",
+    description:
+      "Are banks open tomorrow, or is tomorrow a bank holiday? Checks tomorrow against the Federal Reserve holiday schedule, plus the next Federal Reserve closure.",
+    upcomingHeading: "Upcoming Federal Reserve holidays",
+    explainer: { heading: "What a bank holiday means", paragraphs: BANK_EXPLAINER },
+    faq: [
+      {
+        question: "Is tomorrow a bank holiday?",
+        answer:
+          "The answer box at the top of this page checks tomorrow against the Federal Reserve's holiday schedule, in US Eastern time. Individual banks set their own branch hours, so check with your bank.",
+      },
+      {
+        question: "Are banks open on Saturday?",
+        answer:
+          "It depends on the bank. The Federal Reserve's schedule covers holidays, not weekends, and this site has no branch-level data.",
       },
     ],
   },

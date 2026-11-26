@@ -127,7 +127,16 @@ export const formatLong = (iso: string) =>
 const dayName = (iso: string) =>
   new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", { weekday: "long", timeZone: "UTC" });
 
-export type AnswerKind = "what-today" | "tomorrow" | "next" | "federal" | "post-office" | "mail" | "banks";
+export type AnswerKind =
+  | "what-today"
+  | "tomorrow"
+  | "next"
+  | "federal"
+  | "post-office"
+  | "mail"
+  | "mail-tomorrow"
+  | "banks"
+  | "banks-tomorrow";
 
 export interface Answer {
   /** true = "yes, it's a holiday / it's closed"; drives the colour of the answer. */
@@ -241,48 +250,64 @@ export function computeAnswer(kind: AnswerKind, today: string): Answer {
         sources: sunday ? ["usps", "uspsSunday"] : ["usps"],
       };
     }
-    case "mail": {
-      const ps = on("postal", today);
-      const sunday = weekday(today) === 0;
-      const details: string[] = [
-        "USPS: regular mail delivery occurs Monday through Saturday, with the exception of postal holidays.",
-      ];
-      if (sunday || ps)
-        details.push("Priority Mail Express and Amazon parcels are the only mail eligible for Sunday delivery.");
-      details.push(nextLine("postal", today, today, "USPS postal holiday"));
-      return {
-        closed: !!ps || sunday,
-        headline: ps
-          ? `No regular mail today, ${formatLong(today)}: it's ${ps.name}, a USPS postal holiday.`
-          : sunday
-            ? `No regular mail today: it's Sunday, ${formatLong(today)}.`
-            : `Yes. Regular mail is delivered today, ${formatLong(today)}.`,
-        details,
-        date: today,
-        calendar: "postal",
-        sources: ["usps", "uspsDelivery"],
-      };
-    }
-    case "banks": {
-      const fr = on("fed", today);
-      const wd = weekday(today);
-      const weekend = wd === 0 || wd === 6;
-      const details = [
-        "Individual banks set their own branch hours; this site has no branch-level data, so check with your bank.",
-        nextLine("fed", today, today, "Federal Reserve holiday"),
-      ];
-      return {
-        closed: !!fr,
-        headline: fr
-          ? `Yes. Today, ${formatLong(today)}, the Federal Reserve is closed for ${fr.name}.`
-          : weekend
-            ? `Today is ${dayName(today)}, ${formatLong(today)}. It is not a Federal Reserve holiday; weekend hours are up to each bank.`
-            : `No. Today, ${formatLong(today)}, is not a Federal Reserve holiday.`,
-        details,
-        date: today,
-        calendar: "fed",
-        sources: ["fed"],
-      };
-    }
+    case "mail":
+      return mailAnswer(today, today, "today");
+    case "mail-tomorrow":
+      return mailAnswer(addDays(today, 1), today, "tomorrow");
+    case "banks":
+      return bankAnswer(today, today, "today");
+    case "banks-tomorrow":
+      return bankAnswer(addDays(today, 1), today, "tomorrow");
   }
+}
+
+type When = "today" | "tomorrow";
+const cap = (w: When) => (w === "today" ? "Today" : "Tomorrow");
+
+/** USPS regular delivery on `date` (= today or tomorrow). */
+function mailAnswer(date: string, today: string, when: When): Answer {
+  const ps = on("postal", date);
+  const sunday = weekday(date) === 0;
+  const details: string[] = [
+    "USPS: regular mail delivery occurs Monday through Saturday, with the exception of postal holidays.",
+  ];
+  if (sunday || ps)
+    details.push("Priority Mail Express and Amazon parcels are the only mail eligible for Sunday delivery.");
+  details.push(nextLine("postal", date, today, "USPS postal holiday"));
+  return {
+    closed: !!ps || sunday,
+    headline: ps
+      ? `No regular mail ${when}, ${formatLong(date)}: it's ${ps.name}, a USPS postal holiday.`
+      : sunday
+        ? `No regular mail ${when}: it's Sunday, ${formatLong(date)}.`
+        : `Yes. Regular mail is delivered ${when}, ${formatLong(date)}.`,
+    details,
+    date,
+    calendar: "postal",
+    sources: ["usps", "uspsDelivery"],
+  };
+}
+
+/** Federal Reserve schedule on `date` (= today or tomorrow). Never asserts branch or weekend hours. */
+function bankAnswer(date: string, today: string, when: When): Answer {
+  const fr = on("fed", date);
+  const wd = weekday(date);
+  const weekend = wd === 0 || wd === 6;
+  return {
+    closed: !!fr,
+    headline: fr
+      ? `${when === "today" ? "Yes" : "No"}. ${cap(when)}, ${formatLong(date)}, the Federal Reserve is closed for ${fr.name}.`
+      : weekend
+        ? `${cap(when)} is ${dayName(date)}, ${formatLong(date)}. It is not a Federal Reserve holiday; weekend hours are up to each bank.`
+        : when === "today"
+          ? `No. Today, ${formatLong(date)}, is not a Federal Reserve holiday.`
+          : `Yes. Tomorrow, ${formatLong(date)}, is not a Federal Reserve holiday.`,
+    details: [
+      "Individual banks set their own branch hours; this site has no branch-level data, so check with your bank.",
+      nextLine("fed", date, today, "Federal Reserve holiday"),
+    ],
+    date,
+    calendar: "fed",
+    sources: ["fed"],
+  };
 }

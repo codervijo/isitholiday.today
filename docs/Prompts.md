@@ -210,3 +210,16 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > yes to both [`/` is the "what holiday is today" page; homepage defaults to US], build v2.H
 
 **Outcome:** `/` answers "what holiday is today" (federal / Federal Reserve / USPS status for today, US Eastern, plus upcoming federal holidays; checker defaults to USA). Six new pages: `/is-tomorrow-a-holiday/`, `/next-holiday/`, `/federal-holiday-today/`, `/post-office-open-today/`, `/mail-today/`, `/banks-open-today/`. Pure answer logic in `src/lib/usAnswers.ts` (unit-tested on Thanksgiving, Sundays, Saturdays, and the 2027 Saturday-Juneteenth case where OPM observes Friday but USPS and the Fed stay open). USPS postal holiday list added from about.usps.com; weekend mail rules from the USPS FAQ.
+
+## 2026-11-25 — v3.A US institution expansion: decisions lock
+
+> Expand IsItHoliday.today into a comprehensive holiday and institutional closure checker … [operator brief: banks, USPS, stock markets, DMV, courts, schools, government offices; religious checkers; annual calendars with PDF + ICS; low-KD keywords first; audit existing pages first]
+> start v3.A before v2.I · use your recommended owners for the overlaps · go with your recommended sources · yes, build-time PDF, close v3.A
+
+**Outcome:** PRD-only. New v3.A–v3.F head v3 (old v3.B–v3.G → v3.G–v3.L); v3.A run ahead of v2.I. Audit of 21 live URLs found two intent overlaps (`/usa/bank-holiday/` vs `/banks-open-today/`; `/` vs `/usa/` vs `/federal-holiday-today/`) — one owner per intent locked. Sources locked: OPM, NYSE, CalHR / CA courts / CA DMV, Texas SAO, NY Civil Service, Hebcal, USCCB, FCNA, ACROD; gaps (TX DPS/courts, NY courts/DMV, Hindu, interfaith) block content until sourced. Schools deferred (district-level, no authoritative source). PDF = real build-time file.
+
+## 2026-11-25 — v3.B tomorrow variants + retitles
+
+> build v3.B
+
+**Outcome:** two new pages, `/banks-open-tomorrow/` ("are banks open tomorrow" / "is tomorrow a bank holiday") and `/mail-tomorrow/` ("is there mail tomorrow"), driven by new `banks-tomorrow` / `mail-tomorrow` answer kinds. `/post-office-open-today/` retitled to also target "is today a postal holiday"; `/banks-open-today/` description no longer says "bank holiday"; `/usa/bank-holiday/` (owner of "is today a bank holiday") got a full description and Federal Reserve intro. Sitemap 23 URLs.

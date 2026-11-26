@@ -37,6 +37,27 @@ describe("computeAnswer", () => {
     expect(computeAnswer("mail", "2027-06-18").closed).toBe(false);
   });
 
+  it("banks-tomorrow: day before Thanksgiving says closed; Sat Jun 19 2027 eve is open", () => {
+    const a = computeAnswer("banks-tomorrow", "2026-11-25");
+    expect(a.closed).toBe(true);
+    expect(a.date).toBe("2026-11-26");
+    expect(a.headline).toMatch(/^No\. Tomorrow.*Federal Reserve is closed for Thanksgiving/);
+    // Thu Jun 17, 2027 → Fri Jun 18: OPM observed day off, but Fed open
+    const b = computeAnswer("banks-tomorrow", "2027-06-17");
+    expect(b.closed).toBe(false);
+    expect(b.headline).toMatch(/^Yes\. Tomorrow/);
+    // Fri → Sat: weekend wording, no hours claim
+    expect(computeAnswer("banks-tomorrow", "2026-11-27").headline).toMatch(/^Tomorrow is Saturday.*up to each bank/);
+  });
+
+  it("mail-tomorrow: Wed before Thanksgiving no; Fri→Sat yes; Sat→Sun no", () => {
+    expect(computeAnswer("mail-tomorrow", "2026-11-25").headline).toMatch(/^No regular mail tomorrow.*Thanksgiving/);
+    expect(computeAnswer("mail-tomorrow", "2026-11-27").closed).toBe(false);
+    const sun = computeAnswer("mail-tomorrow", "2026-11-28");
+    expect(sun.closed).toBe(true);
+    expect(sun.headline).toMatch(/Sunday/);
+  });
+
   it("tomorrow: day before Thanksgiving says yes", () => {
     const a = computeAnswer("tomorrow", "2026-11-25");
     expect(a.closed).toBe(true);

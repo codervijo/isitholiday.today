@@ -45,7 +45,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 |---|---|---|
 | v1 | MVP | India + USA answer widget, 9 pSEO pages, builds clean in docker |
 | v2 | Indexability | Google crawls and indexes every page: static HTML, clean canonicals, no orphans, golden-page content, legal pages, structured data |
-| v3 | Coverage | 50+ pSEO pages across countries, holiday types, date intents, and content clusters |
+| v3 | Coverage | US institution closure coverage (banks, USPS, federal, NYSE, state DMV/courts), then 50+ pSEO pages across countries, holiday types, date intents, and content clusters |
 | v4 | Data freshness | Holiday data externalized to per-country JSON with verified freshness markers and ingestion pipelines |
 | v5 | Polish & promotion | UX / a11y polish, analytics, backlink campaigns |
 
@@ -68,13 +68,18 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | planned |
 | **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | planned |
 | **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
-| **v3.A** | Kickoff / decisions lock | Lock page-type slugs, country order, data sources | planned |
-| **v3.B** | UK + Canada | 6 country/region pages via official feeds | planned |
-| **v3.C** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
-| **v3.D** | First content cluster | `/india/upcoming-holidays`, `/india/holiday-calendar-2026` | planned |
-| **v3.E** | More countries | Australia, Germany, France, Japan | planned |
-| **v3.F** | Holiday-type pages | bank / school pages per country and state | planned |
-| **v3.G** | Date-intent pages | day-of-week, next-holiday, this-month, tomorrow slugs | planned |
+| **v3.A** | Kickoff / decisions lock | Lock institution × holiday matrix, slug patterns, one source per institution, intent → URL map (no cannibalization); country order | ✅ 2026-11-25 (ran before v2.I) |
+| **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
+| **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | planned |
+| **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | planned |
+| **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | planned |
+| **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | planned |
+| **v3.G** | UK + Canada | 6 country/region pages via official feeds | planned |
+| **v3.H** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
+| **v3.I** | First content cluster | `/india/upcoming-holidays`, `/india/holiday-calendar-2026` | planned |
+| **v3.J** | More countries | Australia, Germany, France, Japan | planned |
+| **v3.K** | Holiday-type pages | bank / school pages per country and state | planned |
+| **v3.L** | Date-intent pages | day-of-week, next-holiday, this-month, tomorrow slugs | planned |
 | **v4.A** | Kickoff / decisions lock | Lock JSON schema + ingestion cadence | planned |
 | **v4.B** | Data layer split | `holidays.ts` → per-country JSON | planned |
 | **v4.C** | Freshness markers | git-derived code freshness + manual data-verified date | planned |
@@ -203,7 +208,7 @@ Low-difficulty, high-volume US "today" intents. Keyword data comes from Ahrefs a
 | Bank precision — Federal Reserve schedule vs. individual banks, which can vary | — | ✅ | |
 | JSON-LD that matches the visible answer, plus sitemap entries and links from `/` and every page | S | ✅ | Ties into v2.L structured data |
 
-**Overlap:** the US date-intent items in v3.G are superseded by this phase. The India variants stay in v3.G.
+**Overlap:** the US date-intent items in v3.L are superseded by this phase. The India variants stay in v3.L.
 
 ### v2.I — Index repair ops
 
@@ -316,7 +321,115 @@ gaps, recorded so future sessions stop chasing them): CHECK_010 (tests live in
 `vite.config.ts` `onFinished`, not `public/`), CHECK_050/CHECK_143 (deploy
 target *is* declared — `lamill.toml [deploy]`).
 
-### v3.B — UK + Canada
+### v3.A — Kickoff / decisions lock ✅ (2026-11-25)
+
+Added 2026-11-25 from an operator brief: expand into a US holiday + institutional closure checker. Placed at the head of v3; the prior v3 phases follow as v3.G–v3.L.
+
+Keyword targets (operator-supplied Ahrefs data, US monthly SV / KD, 2026-11-25; not re-verified here):
+
+| Keyword | SV | KD | Existing / planned URL |
+|---|---|---|---|
+| is christmas eve a federal holiday | 16K | 5 | v2.G Christmas Eve page ✅ |
+| is today a bank holiday | 16K | 7 | `/usa/bank-holiday/` (owner, v3.A) |
+| are banks open tomorrow | 11K | 6 | v3.B |
+| is veterans day a bank holiday | 7.9K | 13 | v3.C |
+| what religious holiday is today | 3.3K | 4 | v3.E |
+| is tomorrow a bank holiday | 1.9K | 13 | v3.B (same page as "are banks open tomorrow") |
+| is today a postal holiday | 1.6K | 9 | `/post-office-open-today/` (v3.B retitle) |
+| is there mail tomorrow | 1.5K | 8 | v3.B |
+| 2027 federal holiday calendar | 700 | 9 | v3.D |
+
+Decisions (all locked 2026-11-25):
+
+| Decision | Status |
+|---|---|
+| Intent → URL map: one URL per search intent; new pages only where no existing page answers it | ✅ 2026-11-25 (table below) |
+| Slug patterns for institution × holiday (per-holiday hub vs one page per institution) | ✅ 2026-11-25 — one page per holiday (v2.G pattern), see owners table |
+| Stock market source (NYSE holiday schedule) | ✅ 2026-11-25 — NYSE (sources table) |
+| Religious holiday source + which faiths | ✅ 2026-11-25 — Jewish, Catholic, Islamic, Orthodox; Hindu = labeled gap |
+| State DMV / court / office sources for CA, TX, NY | ✅ 2026-11-25 partial — locked where an official page exists; gaps listed below |
+| PDF generation approach (build-time file vs print stylesheet) | ✅ 2026-11-25 — real PDF file generated at build time (one new build dependency) |
+| Audit of existing 21 URLs against the intent map before any new page | ✅ 2026-11-25 — two overlaps found, resolved below |
+
+**Sources (locked 2026-11-25).** Every page fact must come from one of these. Pages were loaded on 2026-11-25 unless noted.
+
+| Scope | Source | Coverage | Notes |
+|---|---|---|---|
+| Federal | OPM — opm.gov/policy-data-oversight/pay-leave/federal-holidays/ | 2026, 2027 | Sat → preceding Fri (5 U.S.C. 6103(b)); Sun → following Mon (EO 11582) |
+| Stock market | NYSE — nyse.com/markets/hours-calendars | 2026–2028 | Full closes + 1 p.m. early closes. 2027: Good Friday Mar 26 closed; Jun 18 + Dec 24 observed closures; no Christmas Eve early close. Sat Jan 1 2028: no observed day |
+| Bond market | SIFMA — sifma.org/resources/general/holiday-schedule/ | 2026; 2027 only Jan 1 | Optional, not required for v3; differs from NYSE (Columbus, Veterans Day closed). Re-check 2027 before use |
+| CA state offices | CalHR — calhr.ca.gov/employees/pages/state-holidays/ | rules, no dates | Includes Mar 31 + day after Thanksgiving. Sat holiday → holiday credit, no observed weekday; Sun → Mon |
+| CA courts | courts.ca.gov/holidays.htm | 2026, 2027 | **Re-check "Farmworkers Day Apr 9, 2027" before use** |
+| CA DMV | dmv.ca.gov …/holidays/ | 2026; 2027 only Jan 1 | |
+| TX state offices | Texas SAO — hr.sao.texas.gov/Holidays/ (Holidays2026.pdf, Holidays2027.pdf) | through Aug 2027 (fiscal year) | "All agencies closed" vs "skeleton crew" vs "optional" statuses. Do NOT use lrl.texas.gov (wrong 2026 Good Friday) |
+| NY state offices | NY Civil Service — cs.ny.gov/attendance_leave/{2026,2027}_legal_holidays.cfm | 2026, 2027 | Sat holidays are "pass days" — no observed weekday |
+| Jewish | Hebcal API — hebcal.com | any year | JSON/ICS, CC BY 4.0 (credit required); fetch at build/ingest time, not per visitor |
+| Catholic | USCCB liturgical calendar PDFs — usccb.org/resources/2027cal.pdf | 2026–2028 | Holy days of obligation; regional exceptions (Ascension by province, Hawaii) |
+| Islamic | Fiqh Council of North America — fiqhcouncil.org/calendar/ | 2026, 2027 | Calculated, not sighted — must state local mosques may differ by a day |
+| Orthodox | ACROD movable feasts (GOARCH partnership) — acrod.org/prayercorner/movablefeasts/ | 2026, 2027 | goarch.org itself returned 403 |
+
+**Source gaps (no page ships content for these until filled):** Texas DPS driver license offices, Texas courts, NY courts (nycourts.gov 403), NY DMV (no statewide page), Nasdaq (unreachable; NYSE suffices), Texas Sep–Dec 2027 (FY2028 schedule not published), Hindu (no authoritative US publisher), any government interfaith calendar (none found).
+
+**Intent → URL owners (locked 2026-11-25).** Audit of the 21 live URLs found two overlaps: `/usa/bank-holiday/` and `/banks-open-today/` both targeted "is today a bank holiday"; `/`, `/usa/` and `/federal-holiday-today/` all partly answered "is today a holiday in the US". One owner per intent; other pages link to the owner instead of competing:
+
+| Intent | Owner |
+|---|---|
+| what holiday is today / holidays today | `/` |
+| is today a holiday in the US / USA | `/usa/` |
+| is today a federal holiday | `/federal-holiday-today/` |
+| is today a bank holiday (US) | `/usa/bank-holiday/` |
+| are banks open / closed today | `/banks-open-today/` |
+| is the post office open today / is today a postal holiday | `/post-office-open-today/` |
+| is there mail today | `/mail-today/` |
+| is tomorrow a holiday | `/is-tomorrow-a-holiday/` |
+| next holiday | `/next-holiday/` |
+| [holiday] + banks / post office / mail / federal | one page per holiday (v2.G pattern, e.g. `/christmas-eve/`) |
+
+Cross-cutting requirements for every v3.B–v3.F page: authoritative source cited per fact, US time zones + observed-date rules per institution, regional exceptions shown, internal links, WebPage + FAQPage JSON-LD, no thin pages. GSC tracking of indexing / impressions / rankings / clicks per phase (v2.I ops, v5.C).
+
+**Deferred (2026-11-25):** school closures. Closures are set per district; no authoritative national or state source exists. Revisit when a source is found.
+
+### v3.B — Tomorrow variants + retitles ✅ (built 2026-11-25)
+
+| Item | Status |
+|---|---|
+| `/banks-open-tomorrow/` — Federal Reserve schedule for tomorrow (covers "is tomorrow a bank holiday") | ✅ |
+| `/mail-tomorrow/` — USPS delivery tomorrow | ✅ |
+| `/usa/bank-holiday/` targets "is today a bank holiday"; `/banks-open-today/` keeps "are banks open / closed today" and drops bank-holiday wording from title/H1 | ✅ |
+| Retitle `/post-office-open-today/` to target "is today a postal holiday" | ✅ |
+
+**Built.** `computeAnswer` gains `banks-tomorrow` and `mail-tomorrow` (shared `bankAnswer` / `mailAnswer` helpers; tomorrow = US Eastern today + 1). `/usa/bank-holiday/` got a full description and a 3-paragraph intro from the Federal Reserve schedule. No new sources. Sitemap: 23 URLs.
+
+### v3.C — Institution × holiday pages
+
+| Item | Status |
+|---|---|
+| One page per US federal holiday covering banks, USPS, federal offices, NYSE (v2.G pattern), observed-date aware | ❌ |
+| Order by KD: Veterans Day first | ❌ |
+| NYSE status column in existing v2.G pages | ❌ |
+
+### v3.D — Annual calendars + downloads
+
+| Item | Status |
+|---|---|
+| `/2027-federal-holiday-calendar/` — federal + Fed + USPS + NYSE columns | ❌ |
+| ICS download generated at build time | ❌ |
+| PDF download | ❌ |
+
+### v3.E — Religious holiday checker
+
+| Item | Status |
+|---|---|
+| "What religious holiday is today" page, data + source per v3.A | ❌ |
+
+### v3.F — State institutions
+
+| Item | Status |
+|---|---|
+| DMV, state courts, state offices for CA / TX / NY, per-state official sources | ❌ |
+| Expand to more states as sources are confirmed | ❌ |
+
+### v3.G — UK + Canada
 
 Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.ts` + matching seed rows in `src/lib/holidays.ts` = one new indexable page with zero code changes. **Target: 50+ pSEO pages by end of v3.**
 
@@ -329,13 +442,13 @@ Mirror calcengine's "ship many pages" approach. Each new entry in `src/lib/data.
 | `canada/ontario` *(renumbered 2026-09-25; was 2.5)* | Canada | public | Med | Family Day, Civic Holiday |
 | `canada/quebec` *(renumbered 2026-09-25; was 2.6)* | Canada | public | Med | National Holiday (St-Jean-Baptiste) |
 
-### v3.C — OG images
+### v3.H — OG images
 
 | Feature | Effort | Status | Source of pattern |
 |---|---|---|---|
 | OG image build pipeline (Satori + `@resvg/resvg-js`) — `/og/{slug}.png` *(renumbered 2026-09-25; was 4.9)* | M | ❌ | `calcengine/src/og/` |
 
-### v3.D — First content cluster
+### v3.I — First content cluster
 
 calcengine generates a 3-page cluster per calculator: main + how-to + formula. Adapted for holidays — each cluster page reuses the same data (`HOLIDAYS`) but emphasizes a different intent. First cluster: `/india/upcoming-holidays`, `/india/holiday-calendar-2026`.
 
@@ -346,7 +459,7 @@ calcengine generates a 3-page cluster per calculator: main + how-to + formula. A
 | Calendar: full year view *(renumbered 2026-09-25; was 5.3)* | `/india/holiday-calendar-2026` | "[loc] holiday calendar 2026" |
 | History: past holidays this year *(renumbered 2026-09-25; was 5.4)* | `/india/holidays-so-far-2026` | "[loc] holidays so far 2026" |
 
-### v3.E — More countries
+### v3.J — More countries
 
 | Slug | Country | Type | Priority | Notes |
 |---|---|---|---|---|
@@ -357,15 +470,15 @@ calcengine generates a 3-page cluster per calculator: main + how-to + formula. A
 | `france` *(renumbered 2026-09-25; was 2.11)* | France | public | Med | 11 jours fériés |
 | `japan` *(renumbered 2026-09-25; was 2.12)* | Japan | public | Med | 16 national holidays |
 
-### v3.F — Holiday-type pages
+### v3.K — Holiday-type pages
 
 | Slug pattern | Example | Type | Notes |
 |---|---|---|---|
 | `{country}/bank-holiday` *(renumbered 2026-09-25; was 2.20)* | `india/bank-holiday`, `usa/bank-holiday`, `uk/bank-holiday` | bank | Already done for IN/US — extend |
-| `{country}/school-holiday` *(renumbered 2026-09-25; was 2.21)* | `india/school-holiday`, `usa/school-holiday` | school | Term-break dates per country |
+| `{country}/school-holiday` *(renumbered 2026-09-25; was 2.21)* | `india/school-holiday`, `usa/school-holiday` | school | Term-break dates per country. **US deferred 2026-11-25** (see v3.A) |
 | `{country}/{state}/bank-holiday` *(renumbered 2026-09-25; was 2.22)* | `usa/california/bank-holiday` | bank | State-level variants where relevant |
 
-### v3.G — Date-intent pages
+### v3.L — Date-intent pages
 
 | Slug | Search intent |
 |---|---|
@@ -438,7 +551,7 @@ A location/type page is **complete** when:
 - Golden-page schema fields all populated (v2.J)
 - ≥3 internal links rendered outside React island
 - JSON-LD: WebPage + BreadcrumbList + FAQPage + relevant Event entries (v2.L)
-- OG image present at `/og/{slug}.png` (v3.C)
+- OG image present at `/og/{slug}.png` (v3.H)
 - Listed in `sitemap.xml`
 - `lastUpdated` + `dataUpdated` markers visible
 - Cloudflare deploy green; no console errors

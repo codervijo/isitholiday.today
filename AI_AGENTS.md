@@ -83,7 +83,7 @@ After a feature ships successfully (commit lands, build green, acceptance criter
 curl -sIL https://isitholiday.today/ | head -3                          # expect 200 OK
 curl -sI  https://isitholiday.today/india/kerala/ | head -1            # expect 200 (no-slash form 308s)
 curl -s   https://isitholiday.today/india/kerala/ | grep '<h1'          # expect rendered H1, not empty shell
-curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 11 (or PAGES.length + 2)
+curl -s   https://isitholiday.today/sitemap.xml | grep -c '<loc>'       # expect 23 (PAGES + home + checker + ANSWER_PAGES + CLOSURE_PAGES)
 curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect Sitemap: line
 ```
 
@@ -97,11 +97,11 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 
 ## Status
 - **Stack settled:** Vite 6 + React 18 + TypeScript + Tailwind 3 + shadcn/ui + pnpm + `vite-react-ssg`.
-- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live (21 with v2.G + v2.H).
+- **Live on production:** `https://isitholiday.today` auto-deploys from `main`. 11 static HTML pages indexable, sitemap.xml live (23 with v2.G + v2.H + v3.B).
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
 - **Current tier:** v2 — Indexability. v2.A–v2.F built; v2.E + v2.G (holiday closure pages) live 2026-11-23 (`958e735`); v2.H (US answer pages, `/` = what holiday is today) built 2026-11-23.
 - **Shipped + live:** v2.F date correctness (`f270838`); rebuild Worker on CF since 2026-10-05. Session handoff: `docs/handoff.md`.
-- **Next step (per `docs/prd.md` § 5. Phases):** v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
+- **Next step (per `docs/prd.md` § 5. Phases):** v3.A closed and v3.B built 2026-11-25 (banks / mail "tomorrow" pages; `/usa/bank-holiday/` owns "is today a bank holiday"; 23 sitemap URLs); then v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
