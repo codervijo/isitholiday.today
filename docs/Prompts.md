@@ -241,3 +241,9 @@ Append one `SeoPage` literal to the `PAGES` array in `src/lib/data.ts`. No other
 > build v3.E
 
 **Outcome:** `/religious-holiday-today/` answers "what religious holiday is today" for Jewish (Hebcal, CC BY 4.0), Catholic (USCCB 2027 liturgical calendar), Islamic (FCNA calculated calendar; Eid al-Adha marked expected) and Orthodox (ACROD movable feasts) observances, Nov 2026 – Dec 2027, all fetched and read directly. Shows today's observances, what begins at sundown tonight, the next 12, source notes and a data-derived FAQ. Hindu / Buddhist / Sikh explicitly not covered (no authoritative US source). Sitemap 34 URLs.
+
+## 2026-11-26 — v3.F state offices, courts and DMV (CA, TX, NY)
+
+> build v3.F
+
+**Outcome:** `/usa/california/`, `/usa/texas/`, `/usa/new-york/` gain a "state offices, courts and DMV today" section: today's status per institution, next 10 closures, coverage dates, sources. Data read directly from CalHR (rules applied), California courts, California DMV, Texas SAO FY2027 PDF, NY Civil Service 2026/2027. Texas DPS / Texas courts / NY courts / NY DMV shown as gaps (no official statewide schedule found). No new URLs.

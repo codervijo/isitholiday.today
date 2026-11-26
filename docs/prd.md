@@ -73,7 +73,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | ✅ built 2026-11-25 |
 | **v3.D** | Annual calendars + downloads | 2027 US federal holiday calendar page; ICS + PDF downloads | ✅ built 2026-11-25 |
 | **v3.E** | Religious holiday checker | "What religious holiday is today" — after a source is locked in v3.A | ✅ built 2026-11-26 |
-| **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | planned |
+| **v3.F** | State institutions | DMV, state courts, state offices for CA / TX / NY first; per-state official sources | ✅ built 2026-11-26 (TX/NY gaps open) |
 | **v3.G** | UK + Canada | 6 country/region pages via official feeds | planned |
 | **v3.H** | OG images | Satori + resvg build pipeline, `/og/{slug}.png` | planned |
 | **v3.I** | First content cluster | `/india/upcoming-holidays`, `/india/holiday-calendar-2026` | planned |
@@ -430,12 +430,16 @@ Cross-cutting requirements for every v3.B–v3.F page: authoritative source cite
 
 **Built.** `src/lib/religious.ts` holds 42 observances (Nov 2026 – Dec 2027), each read 2026-11-26 from its source: Hebcal API (Diaspora, major holidays; CC BY 4.0, credited on the page), USCCB 2027 liturgical calendar PDF (Advent 2026 – Dec 2027; Holydays of Obligation and regional rules: Ascension Thursday only in 5 provinces, Hawaii, All Saints 2027 abrogated), FCNA calculated calendar (month starts; Ashura and Eid al-Adha counted from them, Eid al-Adha marked "expected" because FCNA defers to Saudi Arafah), ACROD movable feasts (Orthodox; fixed feasts not on that page, so not included). Page shows today's observances (US Eastern; "day N of M" for multi-day), Jewish/Islamic observances beginning at sundown tonight, the next 12, per-faith source notes, and a data-derived FAQ (Easter 2027, Ramadan 2027, Yom Kippur 2027, Hanukkah 2026). Hindu, Buddhist, Sikh stated as not covered.
 
-### v3.F — State institutions
+### v3.F — State institutions ✅ (built 2026-11-26)
 
 | Item | Status |
 |---|---|
-| DMV, state courts, state offices for CA / TX / NY, per-state official sources | ❌ |
+| DMV, state courts, state offices for CA / TX / NY, per-state official sources | ✅ where a source exists (see below) |
+| Fill gaps: Texas DPS driver license offices, Texas courts, NY courts, NY DMV | ❌ no official statewide source found |
+| Roll forward: CA DMV 2027 list (only Jan 1 published), Texas FY2028 (Sep 2027+), 2028 for all | ❌ operator, when published |
 | Expand to more states as sources are confirmed | ❌ |
+
+**Built.** Placement: a section on the existing `/usa/california/`, `/usa/texas/`, `/usa/new-york/` pages (the owners of state intent) rather than new URLs, so a state with one source doesn't get thin standalone pages. `src/lib/stateInstitutions.ts` holds each institution's dates, read 2026-11-26: CalHR rules applied to Nov 2026 – Dec 2027 (excluded employees; Saturday = holiday credit, Sunday → Monday), California courts 2026–2027, California DMV (through Jan 1, 2027; "DMV offices are closed on weekends"), Texas SAO FY2027 PDF (through Aug 31, 2027; closed / skeleton crew / optional statuses, Gov Code 662.004 quoted), NY Civil Service 2026 + 2027 (pass days, floating holidays for some units). Section shows each institution's status today (US Eastern), the next 10 closures, coverage dates, and the gap institutions as "no official statewide holiday schedule found". California courts publish Farmworkers Day 2027 as Fri Apr 9 while CalHR's rule is Mar 31 — both shown as published. Retrying the gap sources with a browser user-agent was blocked by the session's permission check; not retried.
 
 ### v3.G — UK + Canada
 

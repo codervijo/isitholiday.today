@@ -6,6 +6,7 @@ import { CLOSURE_PAGES } from "../lib/closures";
 import { ANSWER_PAGES } from "../lib/answerPages";
 import { HOLIDAY_DEFS } from "../lib/holidayPages";
 import { RELIGIOUS_SLUG, OBSERVANCES } from "../lib/religious";
+import { GAPS, STATE_INSTITUTIONS, type StateKey } from "../lib/stateInstitutions";
 import { CALENDAR_SLUG, ICS_PATH, PDF_PATH, calendarRows, CALENDAR_YEAR } from "../lib/calendar";
 
 const repoRoot = path.resolve(__dirname, "../..");
@@ -348,5 +349,18 @@ describe("v3.E — religious holiday page", () => {
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
     const visible = [...html.matchAll(/<dt[^>]*>([^<]+)<\/dt>/g)].map((m) => m[1]);
     expect(faq.mainEntity.map((q: { name: string }) => q.name)).toEqual(visible);
+  });
+});
+
+describe("v3.F — state offices, courts and DMV on the state pages", () => {
+  const dec = (s: string) => s.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+  it.each(Object.keys(STATE_INSTITUTIONS) as StateKey[])("/usa/%s/ prerenders every institution, its source and the gaps", (state) => {
+    const html = dec(readDistHtml(`usa/${state}`).replace(/<!-- -->/g, ""));
+    expect(html).toMatch(/state offices, courts and DMV today<\/h2>/);
+    for (const inst of STATE_INSTITUTIONS[state]) {
+      expect(html).toContain(`>${inst.label}</td>`);
+      expect(html).toContain(`href="${inst.source.url}"`);
+    }
+    for (const g of GAPS[state]) expect(html).toContain(`>${g}</td>`);
   });
 });

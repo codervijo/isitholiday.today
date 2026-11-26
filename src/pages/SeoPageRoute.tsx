@@ -2,7 +2,9 @@ import { useParams } from "react-router-dom";
 import Calculator from "@/components/Calculator";
 import InternalLinks from "@/components/InternalLinks";
 import Seo from "@/components/Seo";
+import StateInstitutions from "@/components/StateInstitutions";
 import UpcomingHolidays from "@/components/UpcomingHolidays";
+import { isStateKey } from "@/lib/stateInstitutions";
 import { findPageBySlug } from "@/lib/data";
 import NotFound from "./NotFound";
 
@@ -46,6 +48,8 @@ export default function SeoPageRoute() {
       )}
 
       <UpcomingHolidays query={{ country, state, type }} heading={heading} sources={page.sources} />
+
+      {country === "usa" && !type && isStateKey(state) && <StateInstitutions state={state} />}
 
       <InternalLinks excludeSlug={page.slug} />
     </>
