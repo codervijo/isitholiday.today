@@ -25,11 +25,11 @@ framework = "vite-react"
 # Declarative content identity for this site.
 # Authored by the human; consumed by rankmill to generate drafts and run audits.
 # Leave fields empty until you have a deliberate answer. Empty is better than wrong.
-site_type = ""            # e.g. "legal-compliance", "tool", "directory", "blog", "b2c"
-primary_keyword = ""      # the one phrase this site should rank for
-secondary_keywords = []   # 3-8 supporting phrases
-icp = ""                  # ideal customer profile — one sentence, specific role + context
-urgency_trigger = ""      # what makes the reader act now (deadline, penalty, pain)
-penalty = ""              # cost of inaction, in their terms (dollars, risk, time)
-tone = ""                 # e.g. "direct, technical, no fluff" or "warm, plainspoken"
+site_type = "tool"        # e.g. "legal-compliance", "tool", "directory", "blog", "b2c"
+primary_keyword = "what holiday is today"      # the one phrase this site should rank for
+secondary_keywords = ["is today a bank holiday", "are banks open tomorrow", "is the post office open today", "is there mail today", "is today a federal holiday", "2027 federal holiday calendar", "what religious holiday is today"]   # 3-8 supporting phrases
+icp = "US adult about to go to the bank or post office, or waiting on mail, checking on their phone whether it is open today"   # ideal customer profile — one sentence, specific role + context
+urgency_trigger = "they are about to leave for a bank, post office or government office today or tomorrow"   # what makes the reader act now (deadline, penalty, pain)
+penalty = "a wasted trip to a closed bank, post office or office, or mail that does not come"   # cost of inaction, in their terms (dollars, risk, time)
+tone = "direct, factual, answer first, every claim sourced"   # e.g. "direct, technical, no fluff" or "warm, plainspoken"
 law = ""                  # statute or regulation if applicable, else empty

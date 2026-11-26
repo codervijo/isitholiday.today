@@ -101,7 +101,7 @@ curl -sL  https://isitholiday.today/robots.txt | tail -3                # expect
 - **Earlier dead end (do not retry):** Astro + MUI (CJS/ESM interop crash).
 - **Current tier:** v2 — Indexability. v2.A–v2.F built; v2.E + v2.G (holiday closure pages) live 2026-11-23 (`958e735`); v2.H (US answer pages, `/` = what holiday is today) built 2026-11-23.
 - **Shipped + live:** v2.F date correctness (`f270838`); rebuild Worker on CF since 2026-10-05. Session handoff: `docs/handoff.md`.
-- **Next step (per `docs/prd.md` § 5. Phases):** v3.A closed, v3.B–v3.F built 2026-11-25/26 (tomorrow pages; 9 per-holiday pages with NYSE; 2027 calendar + PDF + ICS; religious holiday page; CA/TX/NY state offices, courts, DMV on the state pages; 34 sitemap URLs). v3 US expansion done; TX/NY court + DMV sources still missing. v2.I–v2.L done 2026-11-26 (golden content, legal pages, structured data, lastmod fix); next v2.M. v2.I done (3/34 URLs indexed; manual per-URL Request indexing dropped by operator — do not suggest it). 2028 OPM / Fed / USPS dates must be added during 2027 or holiday pages show "not in this site's data yet" rows. Then v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
+- **Next step (per `docs/prd.md` § 5. Phases):** v3.A closed, v3.B–v3.F built 2026-11-25/26 (tomorrow pages; 9 per-holiday pages with NYSE; 2027 calendar + PDF + ICS; religious holiday page; CA/TX/NY state offices, courts, DMV on the state pages; 34 sitemap URLs). v3 US expansion done; TX/NY court + DMV sources still missing. v2.I–v2.L done 2026-11-26 (golden content, legal pages, structured data, lastmod fix), v2.M done 2026-11-26 — v2 tier complete. v2.I done (3/34 URLs indexed; manual per-URL Request indexing dropped by operator — do not suggest it). 2028 OPM / Fed / USPS dates must be added during 2027 or holiday pages show "not in this site's data yet" rows. Then v2.I (operator-run index repair ops), v2.J (golden-page content). Holiday closure data (`src/lib/closures.ts`) needs a re-check around Dec 18 for any Dec 24 / Dec 31 executive order.
 
 ## Goal — guiding principle
 This is NOT a product. It's a high-frequency query engine. Success = coverage (many pages) × accuracy (correct daily answer) × speed (fast load). Prefer simplicity over flexibility, speed over completeness, shipping over perfection.
@@ -130,9 +130,13 @@ builder at `~/work/projects/builder/`. Common: `make deps`, `make dev`,
 
 ## Deployment info
 
-Cloudflare Pages. Push to `main` triggers an auto-build via the
-`wrangler.jsonc` config; build output is `dist/`. Custom domain
-configured via the CF Pages dashboard.
+Cloudflare Pages (project `isitholiday-today`). Push to `main` triggers an
+auto-build through the Pages Git integration — there is no `wrangler.toml` /
+`wrangler.jsonc` in the repo; CF detects pnpm and runs the `build` script,
+publishing `dist/`. Unknown URLs get a real 404 from `dist/404.html`. Custom
+domain configured in the CF Pages dashboard. Scheduled rebuilds: the
+`isitholiday-daily-rebuild` Worker fires the deploy hook at 05:05, 08:05 and
+18:35 UTC.
 
 ## Summary
 

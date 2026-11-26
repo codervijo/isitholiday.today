@@ -67,7 +67,7 @@ Two-level versioning convention (canonical: `sites/portfolio/AI_AGENTS.md`):
 | **v2.J** | Golden-page content | `SeoPage` schema extension + backfill all 9 pages; `/holiday-checker/` fate | ✅ built 2026-11-26 |
 | **v2.K** | Legal + E-E-A-T | Privacy, Terms, About, footer links | ✅ built 2026-11-26 |
 | **v2.L** | Structured data | WebSite/SearchAction, Organization, WebApplication, Breadcrumb, FAQPage, Event; `/all-locations` | ✅ built 2026-11-26 (SearchAction + Event dropped) |
-| **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | planned |
+| **v2.M** | Repo & docs hygiene | Deploy-config contradiction, placeholders, `lamill.toml`, growth log, `.env.example` | ✅ 2026-11-26 |
 | **v3.A** | Kickoff / decisions lock | Lock institution × holiday matrix, slug patterns, one source per institution, intent → URL map (no cannibalization); country order | ✅ 2026-11-25 (ran before v2.I) |
 | **v3.B** | Tomorrow variants + retitles | banks-open-tomorrow, mail-tomorrow (tomorrow-bank-holiday intent); `/usa/bank-holiday/` takes "is today a bank holiday"; retitle `/post-office-open-today/` to absorb "postal holiday" | ✅ built 2026-11-25 |
 | **v3.C** | Institution × holiday pages | Each US federal holiday × banks / USPS / federal offices / stock market (NYSE); v2.G page pattern; low-KD first (e.g. Veterans Day) | ✅ built 2026-11-25 |
@@ -321,7 +321,7 @@ Breadcrumb + FAQPage land for free once v2.J backfills.
 
 **lastmod (2026-11-26, same pass).** Sitemap `<lastmod>` was the build date on every URL (3 rebuilds/day → every page "changed today"); now `src/lib/lastmod.ts`: daily-answer pages = local midnight in the page's own timezone (ET; CA Pacific; TX Central; India IST) — identical across a day's rebuilds; content pages = `REVISED` date per group, holiday pages also move to their year-rollover date. `<changefreq>` removed. WebPage `dateModified` on answer, closure, holiday, calendar and religious pages comes from the same function. Guards: `lastmod.test.ts` fails locally when a group's files changed after its `REVISED` date (Cloudflare builds fetch one commit, so git can't drive it at build time); SEO tests check format, timezone, no future dates, and dateModified == sitemap lastmod. Also fixed: the v3.F state section used US Eastern "today" on the California/Texas pages; now the state's own timezone.
 
-### v2.M — Repo & docs hygiene
+### v2.M — Repo & docs hygiene ✅ (2026-11-26)
 
 Not SEO work; cleanup that keeps the docs honest for the next session. None of
 it blocks traffic — do it while waiting on GSC windows.
@@ -334,6 +334,8 @@ it blocks traffic — do it while waiting on GSC windows.
 | Fill the `[content]` block in `lamill.toml` *(renumbered 2026-09-25; was 9.4)* | `site_type`, `primary_keyword`, `secondary_keywords`, `icp`, `tone` all empty; rankmill consumes these |
 | `docs/growth.md` — overdue review + new entry *(renumbered 2026-09-25; was 9.5)* | 2026-05-09 entry was due for review 2026-06-06; add a v2.D entry with a baseline (299 impressions / 0 clicks / pos 82.5, GSC 28d as of 2026-09-15) and a review date |
 | Commit or delete `.env.example` *(renumbered 2026-09-25; was 9.6)* | untracked, template-only; the site has no env vars |
+
+**Done 2026-11-26.** Deploy contradiction: no wrangler file exists — `AI_AGENTS.md` "Deployment info" and `docs/CLAUDE.md` now say Pages Git integration (plus the 404 and rebuild-Worker facts). `AI_AGENTS.md` placeholders were already filled. `docs/CLAUDE.md`: project blurb, docker build command, deferred-decisions list. `lamill.toml [content]`: site_type tool, primary keyword "what holiday is today", 7 secondary keywords from v3.A, ICP/urgency/penalty/tone from `AI_AGENTS.md`; `law` left empty (not a compliance site). `docs/growth.md`: 2026-05-09 entry reviewed (56 imp / 0 clicks / pos 66.6), v2.B–E entry logged as failed (299→264 imp, pos 82.5→80.0), new active entry for the v2.G–v3.F + v2.J–L push (baseline 3/34 indexed, 218 imp / 0 clicks / pos 63.9; review 2026-12-24). `.env.example` deleted (operator).
 
 **Known checker false positives** (do not "fix" these — they are portfolio-tool
 gaps, recorded so future sessions stop chasing them): CHECK_010 (tests live in

@@ -62,5 +62,37 @@ https://search.google.com/search-console directly.
 - **Action:** project scaffolded via `portfolio new bootstrap`; first deploy
   pending. After deploy: verify in GSC as `sc-domain:isitholiday.today` and submit
   the sitemap.
-- **Result:** TBD — review 2026-06-06
+- **Result:** reviewed 2026-11-26 (late). GSC 2026-05-10 → 2026-06-06: 56
+  impressions / 0 clicks / avg position 66.6.
+- **Learning:** the site got indexed and seen, but client-rendered pages
+  ranked nowhere useful; this led to the v2 indexability tier.
+
+## 2026-09-15 — v2.B–v2.E: static HTML, sitemap, trailing slashes, crawl plumbing (logged 2026-11-26)
+- **Status:** failed
+- **KPI:** GSC impressions / clicks / position (28d), indexed URLs
+- **Baseline:** 299 impressions / 0 clicks / position 82.5, GSC 28d as of
+  2026-09-15 (as recorded in `docs/prd.md`; re-pulled 2026-11-26 the same
+  window 2026-08-19 → 2026-09-15 reads 368 / 0 / 82.5)
+- **Action:** prerendered HTML, sitemap + robots, trailing-slash canonicals,
+  meta robots, real 404.
+- **Result:** 2026-09-16 → 2026-10-13: 264 impressions / 0 clicks / position
+  80.0. No gain.
+- **Learning:** fixing crawlability alone didn't move traffic on a
+  low-authority site with thin pages; content and targeted, low-difficulty
+  intents are the lever (→ v2.G/v2.H/v3).
+
+## 2026-11-26 — US answer, closure and per-holiday pages + golden content + structured data
+- **Status:** active
+- **KPI:** indexed URLs (URL Inspection), 28d impressions / clicks / position,
+  impressions on the v3.A target queries (is today a bank holiday, are banks
+  open tomorrow, is veterans day a bank holiday, is there mail tomorrow, what
+  religious holiday is today, 2027 federal holiday calendar)
+- **Baseline:** 3 of 34 sitemap URLs indexed (2026-11-26); GSC 2026-10-26 →
+  2026-11-22: 218 impressions / 0 clicks / position 63.9; nearly all
+  impressions on `/`.
+- **Action:** v2.G closure pages, v2.H answer pages, v3.B–v3.F (tomorrow
+  pages, 9 per-holiday pages, 2027 calendar + PDF/ICS, religious page, state
+  institutions), v2.J golden content, v2.K legal pages, v2.L structured data,
+  accurate lastmod; IndexNow + sitemap resubmitted after each deploy.
+- **Result:** TBD — review 2026-12-24
 - **Learning:** TBD
